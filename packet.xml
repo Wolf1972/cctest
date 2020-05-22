@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<PacketEPD EDNo="4" EDDate="2015-09-15" EDAuthor="1112223334" EDReceiver="4525101000" EDQuantity="2" Sum="10000010001" SystemCode="02" xmlns="urn:cbr-ru:ed:v2.0">
+
+<ED101 Sum="10000" ChargeOffDate="2015-09-15" PaytKind="1" EDAuthor="4525101000" EDNo="480000" TransKind="01" ReceiptDate="2015-09-15" SystemCode="02" EDDate="2015-09-15" Priority="4">
+<AccDoc AccDocDate="2015-09-15" AccDocNo="100" />
+<Payer INN="5031010382" KPP="503101001" PersonalAcc="40101810600000010102">
+<Name>УПРАВЛЕНИЕ ФЕДЕРАЛЬНОГО КАЗНАЧЕЙСТВА ПО МОСК.ОБЛ.(ИФНС России по г.Ногинску Московской области)</Name>
+<Bank BIC="044583001" />
+</Payer>
+<Payee INN="7732107308" KPP="503101001" PersonalAcc="40702810300000000067">
+<Name>ОАО Хлебозавод "Ядрен батон"</Name>
+<Bank BIC="044525101" CorrespAcc="30101810100000000101" />
+</Payee>
+<Purpose>+++Погашение налоговой задолженности за август 2015</Purpose>
+</ED101>
+
+<ED101 Sum="10000000001" ChargeOffDate="2015-09-15" PaytKind="1" EDAuthor="4525101000" EDNo="480001" TransKind="01" ReceiptDate="2015-09-15" SystemCode="02" EDDate="2015-09-15" Priority="4">
+<AccDoc AccDocDate="2015-09-15" AccDocNo="200" />
+<Payer INN="7728181188" KPP="708101001" PersonalAcc="40702810100000071827">
+<Name>ОАО Центр технического сервиса"Япона мать"</Name>
+<Bank BIC="044583001" />
+</Payer>
+<Payee INN="7732107405" KPP="582101122" PersonalAcc="40702810500000000078">
+<Name>ОАО Автосалон "Хёндэ хох"</Name>
+<Bank BIC="044525101" CorrespAcc="30101810100000000101" />
+</Payee>
+<Purpose>+++Оплата технического обслуживания август 2015</Purpose>
+</ED101>
+
+<ED104 Sum="20000000002" ChargeOffDate="2015-09-15" PaytKind="1" EDAuthor="4525101000" EDNo="480002" TransKind="06" ReceiptDate="2015-09-15" SystemCode="02" EDDate="2015-09-15" Priority="4">
+<AccDoc AccDocDate="2015-09-15" AccDocNo="300" />
+<Payer INN="7728181188" KPP="708101001" PersonalAcc="40702810100000071827">
+<Name>ОАО Центр технического сервиса"Япона мать"</Name>
+<Bank BIC="044583001" />
+</Payer>
+<Payee INN="7732107405" KPP="582101122" PersonalAcc="40702810500000000078">
+<Name>ОАО Автосалон "Хёндэ хох"</Name>
+<Bank BIC="044525101" CorrespAcc="30101810100000000101" />
+</Payee>
+<Purpose>+++Оплата технического обслуживания август 2015</Purpose>
+</ED104>
+
+</PacketEPD>
