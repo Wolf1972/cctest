@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <PacketEPD EDNo="4" EDDate="2015-09-15" EDAuthor="1112223334" EDReceiver="4525101000" EDQuantity="2" Sum="10000010001" SystemCode="02" xmlns="urn:cbr-ru:ed:v2.0">
 
-<ED101 Sum="10000" ChargeOffDate="2015-09-15" PaytKind="1" EDAuthor="4525101000" EDNo="480000" TransKind="01" ReceiptDate="2015-09-15" SystemCode="02" EDDate="2015-09-15" Priority="4">
+<ED101 Sum="10011" ChargeOffDate="2015-09-15" PaytKind="1" EDAuthor="4525101000" EDNo="480000" TransKind="01" ReceiptDate="2015-09-15" SystemCode="02" EDDate="2015-09-15" Priority="4">
 <AccDoc AccDocDate="2015-09-15" AccDocNo="100" />
 <Payer INN="5031010382" KPP="503101001" PersonalAcc="40101810600000010102">
 <Name>УПРАВЛЕНИЕ ФЕДЕРАЛЬНОГО КАЗНАЧЕЙСТВА ПО МОСК.ОБЛ.(ИФНС России по г.Ногинску Московской области)</Name>

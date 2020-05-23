@@ -45,11 +45,9 @@ public class App
                             FDocument fDoc = new FDocument();
                             fDoc.getFromED(ed);
 
-                            System.out.println("AccDocNo " + fDoc.docNum);
-                            System.out.println("PayerName " + fDoc.payerName);
-                            System.out.println("PayeeName " + fDoc.payeeName);
+                            System.out.println(fDoc.toString());
 
-                            fDocs.put(Long.getLong(fDoc.docNum), fDoc);
+                            fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
                         }
                         else {
                             System.out.println("TH002: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
