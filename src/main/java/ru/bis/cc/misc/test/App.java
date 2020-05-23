@@ -9,25 +9,61 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
- * Hello world!
+ * UFEBS parsing
  *
  */
 public class App 
 {
     public static void main( String[] args )
+
     {
-        System.out.println( "Hello World!" );
+
+        HashMap<Long, FDocument> fDocs = new HashMap<>(); // Documents array
+
+        System.out.println( "UFEBS test helper (c) BIS 2020." );
         try {
-            // Создается построитель документа
+            String fileName = "packet.xml"; // TODO
+
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            // Создается дерево DOM документа из файла
-            Document document = documentBuilder.parse("packet.xml");
+            Document document = documentBuilder.parse(fileName);
 
-            // Получаем корневой элемент
+            // Try to obtain root element
             Node root = document.getDocumentElement();
+            String rootNodeName = root.getNodeName();
+            if (rootNodeName.equals("PacketEPD")) {
+                // root: Packet ED
+                NodeList eds = root.getChildNodes();
+                for (int i = 0; i < eds.getLength(); i++) {
+                    // Each node: ED, empty text etc
+                    Node ed = eds.item(i);
+                    if (ed.getNodeType() != Node.TEXT_NODE) {
+                        String nodeName = ed.getNodeName();
+                        if (nodeName.matches("ED10[134]")) {
+                            FDocument fDoc = new FDocument();
+                            fDoc.getFromED(ed);
 
+                            System.out.println("AccDocNo " + fDoc.docNum);
+                            System.out.println("PayerName " + fDoc.payerName);
+                            System.out.println("PayeeName " + fDoc.payeeName);
+
+                            fDocs.put(Long.getLong(fDoc.docNum), fDoc);
+                        }
+                        else {
+                            System.out.println("TH002: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+                        }
+                    }
+                }
+            }
+            else if (rootNodeName.matches("ED1[134]")) {
+                // root: Single ED
+            }
+            else {
+                System.out.println("TH001: File " + fileName + " contains unknown root element: " + rootNodeName);
+            }
+/*
             System.out.println("List of packet:");
             System.out.println();
             // Просматриваем все подэлементы корневого - т.е. ED
@@ -47,7 +83,7 @@ public class App
                     System.out.println("===========>>>>");
                 }
             }
-
+*/
         } catch (ParserConfigurationException ex) {
             ex.printStackTrace(System.out);
         } catch (SAXException ex) {
