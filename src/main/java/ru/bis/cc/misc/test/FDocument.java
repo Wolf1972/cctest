@@ -77,6 +77,13 @@ public class FDocument {
             if (nestedNodeName.equals("Name")) {
               payerName = nestedNode.getTextContent();
             }
+            else if (nestedNodeName.equals("Bank")) {
+              attr = nestedNode.getAttributes();
+              nestedNode = attr.getNamedItem("BIC");
+              if (nestedNode != null) payerBankBIC = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("CorrespAcc");
+              if (nestedNode != null) payerBankAccount = nestedNode.getNodeValue();
+            }
           }
         }
 
@@ -96,6 +103,13 @@ public class FDocument {
             if (nestedNodeName.equals("Name")) {
               payeeName = nestedNode.getTextContent();
             }
+            else if (nestedNodeName.equals("Bank")) {
+              attr = nestedNode.getAttributes();
+              nestedNode = attr.getNamedItem("BIC");
+              if (nestedNode != null) payeeBankBIC = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("CorrespAcc");
+              if (nestedNode != null) payeeBankAccount = nestedNode.getNodeValue();
+            }
           }
         }
 
@@ -106,13 +120,44 @@ public class FDocument {
     }
   }
 
+  public String toFT14String(Long id) {
+    StringBuilder str = new StringBuilder();
+    str.append("CLMOS"); // CLMOS or RTMOS - ordinary or urgent payment
+    str.append("   ");
+    str.append("PA"); // PA or RE
+    str.append("00910280");
+    str.append("  ");
+    str.append(edDate.replace("-", "")); // EDDate as reference date
+    str.append(" ");
+    str.append(String.format("%5s", id.toString()));
+    str.append(String.format("%" + String.format("%d", 111 - str.length() - 1) + "s", " ")); // 111 - absolute pos for amount
+    str.append("2RURS");
+    str.append(String.format("%18s", amount.toString()).replace(" ", "0")); // amount (18 positions with pad 0 left)
+    str.append(String.format("%" + String.format("%d", 337 - str.length() - 1) + "s", " ")); // 337 - absolute pos for docDate
+    str.append(docDate.replace("-", ""));
+    str.append(String.format("%" + String.format("%d", 371 - str.length() - 1) + "s", " ")); // 371 - absolute pos for docNum
+    str.append(String.format("%10s", docNum));
+    str.append(String.format("%20s", payerAccount)); // 381, payerAccount just after docNum
+    str.append(String.format("%" + String.format("%d", 1565 - str.length() - 1) + "s", " ")); // 1565 - absolute pos for payeeBankBIC
+    str.append(String.format("%20s", payeeBankAccount));
+    str.append(String.format("%" + String.format("%d", 1593 - str.length() - 1) + "s", " ")); // 1593 - absolute pos for payeeBankBIC
+    str.append("BIK" + String.format("%9s", payeeBankBIC));
+    str.append(String.format("%" + String.format("%d", 1765 - str.length() - 1) + "s", " ")); // 1765 - absolute pos for payeeAccount
+    str.append(String.format("%20s", payeeAccount));
+    str.append(String.format("%" + String.format("%d", 1828 - str.length() - 1) + "s", " ")); // 1828 - absolute pos for payeeName
+    str.append(String.format("%-140s", payeeName)); // encoding ISO 8859-5, set up when file was created
+    return str.toString();
+  }
+
   @Override
   public String toString() {
       String str = "EDNo: " + edNo + ", EDDate: " + edDate +
                    ", DocNo: " + docNum + ", Date: " + docDate +
                    ", Amount: " + amount / 100 + "." + amount % 100 + System.lineSeparator() +
+                   " Payer Bank: " + payerBankName + ", BIC: " + payerBankBIC + ", Account: " + payerBankAccount + System.lineSeparator() +
                    " Payer Name: " + payerName + ", Account: " + payerAccount +
                    ", INN: " + payerINN + ", CPP: " + payerCPP + System.lineSeparator() +
+                   " Payee Bank: " + payeeBankName + ", BIC: " + payeeBankBIC + ", Account: " + payeeBankAccount + System.lineSeparator() +
                    " Payee Name: " + payeeName + ", Account: " + payeeAccount +
                    ", INN: " + payeeINN + ", CPP: " + payeeCPP + System.lineSeparator() +
                    " Purpose: " + purpose;
