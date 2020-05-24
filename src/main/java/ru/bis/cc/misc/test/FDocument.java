@@ -65,7 +65,7 @@ public class FDocument {
           attr = edChildNode.getAttributes();
           nestedNode = attr.getNamedItem("INN");
           if (nestedNode != null) payerINN = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("CPP");
+          nestedNode = attr.getNamedItem("KPP");
           if (nestedNode != null) payerCPP = nestedNode.getNodeValue();
           nestedNode = attr.getNamedItem("PersonalAcc");
           if (nestedNode != null) payerAccount = nestedNode.getNodeValue();
@@ -84,7 +84,7 @@ public class FDocument {
           attr = edChildNode.getAttributes();
           nestedNode = attr.getNamedItem("INN");
           if (nestedNode != null) payeeINN = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("CPP");
+          nestedNode = attr.getNamedItem("KPP");
           if (nestedNode != null) payeeCPP = nestedNode.getNodeValue();
           nestedNode = attr.getNamedItem("PersonalAcc");
           if (nestedNode != null) payeeAccount = nestedNode.getNodeValue();
@@ -109,7 +109,7 @@ public class FDocument {
   @Override
   public String toString() {
       String str = "EDNo: " + edNo + ", EDDate: " + edDate +
-                   ", DocNo: " + docNum + ", Date: " +
+                   ", DocNo: " + docNum + ", Date: " + docDate +
                    ", Amount: " + amount / 100 + "." + amount % 100 + System.lineSeparator() +
                    " Payer Name: " + payerName + ", Account: " + payerAccount +
                    ", INN: " + payerINN + ", CPP: " + payerCPP + System.lineSeparator() +
