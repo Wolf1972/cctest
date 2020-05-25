@@ -124,12 +124,12 @@ public class FDocument {
     StringBuilder str = new StringBuilder();
     str.append("CLMOS"); // CLMOS or RTMOS - ordinary or urgent payment
     str.append("   ");
-    str.append("PA"); // PA or RE
-    str.append("00910280");
+    str.append("PA"); // Type of payment: PA or RE
+    str.append("00910280"); // Sequence (constant part of reference)
     str.append("  ");
     str.append(edDate.replace("-", "")); // EDDate as reference date
     str.append(" ");
-    str.append(String.format("%5s", id.toString()));
+    str.append(String.format("%5s", id.toString())); // index in documents array as reference variable part
     str.append(String.format("%" + String.format("%d", 111 - str.length() - 1) + "s", " ")); // 111 - absolute pos for amount
     str.append("2RURS");
     str.append(String.format("%18s", amount.toString()).replace(" ", "0")); // amount (18 positions with pad 0 left)
@@ -137,15 +137,26 @@ public class FDocument {
     str.append(docDate.replace("-", ""));
     str.append(String.format("%" + String.format("%d", 371 - str.length() - 1) + "s", " ")); // 371 - absolute pos for docNum
     str.append(String.format("%10s", docNum));
+    str.append(String.format("%" + String.format("%d", 593 - str.length() - 1) + "s", " ")); // 593 - absolute pos for payerName (it doesn't use for payment create)
+    str.append(String.format("%-140s", payerName));
     str.append(String.format("%20s", payerAccount)); // 381, payerAccount just after docNum
+    str.append(String.format("%" + String.format("%d", 1365 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for PA-payments)
+    if (purpose.length() > 140) str.append(purpose.substring(140, Math.min(purpose.length(), 140 + 93)));
+//    str.append(String.format("%" + String.format("%d", 1393 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for RE-payments)
+//    if (purpose.length() > 140) str.append(purpose.substring(140, Math.min(purpose.length(), 140 + 70)));
     str.append(String.format("%" + String.format("%d", 1565 - str.length() - 1) + "s", " ")); // 1565 - absolute pos for payeeBankBIC
-    str.append(String.format("%20s", payeeBankAccount));
+    if (payeeBankAccount != null) str.append(String.format("%20s", payeeBankAccount));
     str.append(String.format("%" + String.format("%d", 1593 - str.length() - 1) + "s", " ")); // 1593 - absolute pos for payeeBankBIC
     str.append("BIK" + String.format("%9s", payeeBankBIC));
     str.append(String.format("%" + String.format("%d", 1765 - str.length() - 1) + "s", " ")); // 1765 - absolute pos for payeeAccount
     str.append(String.format("%20s", payeeAccount));
+    str.append(String.format("%" + String.format("%d", 1793 - str.length() - 1) + "s", " ")); // 1793 - absolute pos for payeeINN
+    if (payeeINN != null) str.append("INN" + payeeINN);
+    if (payeeCPP != null) str.append("/KPP" + payeeCPP);
     str.append(String.format("%" + String.format("%d", 1828 - str.length() - 1) + "s", " ")); // 1828 - absolute pos for payeeName
-    str.append(String.format("%-140s", payeeName)); // encoding ISO 8859-5, set up when file was created
+    str.append(String.format("%-140s", payeeName));
+    str.append(String.format("%" + String.format("%d", 2125 - str.length() - 1) + "s", " ")); // 2125 - absolute pos for purpose (1st part)
+    str.append(purpose.substring(0, Math.min(purpose.length(), 140)));
     return str.toString();
   }
 
