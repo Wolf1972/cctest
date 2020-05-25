@@ -8,6 +8,7 @@ public class FDocument {
 
   public String edNo;
   public String edDate;
+  public boolean isUrgent;
 
   public String docNum;
   public String docDate;
@@ -45,6 +46,10 @@ public class FDocument {
       if (nestedNode != null) edDate = nestedNode.getNodeValue();
       nestedNode = attr.getNamedItem("Sum");
       if (nestedNode != null) amount = Long.parseLong(nestedNode.getNodeValue());
+
+      isUrgent = false;
+      nestedNode = attr.getNamedItem("SystemCode");
+      if (nestedNode != null) isUrgent = nestedNode.getNodeValue().equals("05");
 
       NodeList edOne = node.getChildNodes(); // List of child nodes for ED1xx
 
@@ -122,7 +127,10 @@ public class FDocument {
 
   public String toFT14String(Long id) {
     StringBuilder str = new StringBuilder();
-    str.append("CLMOS"); // CLMOS or RTMOS - ordinary or urgent payment
+    if (isUrgent) // CLMOS or RTMOS - ordinary or urgent payment
+      str.append("RTMOS");
+    else
+      str.append("CLMOS");
     str.append("   ");
     str.append("PA"); // Type of payment: PA or RE
     str.append("00910280"); // Sequence (constant part of reference)

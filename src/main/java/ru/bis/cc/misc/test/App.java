@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
@@ -39,21 +40,37 @@ public class App {
 
     public static void main(String[] args) {
 
+        String configPath = ".\\target\\";
+
         String inPath = ".\\target\\in\\";
         String outPath = ".\\target\\out\\";
-        String log4jPath = ".\\target\\";
         String xsdPath = ".\\target\\XMLSchemas\\";
 
         System.out.println("UFEBS CC test helper (c) BIS 2020.");
 
-        String log4JPropertyFile = log4jPath + "log4j2.xml"; // Is Log4j configuration file in custom place?
+        // Looking for log4j
+        String log4JPropertyFile = configPath + "log4j2.xml"; // Is Log4j configuration file in custom place?
         if (Files.isRegularFile(Paths.get(log4JPropertyFile))) {
             System.setProperty("log4j.configurationFile", log4JPropertyFile);
         }
         logger = LogManager.getLogger(App.class);
 
+        FileInputStream fis;
+        Properties property = new Properties();
+        String configFile = configPath + "config.properties";
+        try {
+            fis = new FileInputStream(configFile);
+            property.load(fis);
+            inPath = property.getProperty("inPath");
+            outPath = property.getProperty("outPath");
+            xsdPath = property.getProperty("xsdPath");
+        }
+        catch (IOException e) {
+            logger.error("THE0007: Error opening properties file: " + configFile);
+        }
+
         if (!Files.isDirectory(Paths.get(outPath))) {
-            logger.error("TH0004: Error access output directory " + outPath);
+            logger.error("THE0004: Error access output directory " + outPath);
         }
         else {
 
@@ -119,7 +136,7 @@ public class App {
                             if (nodeName.matches("ED10[134]")) {
                                 FDocument fDoc = new FDocument();
                                 fDoc.getFromED(ed);
-                                logger.info("THI0101: Packet item: " + fDoc.toString());
+                                logger.trace("THI0101: Packet item: " + fDoc.toString());
                                 fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
                             } else {
                                 logger.error("THE1001: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
@@ -132,7 +149,7 @@ public class App {
                 if (isXMLValid(fileName, path2XSD + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd")) {
                     FDocument fDoc = new FDocument();
                     fDoc.getFromED(root);
-                    logger.info("THEI0102: Single ED: " + fDoc.toString());
+                    logger.trace("THEI0102: Single ED: " + fDoc.toString());
                     fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
                 }
             } else {
@@ -172,7 +189,7 @@ public class App {
             Schema schema = factory.newSchema(new StreamSource(xsdFile));
             Validator validator = schema.newValidator();
             validator.validate(new StreamSource(fileName));
-            logger.info("THI0201: XSD check completed for file " + fileName);
+            logger.trace("THI0201: XSD check completed for file " + fileName);
             return true;
         }
         catch (IOException e) {
