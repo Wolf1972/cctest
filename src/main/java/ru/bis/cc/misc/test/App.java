@@ -46,6 +46,10 @@ public class App {
         String outPath = ".\\target\\out\\";
         String xsdPath = ".\\target\\XMLSchemas\\";
 
+        int docCount = 0;
+        int filesCount = 0;
+        int filesError = 0;
+
         System.out.println("UFEBS CC test helper (c) BIS 2020.");
 
         // Looking for log4j
@@ -76,19 +80,22 @@ public class App {
 
             try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
                 for (Path path : directoryStream) {
+                    filesCount++;
                     if (isRegularFile(path)) {
                         String fileName = path.getFileName().toString();
                         logger.info("THI0001: Processing file: " + inPath + fileName);
                         if (isXMLFile(inPath + fileName)) {
-                            processOneFile(inPath + fileName, xsdPath);
+                            if (!processOneFile(inPath + fileName, xsdPath)) filesError++;
                         } else {
                             logger.error("THE0002: File " + fileName + " is not contains XML prolog.");
+                            filesError++;
                         }
                     }
                 }
             }
             catch (IOException e) {
                 logger.error("THE0001: Error while file system access: " + inPath);
+                filesError++;
             }
 
             String outFile = outPath + "ft14test.txt";
@@ -111,12 +118,17 @@ public class App {
             }
 
         }
+        logger.info("THI0002: Files processed: " + filesCount + ", errors: " + filesError);
+        logger.info("THI0003: Documents added: " + fDocs.size());
         logger.info("THI0001: End of work.");
 
     }
 
-    public static void processOneFile(String fileName, String path2XSD) {
-
+    public static boolean processOneFile(String fileName, String path2XSD) {
+/**
+ * Process one UFEBS file, fills fDocs array
+ * Returns errors count
+ */
         try {
 
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -137,7 +149,12 @@ public class App {
                                 FDocument fDoc = new FDocument();
                                 fDoc.getFromED(ed);
                                 logger.trace("THI0101: Packet item: " + fDoc.toString());
-                                fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
+                                if (!fDocs.containsKey(fDoc.docNum)) {
+                                    fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
+                                }
+                                else {
+                                    logger.error("THE1008: Document ID " + fDoc.docNum + "has already added.");
+                                }
                             } else {
                                 logger.error("THE1001: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
                             }
@@ -158,9 +175,12 @@ public class App {
 
         } catch (ParserConfigurationException | SAXException e) {
             logger.error("THE1003: Error parsing file " + fileName, e);
+            return false;
         } catch (IOException e) {
             logger.error("THE1004. Error while file access: " + fileName, e);
+            return false;
         }
+        return true;
     }
 
     public static boolean isXMLFile(String fileName) {
