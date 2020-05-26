@@ -6,47 +6,51 @@ import org.w3c.dom.NodeList;
 
 public class FDocument {
 
-  public String edNo;
-  public String edDate;
-  public boolean isUrgent;
+  private String edNo;
+  private String edDate;
+  private boolean isUrgent;
 
-  public String docNum;
-  public String docDate;
-  public Long amount;
-  public String purpose;
-  public String UIN;
+  private String docNum;
+  private String docDate;
+  private Long amount;
+  private String purpose;
+  private String UIN;
 
-  public String payerName;
-  public String payerAccount;
-  public String payerINN;
-  public String payerCPP;
+  private String payerName;
+  private String payerAccount;
+  private String payerINN;
+  private String payerCPP;
 
-  public String payerBankName;
-  public String payerBankBIC;
-  public String payerBankAccount;
+  private String payerBankName;
+  private String payerBankBIC;
+  private String payerBankAccount;
 
-  public String payeeName;
-  public String payeeAccount;
-  public String payeeINN;
-  public String payeeCPP;
+  private String payeeName;
+  private String payeeAccount;
+  private String payeeINN;
+  private String payeeCPP;
 
-  public String payeeBankName;
-  public String payeeBankBIC;
-  public String payeeBankAccount;
+  private String payeeBankName;
+  private String payeeBankBIC;
+  private String payeeBankAccount;
 
-  public boolean isTax;
-  public String taxStatus; // 101
-  public String CBC; // 104
-  public String OCATO; // 105
-  public String taxPaytReason; // 106
-  public String taxPeriod; // 107
-  public String taxDocNum; // 108
-  public String taxDocDate; // 109
-  public String taxPaytKind; // 110
+  private boolean isTax;
+  private String taxStatus; // 101
+  private String CBC; // 104
+  private String OCATO; // 105
+  private String taxPaytReason; // 106
+  private String taxPeriod; // 107
+  private String taxDocNum; // 108
+  private String taxDocDate; // 109
+  private String taxPaytKind; // 110
 
-  public FDocument() {
+  FDocument() {
     isUrgent = false;
     isTax = false;
+  }
+
+  public Long getId() {
+    return Long.parseLong(docNum);
   }
 
   public void getFromED(Node node) {
@@ -259,4 +263,17 @@ public class FDocument {
       if (tax.length() > 0) str = str + System.lineSeparator() + tax;
       return str;
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    boolean result = super.equals(obj);
+    if (result) {
+      FDocument pattern = (FDocument) obj;
+      if (pattern.docNum.equals(docNum))  result = false;
+      if (pattern.docDate.equals(docDate))  result = false;
+      if (pattern.purpose.equals(purpose))  result = false;
+    }
+    return result;
+  }
+
 }

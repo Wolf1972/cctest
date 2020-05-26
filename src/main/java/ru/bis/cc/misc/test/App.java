@@ -29,26 +29,24 @@ import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
 
 /**
- * UFEBS files parsing, converting to FT14 packet
+ * UFEBS files parsing, converting to FT14 packet, comparing results of UFEBS parsing from 2 directories
  *
  */
 public class App {
 
     private static Logger logger = null; // We will define configuration later
 
-    public static HashMap<Long, FDocument> fDocs = new HashMap<>(); // Documents array
+    private static HashMap<Long, FDocument> sampleDocs = new HashMap<>(); // Checked documents array
+    private static HashMap<Long, FDocument> patternDocs = new HashMap<>(); // Pattern documents array (for compare)
 
     public static void main(String[] args) {
 
         String configPath = ".\\target\\";
 
-        String inPath = ".\\target\\in\\";
+        String samplePath = ".\\target\\in\\";
+        String patternPath = "\\target\\pattern\\";
         String outPath = ".\\target\\out\\";
         String xsdPath = ".\\target\\XMLSchemas\\";
-
-        int docCount = 0;
-        int filesCount = 0;
-        int filesError = 0;
 
         System.out.println("UFEBS CC test helper (c) BIS 2020.");
 
@@ -65,7 +63,8 @@ public class App {
         try {
             fis = new FileInputStream(configFile);
             property.load(fis);
-            inPath = property.getProperty("inPath");
+            samplePath = property.getProperty("inPath");
+            patternPath = property.getProperty("patternPath");
             outPath = property.getProperty("outPath");
             xsdPath = property.getProperty("xsdPath");
         }
@@ -73,62 +72,58 @@ public class App {
             logger.error("THE0007: Error opening properties file: " + configFile);
         }
 
-        if (!Files.isDirectory(Paths.get(outPath))) {
-            logger.error("THE0004: Error access output directory " + outPath);
-        }
-        else {
+        processUFEBS(samplePath, sampleDocs, xsdPath);
+        processUFEBS(patternPath, patternDocs, xsdPath);
+        createFT14(outPath, sampleDocs);
+        compare2UFEBS(patternDocs, sampleDocs);
 
-            try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
-                for (Path path : directoryStream) {
-                    filesCount++;
-                    if (isRegularFile(path)) {
-                        String fileName = path.getFileName().toString();
-                        logger.info("THI0001: Processing file: " + inPath + fileName);
-                        if (isXMLFile(inPath + fileName)) {
-                            if (!processOneFile(inPath + fileName, xsdPath)) filesError++;
-                        } else {
-                            logger.error("THE0002: File " + fileName + " is not contains XML prolog.");
-                            filesError++;
-                        }
-                    }
-                }
-            }
-            catch (IOException e) {
-                logger.error("THE0001: Error while file system access: " + inPath);
-                filesError++;
-            }
-
-            String outFile = outPath + "ft14test.txt";
-            try {
-                Charset chs = Charset.forName("ISO-8859-5");
-                OutputStream os = new FileOutputStream(outFile);
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, chs));
-                if (fDocs.size() > 0) {
-                    for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
-                        Long key = item.getKey();
-                        FDocument value = item.getValue();
-                        writer.write(value.toFT14String(key));
-                        writer.write("\r\n");
-                    }
-                }
-                writer.close();
-            }
-            catch (IOException e) {
-                logger.error("TH0005: Error write output file " + outFile);
-            }
-
-        }
-        logger.info("THI0002: Files processed: " + filesCount + ", errors: " + filesError);
-        logger.info("THI0003: Documents added: " + fDocs.size());
         logger.info("THI0001: End of work.");
 
     }
 
-    public static boolean processOneFile(String fileName, String path2XSD) {
-/**
- * Process one UFEBS file, fills fDocs array
- * Returns errors count
- */
+    /** Process one UFEBS input directory and loads all EDs into specified documents array
+     * Checks XML file against XSD before loading
+     *
+     * @param inPath = input path
+     * @param fDocs - reference to documents array
+     * @param path2XSD - path to XSD (uses when checks one file against XSD)
+     */
+    private static void processUFEBS(String inPath, HashMap<Long, FDocument> fDocs, String path2XSD) {
+
+        int filesCount = 0;
+        int filesError = 0;
+
+        try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
+            for (Path path : directoryStream) {
+                filesCount++;
+                if (isRegularFile(path)) {
+                    String fileName = path.getFileName().toString();
+                    logger.info("THI0001: Processing file: " + inPath + fileName);
+                    if (isXMLFile(inPath + fileName)) {
+                        if (!processOneFile(inPath + fileName, fDocs, path2XSD)) filesError++;
+                    } else {
+                        logger.error("THE0002: File " + fileName + " is not contains XML prolog.");
+                        filesError++;
+                    }
+                }
+            }
+        }
+        catch (IOException e) {
+            logger.error("THE0001: Error while file system access: " + inPath);
+            filesError++;
+        }
+        logger.info("THI0002: Files processed: " + filesCount + ", errors: " + filesError);
+        logger.info("THI0003: Documents added: " + fDocs.size());
+    }
+
+    /** Process one UFEBS file, fills fDocs array
+     *
+     * @param fileName - file name to parse (full path)
+     * @param fDocs - documents array reference
+     * @param path2XSD - path to XSD (uses when checks one file against XSD)
+     * @return boolean: success or fail (true/false)
+     */
+    private static boolean processOneFile(String fileName, HashMap<Long, FDocument> fDocs, String path2XSD) {
         try {
 
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -149,11 +144,12 @@ public class App {
                                 FDocument fDoc = new FDocument();
                                 fDoc.getFromED(ed);
                                 logger.trace("THI0101: Packet item: " + fDoc.toString());
-                                if (!fDocs.containsKey(fDoc.docNum)) {
-                                    fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
+                                Long id = fDoc.getId();
+                                if (!fDocs.containsKey(id)) {
+                                    fDocs.put(id, fDoc);
                                 }
                                 else {
-                                    logger.error("THE1008: Document ID " + fDoc.docNum + "has already added.");
+                                    logger.error("THE1008: Document ID " + id + "has already added.");
                                 }
                             } else {
                                 logger.error("THE1001: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
@@ -167,7 +163,7 @@ public class App {
                     FDocument fDoc = new FDocument();
                     fDoc.getFromED(root);
                     logger.trace("THEI0102: Single ED: " + fDoc.toString());
-                    fDocs.put(Long.parseLong(fDoc.docNum), fDoc);
+                    fDocs.put(fDoc.getId(), fDoc);
                 }
             } else {
                 logger.error("THE1002: File " + fileName + " contains unknown root element: " + rootNodeName);
@@ -183,7 +179,76 @@ public class App {
         return true;
     }
 
-    public static boolean isXMLFile(String fileName) {
+    /** Compares 2 documents arrays
+     *
+     * @param pattern - pattern
+     * @param sample - checked sample
+     * @return boolean: is 2 arrays equal (true/false)
+     */
+    private static boolean compare2UFEBS(HashMap<Long, FDocument> pattern, HashMap<Long, FDocument> sample) {
+        boolean result = true;
+        for (Map.Entry<Long, FDocument> item : pattern.entrySet()) {
+            Long patternKey = item.getKey();
+            FDocument patternDoc = item.getValue();
+            if (sample.containsKey(patternKey)) {
+                if (!patternDoc.equals(sample.get(patternKey))) {
+                    logger.error("THE0301: Mismatch pattern and sample documents with ID: " + patternKey);
+                    result = false;
+                }
+            }
+            else {
+                logger.error("THE0302: Sample doesn't contain pattern document with ID: " + patternKey);
+                result = false;
+            }
+        }
+        for (Map.Entry<Long, FDocument> item : sample.entrySet()) {
+            Long sampleKey = item.getKey();
+            FDocument sampleDoc = item.getValue();
+            if (!pattern.containsKey(sampleKey)) {
+                logger.error("THE0303: Sample contains document with ID: " + sampleKey + " which missing in pattern.");
+                result = false;
+            }
+        }
+
+        return result;
+    }
+
+    /** Creates FT14 file for specified documents array
+     *
+     * @param outPath = path for create FT14 file
+     * @param fDocs - documents array reference
+     */
+    private static void createFT14(String outPath, HashMap<Long, FDocument> fDocs) {
+        if (!Files.isDirectory(Paths.get(outPath))) {
+            logger.error("THE0004: Error access output directory " + outPath);
+            return;
+        }
+        String outFile = outPath + "ft14test.txt";
+        try {
+            Charset chs = Charset.forName("ISO-8859-5");
+            OutputStream os = new FileOutputStream(outFile);
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, chs));
+            if (fDocs.size() > 0) {
+                for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
+                    Long key = item.getKey();
+                    FDocument value = item.getValue();
+                    writer.write(value.toFT14String(key));
+                    writer.write("\r\n");
+                }
+            }
+            writer.close();
+        }
+        catch (IOException e) {
+            logger.error("TH0005: Error write output file " + outFile);
+        }
+    }
+
+    /** Checks if file is XML
+     *
+     * @param fileName - check file, full path
+     * @return boolean: is file XML - true/false
+     */
+    private static boolean isXMLFile(String fileName) {
         try {
             RandomAccessFile raf = new RandomAccessFile(fileName, "r");
             String firstStr = raf.readLine();
@@ -199,7 +264,13 @@ public class App {
         return false;
     }
 
-    public static boolean isXMLValid(String fileName, String xsdFile) {
+    /** Checks XML file against XML scheme
+     *
+     * @param fileName - check file, full path
+     * @param xsdFile - XSD file for root element
+     * @return boolean: is XML file accords XSD - true/false
+     */
+    private static boolean isXMLValid(String fileName, String xsdFile) {
         if (!Files.isRegularFile(Paths.get(xsdFile))) {
             logger.error("THE0202: Error access XSD file " + xsdFile);
             return false;
