@@ -176,18 +176,25 @@ public class FDocument {
 
     // Build tax attributes string It has to be add to payment purpose
     if (isTax) {
-      locPurpose.append("//"); locPurpose.append(payerCPP); // 102
-      locPurpose.append("/"); locPurpose.append(taxStatus); // 101
-      locPurpose.append("/"); locPurpose.append(CBC); // 104
-      locPurpose.append("/"); locPurpose.append(OCATO);
-      locPurpose.append("/"); locPurpose.append(taxPaytReason);
-      locPurpose.append("/"); locPurpose.append(taxPeriod);
-      locPurpose.append("/"); locPurpose.append(taxDocNum);
-      locPurpose.append("/"); locPurpose.append(taxDocDate); // 109
-      if (taxPaytKind != null) { // 110
-        locPurpose.append("/"); locPurpose.append(taxPaytKind);
+      // First of all: we have to determine - which separator we are going to use - "/" or "\"
+      char sepChar = '/';
+      int posSepChar = purpose.indexOf(sepChar);
+      if (posSepChar >= 0) {
+        int posAltChar = purpose.indexOf('\\');
+        if (posAltChar < 0 || posSepChar > posAltChar) sepChar = '\\';
       }
-      locPurpose.append("/");
+      locPurpose.append(sepChar); locPurpose.append(sepChar); locPurpose.append(payerCPP); // 102
+      locPurpose.append(sepChar); locPurpose.append(taxStatus); // 101
+      locPurpose.append(sepChar); locPurpose.append(CBC); // 104
+      locPurpose.append(sepChar); locPurpose.append(OCATO);
+      locPurpose.append(sepChar); locPurpose.append(taxPaytReason);
+      locPurpose.append(sepChar); locPurpose.append(taxPeriod);
+      locPurpose.append(sepChar); locPurpose.append(taxDocNum);
+      locPurpose.append(sepChar); locPurpose.append(taxDocDate); // 109
+      if (taxPaytKind != null) { // 110
+        locPurpose.append(sepChar); locPurpose.append(taxPaytKind);
+      }
+      locPurpose.append(sepChar);
     }
     locPurpose.append(purpose);
     
@@ -230,9 +237,11 @@ public class FDocument {
     str.append(String.format("%" + String.format("%d", 1828 - str.length() - 1) + "s", " ")); // 1828 - absolute pos for payeeName
     str.append(String.format("%-140s", payeeName));
     str.append(String.format("%" + String.format("%d", 2125 - str.length() - 1) + "s", " ")); // 2125 - absolute pos for purpose (1st part)
-    str.append(locPurpose.substring(0, Math.min(locPurpose.length(), 139)));
+    str.append(locPurpose.substring(0, Math.min(locPurpose.length(), 140)));
     if (UIN != null) {
-      str.append(String.format("%" + String.format("%d", 2265 - str.length() - 1) + "s", " ")); // 2265 - absolute pos for UIN
+      if (2265 - str.length() - 1 > 0) { // this field begins right away after previous, so "%s0" - results runtime error
+        str.append(String.format("%" + String.format("%d", 2265 - str.length() - 1) + "s", " ")); // 2265 - absolute pos for UIN
+      }
       str.append("/ROC/"); str.append(UIN);
     }
 
@@ -266,14 +275,48 @@ public class FDocument {
 
   @Override
   public boolean equals(Object obj) {
-    boolean result = super.equals(obj);
-    if (result) {
-      FDocument pattern = (FDocument) obj;
-      if (pattern.docNum.equals(docNum))  result = false;
-      if (pattern.docDate.equals(docDate))  result = false;
-      if (pattern.purpose.equals(purpose))  result = false;
-    }
-    return result;
-  }
+    if (obj == null) return false;
+    if (obj.getClass() != FDocument.class) return false;
+    else {
+      FDocument compared = (FDocument) obj;
+      if (isUrgent != compared.isUrgent) return false;
+      if (isTax != compared.isTax) return false;
 
+      if (!Helper.cmpNullString(docNum, compared.docNum)) return false;
+      if (!Helper.cmpNullString(docDate, compared.docDate)) return false;
+      if ((amount != null && compared.amount == null) || (amount == null && compared.amount != null)) return false;
+      if (!(amount != null && amount.equals(compared.amount))) return false;
+      if (!Helper.cmpNullString(purpose, compared.purpose)) return false;
+      if (!Helper.cmpNullString(UIN, compared.UIN)) return false;
+
+//      if (!Helper.cmpNullString(payerName, compared.payerName)) return false;
+//      if (!Helper.cmpNullString(payerAccount, compared.payerAccount)) return false;
+//      if (!Helper.cmpNullString(payerINN, compared.payerINN)) return false;
+//      if (!Helper.cmpNullString(payerCPP, compared.payerCPP)) return false;
+
+      if (!Helper.cmpNullString(payerBankName, compared.payerBankName)) return false;
+      if (!Helper.cmpNullString(payerBankBIC, compared.payerBankBIC)) return false;
+      if (!Helper.cmpNullString(payerBankAccount, compared.payerBankAccount)) return false;
+
+      if (!Helper.cmpNullString(payeeName, compared.payeeName)) return false;
+      if (!Helper.cmpNullString(payeeAccount, compared.payeeAccount)) return false;
+      if (!Helper.cmpNullString(payeeINN, compared.payeeINN)) return false;
+      if (!Helper.cmpNullString(payeeCPP, compared.payeeCPP)) return false;
+
+      if (!Helper.cmpNullString(payeeBankName, compared.payeeBankName)) return false;
+      if (!Helper.cmpNullString(payeeBankBIC, compared.payeeBankBIC)) return false;
+      if (!Helper.cmpNullString(payeeBankAccount, compared.payeeBankAccount)) return false;
+
+      if (!Helper.cmpNullString(taxStatus, compared.taxStatus)) return false;
+      if (!Helper.cmpNullString(CBC, compared.CBC)) return false;
+      if (!Helper.cmpNullString(OCATO, compared.OCATO)) return false;
+      if (!Helper.cmpNullString(taxPaytReason, compared.taxPaytReason)) return false;
+      if (!Helper.cmpNullString(taxPeriod, compared.taxPeriod)) return false;
+      if (!Helper.cmpNullString(taxDocNum, compared.taxDocNum)) return false;
+      if (!Helper.cmpNullString(taxDocDate, compared.taxDocDate)) return false;
+      if (!Helper.cmpNullString(taxPaytKind, compared.taxPaytKind)) return false;
+
+    }
+    return true;
+  }
 }

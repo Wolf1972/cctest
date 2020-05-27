@@ -7,14 +7,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.DirectoryStream;
@@ -44,7 +39,7 @@ public class App {
         String configPath = ".\\target\\";
 
         String samplePath = ".\\target\\in\\";
-        String patternPath = "\\target\\pattern\\";
+        String patternPath = ".\\target\\pattern\\";
         String outPath = ".\\target\\out\\";
         String xsdPath = ".\\target\\XMLSchemas\\";
 
@@ -72,9 +67,9 @@ public class App {
             logger.error("THE0007: Error opening properties file: " + configFile);
         }
 
-        processUFEBS(samplePath, sampleDocs, xsdPath);
         processUFEBS(patternPath, patternDocs, xsdPath);
-        createFT14(outPath, sampleDocs);
+        processUFEBS(samplePath, sampleDocs, xsdPath);
+        createFT14(outPath, patternDocs);
         compare2UFEBS(patternDocs, sampleDocs);
 
         logger.info("THI0001: End of work.");
@@ -99,7 +94,7 @@ public class App {
                 if (isRegularFile(path)) {
                     String fileName = path.getFileName().toString();
                     logger.info("THI0001: Processing file: " + inPath + fileName);
-                    if (isXMLFile(inPath + fileName)) {
+                    if (Helper.isXMLFile(inPath + fileName, logger)) {
                         if (!processOneFile(inPath + fileName, fDocs, path2XSD)) filesError++;
                     } else {
                         logger.error("THE0002: File " + fileName + " is not contains XML prolog.");
@@ -133,7 +128,7 @@ public class App {
             Node root = document.getDocumentElement();
             String rootNodeName = root.getNodeName();
             if (rootNodeName.equals("PacketEPD")) { // For packets EPD
-                if (isXMLValid(fileName, path2XSD + "ed\\cbr_packetepd_v2020.2.0.xsd")) {
+                if (Helper.isXMLValid(fileName, path2XSD + "ed\\cbr_packetepd_v2020.2.0.xsd", logger)) {
                     NodeList eds = root.getChildNodes();
                     for (int i = 0; i < eds.getLength(); i++) {
                         // Each node: ED, empty text etc
@@ -159,7 +154,7 @@ public class App {
                 }
             }
             else if (rootNodeName.matches("ED10[134]")) { // For single EPD
-                if (isXMLValid(fileName, path2XSD + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd")) {
+                if (Helper.isXMLValid(fileName, path2XSD + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd", logger)) {
                     FDocument fDoc = new FDocument();
                     fDoc.getFromED(root);
                     logger.trace("THEI0102: Single ED: " + fDoc.toString());
@@ -186,18 +181,25 @@ public class App {
      * @return boolean: is 2 arrays equal (true/false)
      */
     private static boolean compare2UFEBS(HashMap<Long, FDocument> pattern, HashMap<Long, FDocument> sample) {
+
         boolean result = true;
+        int iMismatch = 0;
+        int iMissingInSample = 0;
+        int iMissinginPattern = 0;
+
         for (Map.Entry<Long, FDocument> item : pattern.entrySet()) {
             Long patternKey = item.getKey();
             FDocument patternDoc = item.getValue();
             if (sample.containsKey(patternKey)) {
                 if (!patternDoc.equals(sample.get(patternKey))) {
                     logger.error("THE0301: Mismatch pattern and sample documents with ID: " + patternKey);
+                    iMismatch++;
                     result = false;
                 }
             }
             else {
-                logger.error("THE0302: Sample doesn't contain pattern document with ID: " + patternKey);
+                logger.error("THE0302: Pattern document with ID: " + patternKey + " is not found in sample.");
+                iMissingInSample++;
                 result = false;
             }
         }
@@ -205,10 +207,13 @@ public class App {
             Long sampleKey = item.getKey();
             FDocument sampleDoc = item.getValue();
             if (!pattern.containsKey(sampleKey)) {
-                logger.error("THE0303: Sample contains document with ID: " + sampleKey + " which missing in pattern.");
+                logger.error("THE0303: Sample document with ID: " + sampleKey + " is not found in pattern.");
+                iMissinginPattern++;
                 result = false;
             }
         }
+
+        logger.info("THI0303: Compare complete. Mismatches: " + iMismatch + ", not in sample: " + iMissingInSample + ", not in pattern: " + iMissinginPattern);
 
         return result;
     }
@@ -243,53 +248,4 @@ public class App {
         }
     }
 
-    /** Checks if file is XML
-     *
-     * @param fileName - check file, full path
-     * @return boolean: is file XML - true/false
-     */
-    private static boolean isXMLFile(String fileName) {
-        try {
-            RandomAccessFile raf = new RandomAccessFile(fileName, "r");
-            String firstStr = raf.readLine();
-            if (firstStr != null) {
-                if (firstStr.matches("^<\\?xml?.+"))
-                    return true;
-            }
-            raf.close();
-        }
-        catch (IOException e) {
-            logger.error("THE0201: Error access file: " + fileName, e);
-        }
-        return false;
-    }
-
-    /** Checks XML file against XML scheme
-     *
-     * @param fileName - check file, full path
-     * @param xsdFile - XSD file for root element
-     * @return boolean: is XML file accords XSD - true/false
-     */
-    private static boolean isXMLValid(String fileName, String xsdFile) {
-        if (!Files.isRegularFile(Paths.get(xsdFile))) {
-            logger.error("THE0202: Error access XSD file " + xsdFile);
-            return false;
-        }
-        try {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            Schema schema = factory.newSchema(new StreamSource(xsdFile));
-            Validator validator = schema.newValidator();
-            validator.validate(new StreamSource(fileName));
-            logger.trace("THI0201: XSD check completed for file " + fileName);
-            return true;
-        }
-        catch (IOException e) {
-            logger.error("THE0203: Error access file " + fileName + " while XML scheme check.", e);
-            return false;
-        }
-        catch (SAXException e) {
-            logger.error("THE0204: XML file " + fileName + " doesn't accord with XML scheme.", e);
-            return false;
-        }
-    }
 }
