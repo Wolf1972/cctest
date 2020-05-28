@@ -75,4 +75,29 @@ public class Helper {
     if (s1 != null) return s1.equals(s2); // don't need to check s2 with null
     return true;
   }
+
+  /** Checks if string begins with symbols that were determined in specified mask
+   *
+   * @param chk - checked string (may be null)
+   * @param mask - mask with one or several patterns (separated by ",")
+   * @return boolean: checked string accords mask (true/false)
+   */
+  static boolean isBeginsList(String chk, String mask) {
+    if (chk == null) return false;
+    String[] patterns = mask.split(",");
+    for (int i = 0; i < patterns.length; i++) {
+      if (chk.startsWith(patterns[i])) return true;
+    }
+    return false;
+  }
+
+  /** Function returns date in SWIFT format (YYMMDD) from date in XML format (YYYY-MM-DD)
+   *
+   * @param XMLDate = XML date string (YYYY-MM-DD)
+   * @return string with date in SWIFT format (YYMMDD)
+   */
+  static String getSWIFTDate(String XMLDate) {
+    if (XMLDate == null) return "";
+    return XMLDate.substring(2, 4) + XMLDate.substring(5, 7) + XMLDate.substring(8, 10);
+  }
 }

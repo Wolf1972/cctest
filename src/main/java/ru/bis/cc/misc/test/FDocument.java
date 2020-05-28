@@ -53,10 +53,11 @@ public class FDocument {
     return Long.parseLong(docNum);
   }
 
-  public void getFromED(Node node) {
-    /**
-     *  Loads FDocument fields from ED1xx element
-     */
+  /** Loads object from XML node
+   *
+   * @param node - ED node with document
+   */
+  public void fromED(Node node) {
     if (node.getNodeType() != Node.TEXT_NODE) {
 
       NamedNodeMap attr = node.getAttributes();
@@ -170,9 +171,15 @@ public class FDocument {
     }
   }
 
-  public String toFT14String(Long id) {
+  /** Creates FT14 string from object
+   *
+   * @return FT14 string (unicode), returns null if error or filter
+   */
+  public String toFT14String() {
     StringBuilder str = new StringBuilder();
     StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it difference with document purpose (contains tax attributes)
+
+//    if (Helper.isBeginsList(payerAccount, "301,302")) return null; // Filter by account
 
     // Build tax attributes string It has to be add to payment purpose
     if (isTax) {
@@ -209,7 +216,7 @@ public class FDocument {
     str.append("  ");
     str.append(edDate.replace("-", "")); // EDDate as reference date
     str.append(" ");
-    str.append(String.format("%5s", id.toString())); // index in documents array as reference variable part
+    str.append(String.format("%5s", getId())); // index in documents array as reference variable part
     str.append(String.format("%" + String.format("%d", 111 - str.length() - 1) + "s", " ")); // 111 - absolute pos for amount
     str.append("2RURS");
     str.append(String.format("%17s", amount.toString()).replace(" ", "0")); // amount (with pad 0 left)
@@ -218,17 +225,18 @@ public class FDocument {
     str.append(docDate.replace("-", ""));
     str.append(String.format("%" + String.format("%d", 371 - str.length() - 1) + "s", " ")); // 371 - absolute pos for docNum
     str.append(String.format("%10s", docNum));
+    if (payerAccount != null) str.append(String.format("%20s", payerAccount)); // 381, payerAccount just after docNum
     str.append(String.format("%" + String.format("%d", 593 - str.length() - 1) + "s", " ")); // 593 - absolute pos for payerName (it doesn't use for payment create)
     str.append(String.format("%-140s", payerName));
-    str.append(String.format("%20s", payerAccount)); // 381, payerAccount just after docNum
     str.append(String.format("%" + String.format("%d", 1365 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for PA-payments)
     if (locPurpose.length() > 140) str.append(locPurpose.substring(140, Math.min(locPurpose.length(), 140 + 93)));
 //    str.append(String.format("%" + String.format("%d", 1393 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for RE-payments)
 //    if (locPurpose.length() > 140) str.append(locPurpose.substring(140, Math.min(locPurpose.length(), 140 + 70)));
-    str.append(String.format("%" + String.format("%d", 1565 - str.length() - 1) + "s", " ")); // 1565 - absolute pos for payeeBankBIC
+    str.append(String.format("%" + String.format("%d", 1565 - str.length() - 1) + "s", " ")); // 1565 - absolute pos for payeeBankAccount
     if (payeeBankAccount != null) str.append(String.format("%20s", payeeBankAccount));
     str.append(String.format("%" + String.format("%d", 1593 - str.length() - 1) + "s", " ")); // 1593 - absolute pos for payeeBankBIC
     str.append("BIK"); str.append(String.format("%9s", payeeBankBIC));
+    // 1628 - absolute pos for payeeBankName
     str.append(String.format("%" + String.format("%d", 1765 - str.length() - 1) + "s", " ")); // 1765 - absolute pos for payeeAccount
     str.append(String.format("%20s", payeeAccount));
     str.append(String.format("%" + String.format("%d", 1793 - str.length() - 1) + "s", " ")); // 1793 - absolute pos for payeeINN
@@ -239,12 +247,25 @@ public class FDocument {
     str.append(String.format("%" + String.format("%d", 2125 - str.length() - 1) + "s", " ")); // 2125 - absolute pos for purpose (1st part)
     str.append(locPurpose.substring(0, Math.min(locPurpose.length(), 140)));
     if (UIN != null) {
-      if (2265 - str.length() - 1 > 0) { // this field begins right away after previous, so "%s0" - results runtime error
+      if (2265 - str.length() - 1 > 0) { // this field begins just after previous, so "%s0" - results runtime error
         str.append(String.format("%" + String.format("%d", 2265 - str.length() - 1) + "s", " ")); // 2265 - absolute pos for UIN
       }
       str.append("/ROC/"); str.append(UIN);
     }
 
+    return str.toString();
+  }
+
+  /** Creates MT103 string from object
+   *
+   * @return MT103 string (unicode), returns null if error or filter
+   */
+  public String toMT103String() {
+    StringBuilder str = new StringBuilder();
+    str.append("{4:");
+    str.append("20:"); str.append(docNum); str.append(System.lineSeparator());
+    str.append("32A:"); str.append(Helper.getSWIFTDate(docDate)); str.append("RUB"); str.append(String.format("%.2f", (float) amount / 100).replace(',','.'));
+    str.append("}");
     return str.toString();
   }
 
@@ -289,10 +310,10 @@ public class FDocument {
       if (!Helper.cmpNullString(purpose, compared.purpose)) return false;
       if (!Helper.cmpNullString(UIN, compared.UIN)) return false;
 
-//      if (!Helper.cmpNullString(payerName, compared.payerName)) return false;
-//      if (!Helper.cmpNullString(payerAccount, compared.payerAccount)) return false;
-//      if (!Helper.cmpNullString(payerINN, compared.payerINN)) return false;
-//      if (!Helper.cmpNullString(payerCPP, compared.payerCPP)) return false;
+      if (!Helper.cmpNullString(payerName, compared.payerName)) return false;
+      if (!Helper.cmpNullString(payerAccount, compared.payerAccount)) return false;
+      if (!Helper.cmpNullString(payerINN, compared.payerINN)) return false;
+      if (!Helper.cmpNullString(payerCPP, compared.payerCPP)) return false;
 
       if (!Helper.cmpNullString(payerBankName, compared.payerBankName)) return false;
       if (!Helper.cmpNullString(payerBankBIC, compared.payerBankBIC)) return false;
@@ -318,5 +339,76 @@ public class FDocument {
 
     }
     return true;
+  }
+
+  /** Returns string with compare detals
+   *
+   * @param obj object to compare
+   * @return string with list of mismatches
+   */
+  public String mismatchDescribe(Object obj) {
+    StringBuilder str = new StringBuilder();
+    str.append("Document ID: "); str.append(getId());
+    if (obj == null) str.append(" Compared object is null");
+    else if (obj.getClass() != FDocument.class) { str.append(" Compared object class mismatch: "); str.append(obj.getClass()); }
+    else {
+      FDocument compared = (FDocument) obj;
+      str.append(" Attributes mismatch: "); str.append(System.lineSeparator());
+      if (isUrgent != compared.isUrgent) {
+        str.append(" Urgent mismatch: "); str.append(isUrgent); str.append(" against "); str.append(compared.isUrgent);
+        str.append(System.lineSeparator());
+      }
+      if (isTax != compared.isTax) {
+        str.append(" Tax mismatch: "); str.append(isTax); str.append(" against "); str.append(compared.isTax);
+        str.append(System.lineSeparator());
+      }
+
+      if (!Helper.cmpNullString(docNum, compared.docNum)) oneMismatch(str, "DocNum", docNum, compared.docNum);
+      if (!Helper.cmpNullString(docDate, compared.docDate)) oneMismatch(str, "DocDate", docDate, compared.docDate);
+      if ((amount != null && compared.amount == null) || (amount == null && compared.amount != null)) {
+        str.append(" Amount not specified: "); str.append(amount); str.append(" against ");
+        str.append(compared.amount);
+        str.append(System.lineSeparator());
+      }
+      else if (!(amount != null && amount.equals(compared.amount))) {
+        str.append(" Amount mismatch: "); str.append(amount); str.append(" against "); str.append(compared.amount);
+        str.append(System.lineSeparator());
+      };
+      if (!Helper.cmpNullString(purpose, compared.purpose)) oneMismatch(str, "Purpose", purpose, compared.purpose);
+      if (!Helper.cmpNullString(UIN, compared.UIN)) oneMismatch(str, "UIN", UIN, compared.UIN);
+
+      if (!Helper.cmpNullString(payerName, compared.payerName)) oneMismatch(str, "PayerName", payerName, compared.payerName);
+      if (!Helper.cmpNullString(payerAccount, compared.payerAccount)) oneMismatch(str, "PayerAccount", payerAccount, compared.payerAccount);
+      if (!Helper.cmpNullString(payerINN, compared.payerINN)) oneMismatch(str, "PayerINN", payerINN, compared.payerINN);
+      if (!Helper.cmpNullString(payerCPP, compared.payerCPP)) oneMismatch(str, "PayerCPP", payerCPP, compared.payerCPP);
+      if (!Helper.cmpNullString(payerBankName, compared.payerBankName)) oneMismatch(str, "PayerBankName", payerBankName, compared.payerBankName);
+      if (!Helper.cmpNullString(payerBankBIC, compared.payerBankBIC)) oneMismatch(str, "PayerBankBIC", payerBankBIC, compared.payerBankBIC);
+      if (!Helper.cmpNullString(payerBankAccount, compared.payerBankAccount)) oneMismatch(str, "PayerBankAccount", payerBankAccount, compared.payerBankAccount);
+
+      if (!Helper.cmpNullString(payeeName, compared.payeeName)) oneMismatch(str, "PayeeName", payeeName, compared.payeeName);
+      if (!Helper.cmpNullString(payeeAccount, compared.payeeAccount)) oneMismatch(str, "PayeeAccount", payeeAccount, compared.payeeAccount);
+      if (!Helper.cmpNullString(payeeINN, compared.payeeINN)) oneMismatch(str, "PayeeINN", payeeINN, compared.payeeINN);
+      if (!Helper.cmpNullString(payeeCPP, compared.payeeCPP)) oneMismatch(str, "PayeeCPP", payeeCPP, compared.payeeCPP);
+      if (!Helper.cmpNullString(payeeBankName, compared.payeeBankName)) oneMismatch(str, "PayeeBankName", payeeBankName, compared.payeeBankName);
+      if (!Helper.cmpNullString(payeeBankBIC, compared.payeeBankBIC)) oneMismatch(str, "PayeeBankBIC", payeeBankBIC, compared.payeeBankBIC);
+      if (!Helper.cmpNullString(payeeBankAccount, compared.payeeBankAccount)) oneMismatch(str, "PayeeBankAccount", payeeBankAccount, compared.payeeBankAccount);
+
+    }
+    return str.toString();
+  }
+
+  /** Function describes one attribute mismatch
+   *
+   * @param str - common string with all mismatches
+   * @param attrName - name of attribute
+   * @param val1 - compare value 1
+   * @param val2 - compare value 2
+   * @return common string with all mismatches
+   */
+  public StringBuilder oneMismatch(StringBuilder str, String attrName, String val1, String val2) {
+    str.append(" "); str.append(attrName); str.append(" mismatch: ");
+    str.append(val1); str.append(" against "); str.append(val2);
+    str.append(System.lineSeparator());
+    return str;
   }
 }
