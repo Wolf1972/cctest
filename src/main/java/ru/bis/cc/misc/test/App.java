@@ -274,8 +274,20 @@ public class App {
           FDocument value = item.getValue();
           String str = value.toMT103String();
           if (str != null) {
+            writer.write("{1:");
+            writer.write("F01");
+            writer.write("DEUTRUMMXXXX");
+            writer.write(String.format("%10s", value.getId()).replace(' ','0'));
+            writer.write("}");
+            writer.write("{2:O103");
+            writer.write("1007");
+            writer.write(Helper.getSWIFTDate(value.getDate()));
+            writer.write("DBEBRUMMAXXX");
+            writer.write(String.format("%10s", value.getId()).replace(' ','0'));
+            writer.write("1107");
+            writer.write(Helper.getSWIFTDate(value.getDate()));
+            writer.write("N}");
             writer.write(str);
-            writer.write(System.lineSeparator());
           }
         }
       }

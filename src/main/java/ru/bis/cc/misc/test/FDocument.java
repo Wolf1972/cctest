@@ -52,6 +52,9 @@ public class FDocument {
   public Long getId() {
     return Long.parseLong(docNum);
   }
+  public String getDate() {
+    return docDate;
+  }
 
   /** Loads object from XML node
    *
@@ -176,33 +179,14 @@ public class FDocument {
    * @return FT14 string (unicode), returns null if error or filter
    */
   public String toFT14String() {
-    StringBuilder str = new StringBuilder();
-    StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it difference with document purpose (contains tax attributes)
 
-//    if (Helper.isBeginsList(payerAccount, "301,302")) return null; // Filter by account
+    StringBuilder str = new StringBuilder();
+
+//    if (Helper.isBeginsList(payerAccount, "301,302")) return null; // Filter output records by payer account
 
     // Build tax attributes string It has to be add to payment purpose
-    if (isTax) {
-      // First of all: we have to determine - which separator we are going to use - "/" or "\"
-      char sepChar = '/';
-      int posSepChar = purpose.indexOf(sepChar);
-      if (posSepChar >= 0) {
-        int posAltChar = purpose.indexOf('\\');
-        if (posAltChar < 0 || posSepChar > posAltChar) sepChar = '\\';
-      }
-      locPurpose.append(sepChar); locPurpose.append(sepChar); locPurpose.append(payerCPP); // 102
-      locPurpose.append(sepChar); locPurpose.append(taxStatus); // 101
-      locPurpose.append(sepChar); locPurpose.append(CBC); // 104
-      locPurpose.append(sepChar); locPurpose.append(OCATO);
-      locPurpose.append(sepChar); locPurpose.append(taxPaytReason);
-      locPurpose.append(sepChar); locPurpose.append(taxPeriod);
-      locPurpose.append(sepChar); locPurpose.append(taxDocNum);
-      locPurpose.append(sepChar); locPurpose.append(taxDocDate); // 109
-      if (taxPaytKind != null) { // 110
-        locPurpose.append(sepChar); locPurpose.append(taxPaytKind);
-      }
-      locPurpose.append(sepChar);
-    }
+    StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it difference with document purpose (contains tax attributes)
+    locPurpose.append(getTaxAttrs());
     locPurpose.append(purpose);
     
     if (isUrgent) // CLMOS or RTMOS - ordinary or urgent payment
@@ -261,11 +245,87 @@ public class FDocument {
    * @return MT103 string (unicode), returns null if error or filter
    */
   public String toMT103String() {
+    int iPos; // current position when we split text multistring text fields
+    int iStr; // current string when we split text multistring text fields
+
+    StringBuilder participant = new StringBuilder(); // string uses to assemle multistring text fields
+
     StringBuilder str = new StringBuilder();
     str.append("{4:");
-    str.append("20:"); str.append(docNum); str.append(System.lineSeparator());
-    str.append("32A:"); str.append(Helper.getSWIFTDate(docDate)); str.append("RUB"); str.append(String.format("%.2f", (float) amount / 100).replace(',','.'));
-    str.append("}");
+    str.append(System.lineSeparator());
+
+    str.append("20:");
+    str.append(docNum);
+    str.append(System.lineSeparator());
+
+    str.append("32A:");
+    str.append(Helper.getSWIFTDate(docDate));
+    str.append("RUB");
+    str.append(String.format("%.2f", (float) amount / 100).replace(',','.'));
+    str.append(System.lineSeparator());
+
+    str.append("50K:");
+    iPos = 0; iStr = 0; participant.setLength(0);
+    if (payerINN != null) { participant.append("INN"); participant.append(payerINN); participant.append(" "); }
+    if (payerName != null) participant.append(payerName);
+    if (payerAccount != null) { str.append("/"); str.append(payerAccount); str.append(System.lineSeparator()); iStr = 1; }
+    for (int j = iStr; j <= 4; j++) {
+      str.append(participant.substring(iPos, Math.min(iPos + 35, participant.length())));
+      str.append(System.lineSeparator());
+      iPos += 35;
+      if (iPos > participant.length() - 1) break;
+    }
+
+    str.append("57D:");
+    iPos = 0; iStr = 0; participant.setLength(0);
+    if (payeeBankBIC != null) { participant.append("BIK"); participant.append(payeeBankBIC); participant.append(" "); }
+    if (payeeBankName != null) participant.append(payeeBankName);
+    if (payeeBankAccount != null) { str.append("/"); str.append(payeeBankAccount); str.append(System.lineSeparator()); iStr = 1; }
+    for (int j = iStr; j <= 4; j++) {
+      str.append(participant.substring(iPos, Math.min(iPos + 35, participant.length())));
+      str.append(System.lineSeparator());
+      iPos += 35;
+      if (iPos > participant.length() - 1) break;
+    }
+
+    str.append("59:");
+    iPos = 0; iStr = 0; participant.setLength(0);
+    if (payeeINN != null) { participant.append("INN"); participant.append(payeeINN); participant.append(" "); }
+    if (payeeName != null) participant.append(payeeName);
+    if (payeeAccount != null) { str.append("/"); str.append(payeeAccount); str.append(System.lineSeparator()); iStr = 1; }
+    for (int j = iStr; j <= 4; j++) {
+      str.append(participant.substring(iPos, Math.min(iPos + 35, participant.length())));
+      str.append(System.lineSeparator());
+      iPos += 35;
+      if (iPos > participant.length()) break;
+    }
+
+    // Build tax attributes string It has to be add to payment purpose
+    StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into MT103 - it difference with document purpose (contains tax attributes)
+    locPurpose.append(getTaxAttrs());
+    if (UIN != null) {
+      locPurpose.append("УИН"); locPurpose.append(UIN); locPurpose.append("///");
+    }
+    locPurpose.append(purpose);
+    // In MT103 payment purpose divides between 70 and 72 fields
+    str.append("70:");
+    iPos = 0;
+    for (int j = 0; j <= 6; j++) {
+      if (j == 4) {
+        str.append("72:");
+      }
+      str.append(locPurpose.substring(iPos, Math.min(iPos + 35, locPurpose.length())));
+      str.append(System.lineSeparator());
+      iPos += 35;
+      if (iPos > locPurpose.length()) break;
+    }
+
+    str.append("77B:");
+    str.append("REF"); str.append(getId());
+    str.append(System.lineSeparator());
+
+    str.append("-}");
+
     return str.toString();
   }
 
@@ -292,6 +352,36 @@ public class FDocument {
       if (taxPaytKind != null) tax += " Kind: " + taxPaytKind;
       if (tax.length() > 0) str = str + System.lineSeparator() + tax;
       return str;
+  }
+
+  /** Function assembles tax attfibutes string
+   *
+   * @return string with tax attributes, separated by "/" or "\"
+   */
+  public String getTaxAttrs() {
+    StringBuilder taxStr = new StringBuilder();
+    if (isTax) {
+      // First of all: we have to determine - which separator we are going to use - "/" or "\"
+      char sepChar = '/';
+      int posSepChar = purpose.indexOf(sepChar);
+      if (posSepChar >= 0) {
+        int posAltChar = purpose.indexOf('\\');
+        if (posAltChar < 0 || posSepChar > posAltChar) sepChar = '\\';
+      }
+      taxStr.append(sepChar); taxStr.append(sepChar); taxStr.append(payerCPP); // 102
+      taxStr.append(sepChar); taxStr.append(taxStatus); // 101
+      taxStr.append(sepChar); taxStr.append(CBC); // 104
+      taxStr.append(sepChar); taxStr.append(OCATO);
+      taxStr.append(sepChar); taxStr.append(taxPaytReason);
+      taxStr.append(sepChar); taxStr.append(taxPeriod);
+      taxStr.append(sepChar); taxStr.append(taxDocNum);
+      taxStr.append(sepChar); taxStr.append(taxDocDate); // 109
+      if (taxPaytKind != null) { // 110
+        taxStr.append(sepChar); taxStr.append(taxPaytKind);
+      }
+      taxStr.append(sepChar);
+    }
+    return taxStr.toString();
   }
 
   @Override
