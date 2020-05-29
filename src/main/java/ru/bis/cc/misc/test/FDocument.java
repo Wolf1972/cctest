@@ -431,6 +431,8 @@ public class FDocument {
     return true;
   }
 
+
+
   /** Returns string with compare detals
    *
    * @param obj object to compare
