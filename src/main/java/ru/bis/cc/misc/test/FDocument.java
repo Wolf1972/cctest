@@ -47,10 +47,12 @@ public class FDocument {
   FDocument() {
     isUrgent = false;
     isTax = false;
+    docNum = "0";
+    docDate = "1901-01-01";
   }
 
   public Long getId() {
-    return Long.parseLong(docNum);
+    return Long.parseLong(docNum); // Document ID takes from document number
   }
   public String getDate() {
     return docDate;
@@ -60,7 +62,7 @@ public class FDocument {
    *
    * @param node - ED node with document
    */
-  public void fromED(Node node) {
+  public void getED(Node node) {
     if (node.getNodeType() != Node.TEXT_NODE) {
 
       NamedNodeMap attr = node.getAttributes();
@@ -174,15 +176,107 @@ public class FDocument {
     }
   }
 
+  /** Loads object from MT103
+   *
+   * @param str = string with MT103 message
+   */
+  public void getMT103(String str) {
+
+    String[] fields = {"20", "32A", "50K", "57D", "59", "70", "72"};
+    StringBuilder tag = new StringBuilder();
+
+    String blockHeader = "{4:";
+    String blockTrailer = "-}";
+    int pos = str.indexOf(blockHeader);
+
+    StringBuilder tagContent = new StringBuilder();
+
+    if (pos >= 0) {
+      pos += blockHeader.length();
+      if (str.substring(pos, pos + System.lineSeparator().length()).equals(System.lineSeparator()))
+        pos += System.lineSeparator().length(); // skip possible CRLF from "{4:"
+
+      String tagName = "";
+      String newTag = "";
+      boolean startOfMessage = true;
+      boolean endOfMessage = false;
+
+      while (pos < str.length()) {
+
+        int end = str.indexOf(System.lineSeparator(), pos);
+        String oneLine;
+        if (end >= 0) {
+          oneLine = str.substring(pos, end);
+          pos = end + System.lineSeparator().length();
+        } else { // last string of message
+          oneLine = str.substring(pos, str.length());
+          pos = str.length();
+        }
+        end = oneLine.indexOf(blockTrailer);
+        if (end >= 0) {
+          oneLine = oneLine.substring(0, end);
+          endOfMessage = true;
+        }
+
+        if (oneLine.length() > 0 || endOfMessage) { // Process one string
+
+          boolean isNewTag = false;
+          // Determine next tag
+          for (String tagNo : fields) {
+            if (oneLine.startsWith(tagNo + ":")) {
+              isNewTag = true;
+              newTag = tagNo;
+              break;
+            }
+          }
+
+          if (isNewTag || endOfMessage) {
+
+            // Process previous tag
+            if (!startOfMessage) {
+              if (tagContent.length() > 0) {
+                if (tagName.equals("20")) {
+                  docNum = tagContent.toString();
+                }
+                else if (tagName.equals("32A")) {
+                  docDate = Helper.getXMLDate(tagContent.substring(0, 6));
+                  amount = Long.parseLong(tagContent.substring(9).replace(".",""));
+                }
+                else if (tagName.equals("50K")) {
+                }
+              }
+              System.out.println(tagName + ":" + tagContent);
+            }
+
+            // Start next tag
+            if (oneLine.length() > 0) {
+              tagName = newTag;
+              tagContent.setLength(0);
+              tagContent.append(oneLine.substring(newTag.length() + 1));
+            }
+          }
+          else {
+            tagContent.append(System.lineSeparator());
+            tagContent.append(oneLine);
+          }
+        }
+        if (startOfMessage) startOfMessage = false;
+      }
+    }
+    else {
+      // There is no block 4: in parsing message
+    }
+  }
+
   /** Creates FT14 string from object
    *
    * @return FT14 string (unicode), returns null if error or filter
    */
-  public String toFT14String() {
+  public String putFT14() {
 
     StringBuilder str = new StringBuilder();
 
-//    if (Helper.isBeginsList(payerAccount, "301,302")) return null; // Filter output records by payer account
+//    if (Helper.matchMask(payerAccount, "301,302")) return null; // Filter output records by payer account
 
     // Build tax attributes string It has to be add to payment purpose
     StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it difference with document purpose (contains tax attributes)
@@ -244,9 +338,9 @@ public class FDocument {
    *
    * @return MT103 string (unicode), returns null if error or filter
    */
-  public String toMT103String() {
-    int iPos; // current position when we split text multistring text fields
-    int iStr; // current string when we split text multistring text fields
+  public String putMT103() {
+    int iPos; // current position when we split text to multistring text fields
+    int iStr; // current string number when we split text to multistring text fields
 
     StringBuilder participant = new StringBuilder(); // string uses to assemle multistring text fields
 

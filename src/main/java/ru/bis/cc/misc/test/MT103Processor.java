@@ -40,6 +40,13 @@ class MT103Processor {
         filesCount++;
         if (isRegularFile(path)) {
           String fileName = path.getFileName().toString();
+          if (Helper.isSWIFTFile(inPath + fileName, logger)) {
+            if (!readOne(inPath + fileName, fDocs)) filesError++;
+          } else {
+            logger.error("THE0402: File " + fileName + " is not contains XML prolog.");
+            filesError++;
+          }
+
           logger.info("THI0401: Processing file: " + inPath + fileName);
         }
       }
@@ -47,8 +54,47 @@ class MT103Processor {
       logger.error("THE0401: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("THI0402: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("THI0403: Documents added: " + fDocs.size());
+    logger.info("THI0403: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("THI0404: Documents added: " + fDocs.size());
+  }
+
+  /**
+   * Process one MT103 file, fills fDocs array
+   *
+   * @param fileName - file name to parse (full path)
+   * @param fDocs    - documents array reference
+   * @return boolean: success or fail (true/false)
+   */
+  private boolean readOne(String fileName, HashMap<Long, FDocument> fDocs) {
+    int msgCount = 0;
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(fileName));
+      String line;
+      StringBuilder oneMT103 = new StringBuilder();
+      while ((line = reader.readLine()) != null) {
+        int end = line.indexOf("-}");
+        if (end < 0) {
+          oneMT103.append(line);
+          oneMT103.append(System.lineSeparator());
+        }
+        else {
+          oneMT103.append(line.substring(0, end + 2));
+          FDocument fDoc = new FDocument();
+          fDoc.getMT103(oneMT103.toString());
+          fDocs.put(fDoc.getId(), fDoc);
+          msgCount++;
+          oneMT103.setLength(0);
+          oneMT103.append(line.substring(end + 2));
+          oneMT103.append(System.lineSeparator());
+        }
+      }
+    }
+    catch (IOException e) {
+      logger.error("THE0410: Error while file read: " + fileName);
+      return false;
+    }
+    logger.info("THI0410: Messages read: " + msgCount);
+    return true;
   }
 
   /**
@@ -68,9 +114,8 @@ class MT103Processor {
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
       if (fDocs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
-          Long key = item.getKey();
           FDocument value = item.getValue();
-          String str = value.toMT103String();
+          String str = value.putMT103();
           if (str != null) {
             writer.write("{1:");
             writer.write("F01");

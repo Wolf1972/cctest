@@ -13,7 +13,7 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Helper {
+class Helper {
   /** Checks if file is XML
    *
    * @param fileName - check file, full path
@@ -25,6 +25,22 @@ public class Helper {
       String firstStr = raf.readLine();
       if (firstStr != null) {
         if (firstStr.matches("^<\\?xml?.+"))
+          return true;
+      }
+      raf.close();
+    }
+    catch (IOException e) {
+      logger.error("THE0101: Error access file: " + fileName, e);
+    }
+    return false;
+  }
+
+  static boolean isSWIFTFile(String fileName, Logger logger) {
+    try {
+      RandomAccessFile raf = new RandomAccessFile(fileName, "r");
+      String firstStr = raf.readLine();
+      if (firstStr != null) {
+        if (firstStr.matches("^\\{1:?.+"))
           return true;
       }
       raf.close();
@@ -82,11 +98,11 @@ public class Helper {
    * @param mask - mask with one or several patterns (separated by ",")
    * @return boolean: checked string accords mask (true/false)
    */
-  static boolean isBeginsList(String chk, String mask) {
+  static boolean matchMask(String chk, String mask) {
     if (chk == null) return false;
     String[] patterns = mask.split(",");
-    for (int i = 0; i < patterns.length; i++) {
-      if (chk.startsWith(patterns[i])) return true;
+    for (String str : patterns) {
+      if (chk.startsWith(str)) return true;
     }
     return false;
   }
@@ -98,6 +114,20 @@ public class Helper {
    */
   static String getSWIFTDate(String XMLDate) {
     if (XMLDate == null) return "";
+    if (XMLDate.length() < 10) return "";
     return XMLDate.substring(2, 4) + XMLDate.substring(5, 7) + XMLDate.substring(8, 10);
   }
+
+  /** Function returns date in UFEBS format (YYYY-MM-DD) from date in SWIFT format (YYMMDD)
+   *
+   * @param SWIFTDate = SWIFT date string (YYMMDD)
+   * @return string with date in XML format (YYYY-MM-DD)
+   */
+  static String getXMLDate(String SWIFTDate) {
+    if (SWIFTDate == null) return "";
+    if (SWIFTDate.length() < 6) return "";
+    return "20" + SWIFTDate.substring(0, 2) + "-" + SWIFTDate.substring(2, 4) + "-" + SWIFTDate.substring(4, 6);
+  }
+
+
 }

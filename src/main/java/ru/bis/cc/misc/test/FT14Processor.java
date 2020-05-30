@@ -39,7 +39,7 @@ class FT14Processor {
         for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
           Long key = item.getKey();
           FDocument value = item.getValue();
-          String str = value.toFT14String();
+          String str = value.putFT14();
           if (str != null) {
             writer.write(str);
             writer.write(System.lineSeparator());
