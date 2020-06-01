@@ -68,9 +68,11 @@ public class App {
     procFT14.createAll(outFT14Path, patternDocs);
 
     MT103Processor procMT103 = new MT103Processor(logger);
-    procMT103.createAll(outMT103Path, patternDocs);
-    procMT103.readAll(inMT103Path, sampleDocs);
 
+    procMT103.createAll(outMT103Path, patternDocs);
+    sampleDocs.clear();
+    procMT103.readAll(inMT103Path, sampleDocs);
+    comparator.compare(patternDocs, sampleDocs);
 
     logger.info("THI0001: End of work.");
 

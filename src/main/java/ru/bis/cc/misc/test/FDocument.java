@@ -4,10 +4,15 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class FDocument {
 
   private String edNo;
   private String edDate;
+  private String referenceMT103;
   private boolean isUrgent;
 
   private String docNum;
@@ -62,7 +67,7 @@ public class FDocument {
    *
    * @param node - ED node with document
    */
-  public void getED(Node node) {
+  public void getED(Node node) { // TODO: get => read etc
     if (node.getNodeType() != Node.TEXT_NODE) {
 
       NamedNodeMap attr = node.getAttributes();
@@ -182,46 +187,53 @@ public class FDocument {
    */
   public void getMT103(String str) {
 
-    String[] fields = {"20", "32A", "50K", "57D", "59", "70", "72"};
+    String[] fields = {"20", "32A", "50K", "57D", "59", "70", "72", "77B"};
     StringBuilder tag = new StringBuilder();
+
+    String innKeyWord = "INN";
+    String regExpINN = innKeyWord + "\\d{12}\\D|"+ innKeyWord + "\\d{10}\\D|" + innKeyWord + "\\d{5}\\D" +
+                       innKeyWord + "\\d{12}$|"+ innKeyWord + "\\d{10}$|" + innKeyWord + "\\d{5}$"; // to take into account that INN may takes place in the end of the string
+    Pattern pattern = Pattern.compile(regExpINN);
 
     String blockHeader = "{4:";
     String blockTrailer = "-}";
-    int pos = str.indexOf(blockHeader);
+    int posMessage = str.indexOf(blockHeader);
 
     StringBuilder tagContent = new StringBuilder();
 
-    if (pos >= 0) {
-      pos += blockHeader.length();
-      if (str.substring(pos, pos + System.lineSeparator().length()).equals(System.lineSeparator()))
-        pos += System.lineSeparator().length(); // skip possible CRLF from "{4:"
+    if (posMessage >= 0) {
+      posMessage += blockHeader.length();
+      if (str.substring(posMessage, posMessage + System.lineSeparator().length()).equals(System.lineSeparator()))
+        posMessage += System.lineSeparator().length(); // skip possible CRLF from "{4:"
 
       String tagName = "";
       String newTag = "";
       boolean startOfMessage = true;
       boolean endOfMessage = false;
+      String purposePart1 = "";
+      String purposePart2 = "";
 
-      while (pos < str.length()) {
+      while (posMessage < str.length()) {
 
-        int end = str.indexOf(System.lineSeparator(), pos);
+        int endString = str.indexOf(System.lineSeparator(), posMessage); // TODO split()? Parse message to strings
         String oneLine;
-        if (end >= 0) {
-          oneLine = str.substring(pos, end);
-          pos = end + System.lineSeparator().length();
+        if (endString >= 0) {
+          oneLine = str.substring(posMessage, endString);
+          posMessage = endString + System.lineSeparator().length();
         } else { // last string of message
-          oneLine = str.substring(pos, str.length());
-          pos = str.length();
+          oneLine = str.substring(posMessage, str.length());
+          posMessage = str.length();
         }
-        end = oneLine.indexOf(blockTrailer);
-        if (end >= 0) {
-          oneLine = oneLine.substring(0, end);
+        endString = oneLine.indexOf(blockTrailer);
+        if (endString >= 0) {
+          oneLine = oneLine.substring(0, endString);
           endOfMessage = true;
         }
 
-        if (oneLine.length() > 0 || endOfMessage) { // Process one string
+        if (oneLine.length() > 0 || endOfMessage) { // Process message string by string
 
           boolean isNewTag = false;
-          // Determine next tag
+          // Try to find next tag (NB: if message contains unknown tag, then it will be added to last known tag)
           for (String tagNo : fields) {
             if (oneLine.startsWith(tagNo + ":")) {
               isNewTag = true;
@@ -240,12 +252,77 @@ public class FDocument {
                 }
                 else if (tagName.equals("32A")) {
                   docDate = Helper.getXMLDate(tagContent.substring(0, 6));
-                  amount = Long.parseLong(tagContent.substring(9).replace(".",""));
+                  amount = Long.parseLong(tagContent.substring(9).replace(".", ""));
                 }
-                else if (tagName.equals("50K")) {
+                else if (tagName.equals("50K") || tagName.equals("59")) {
+                  String rawClientName = "";
+                  String accountNo = null;
+                  String inn = null;
+                  String clientName = null;
+                  if (tagContent.toString().startsWith("/")) {
+                    int crlf = tagContent.indexOf(System.lineSeparator());
+                    if (crlf == 0) crlf = tagContent.length();
+                    accountNo = tagContent.substring(1, crlf);
+                    if (crlf < tagContent.length() + System.lineSeparator().length()) // Have we client name at all?
+                      rawClientName = tagContent.substring(crlf + System.lineSeparator().length()).replace(System.lineSeparator(), "");
+                  }
+                  else { // all strings contain client name only, w/o account (with INN inside, possible)
+                    rawClientName = tagContent.toString().replace(System.lineSeparator(), "");
+                  }
+                  int innPos = -1;
+                  int innEnd = -1;
+                  try { // Search for INN in any place of client name with regex
+                    Matcher matcher = pattern.matcher(rawClientName);
+                    if (matcher.find()) {
+                      innPos = matcher.start();
+                      if (innPos >= 0) innEnd = matcher.end();
+                      if (innEnd < rawClientName.length()) innEnd--; // When INN in the middle of string - it matches with yet another symbol after, need to account it
+                    }
+                  }
+                  catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
+                  }
+                  if (innPos >= 0 && innEnd >= 0) {
+                    inn = rawClientName.substring(innPos + innKeyWord.length(), innEnd);
+                    clientName = rawClientName.substring(0, innPos) + rawClientName.substring(innEnd);
+                  }
+                  else
+                    clientName = rawClientName;
+                  if (tagName.equals("50K")) {
+                    payerAccount = accountNo;
+                    payerINN = inn;
+                    payerName = clientName;
+                  }
+                  else {
+                    payeeAccount = accountNo;
+                    payeeINN = inn;
+                    payeeName = clientName;
+                  }
+                }
+                else if (tagName.equals("57D")) {
+                  int pos = tagContent.indexOf("/");
+                  int end = -1;
+                  if (pos >= 0) {
+                    end = tagContent.indexOf(System.lineSeparator(), pos);
+                    if (end < 0) end = tagContent.length();
+                    payeeBankAccount = tagContent.substring(pos + 1, end);
+                  }
+                  pos = tagContent.indexOf("BIK");
+                  if (pos >= 0) {
+                    end = tagContent.indexOf(System.lineSeparator(), pos);
+                    if (end < 0) end = tagContent.length();
+                    payeeBankBIC = tagContent.substring(pos + 3, end);
+                  }
+                }
+                else if (tagName.equals("70")) {
+                  purposePart1 = tagContent.toString().replace(System.lineSeparator(), "");
+                }
+                else if (tagName.equals("72")) {
+                  purposePart2 = tagContent.toString().replace(System.lineSeparator(), "");
+                }
+                else if (tagName.equals("77B")) {
+                  referenceMT103 = tagContent.toString();
                 }
               }
-              System.out.println(tagName + ":" + tagContent);
             }
 
             // Start next tag
@@ -261,6 +338,49 @@ public class FDocument {
           }
         }
         if (startOfMessage) startOfMessage = false;
+      } // end of main cycle
+
+      // purposePart1 = "((VO12345))//123456789/01/1234567890123456789012345/1234567/ПЕ/КВ.01.20/123/12.05.2020/1/" + purposePart1 + "УИН0///"; // Inplace test string
+      // purposePart1 = "((VO12345))//123456789/01/1234567890123456789012345/1234567/ПЕ/КВ.01.20/123/12.05.2020/УИН0///" + purposePart1; // Inplace test string
+      // Try to extract tax attributes
+      int posStart = 0;
+      if (purposePart1.substring(0, 2).equals("((")) { // purpose contains VO code - it places before tax attributes
+        posStart = purposePart1.indexOf("))");
+        if (posStart >= 0) posStart += 2;
+        else posStart = 0;
+      }
+      String taxAttrBegin = purposePart1.substring(posStart, posStart + 2);
+      String taxAttrSeparator = "";
+      int taxAttrLen = 0;
+      if (taxAttrBegin.equals("//") || taxAttrBegin.equals("\\\\")) {
+        taxAttrSeparator = taxAttrBegin.substring(0, 1);
+        StringTokenizer tokenizer = new StringTokenizer(purposePart1.substring(posStart + 2),taxAttrSeparator);
+        int i = 0; taxAttrLen = 2;
+        isTax = true;
+        while (tokenizer.hasMoreTokens() && i < 9) {
+          String token = tokenizer.nextToken();
+          if (i == 0) payerCPP = token;
+          if (i == 1) taxStatus = token;
+          if (i == 2) CBC = token;
+          if (i == 3) OCATO = token;
+          if (i == 4) taxPaytReason = token;
+          if (i == 5) taxPeriod = token;
+          if (i == 6) taxDocNum = token;
+          if (i == 7) taxDocDate = token;
+          if (i == 8) if (token.length() <= 1) taxPaytKind = token; else break; // Field 110 may not be specified and final separated may be missed
+          i++; taxAttrLen += token.length() + 1;
+        }
+      }
+      if (taxAttrLen == 0) purpose = purposePart1 + purposePart2;
+      else purpose = purposePart1.substring(0, posStart) + purposePart1.substring(posStart + taxAttrLen) + purposePart2;
+      // Try to extract UIN
+      posStart = purpose.indexOf("УИН"); if (posStart < 0) posStart = purpose.indexOf("UIN");
+      if (posStart >= 0) {
+        int posEnd = purpose.indexOf("///", posStart);
+        if (posEnd >= 0) {
+          UIN = purpose.substring(posStart + 3, posEnd);
+          purpose = purpose.substring(0, posStart) + purpose.substring(posEnd + 3);
+        }
       }
     }
     else {
@@ -397,10 +517,10 @@ public class FDocument {
     // Build tax attributes string It has to be add to payment purpose
     StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into MT103 - it difference with document purpose (contains tax attributes)
     locPurpose.append(getTaxAttrs());
+    locPurpose.append(purpose.replace("{", "((").replace("}", "))")); // Replace "{" and "}" to "((" and "))"
     if (UIN != null) {
       locPurpose.append("УИН"); locPurpose.append(UIN); locPurpose.append("///");
     }
-    locPurpose.append(purpose);
     // In MT103 payment purpose divides between 70 and 72 fields
     str.append("70:");
     iPos = 0;
