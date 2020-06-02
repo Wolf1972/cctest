@@ -56,12 +56,14 @@ public class FDocument {
     docDate = "1901-01-01";
   }
 
-  public Long getId() {
+  Long getId() {
     return Long.parseLong(docNum); // Document ID takes from document number
   }
-  public String getDate() {
+  String getDate() {
     return docDate;
   }
+  boolean getIsUrgent() { return isUrgent; }
+  void setIsUrgent(boolean isUrgent) { this.isUrgent = isUrgent; }
 
   /** Loads object from XML node
    *
@@ -185,19 +187,28 @@ public class FDocument {
    *
    * @param str = string with MT103 message
    */
-  public void getMT103(String str) {
+  void getMT103(String str) {
 
-    String[] fields = {"20", "32A", "50K", "57D", "59", "70", "72", "77B"};
+    String[] fields = {"20", "32A", "50K", "52A", "53B", "57D", "59", "70", "72", "77B"};
     StringBuilder tag = new StringBuilder();
 
     String innKeyWord = "INN";
     String regExpINN = innKeyWord + "\\d{12}\\D|"+ innKeyWord + "\\d{10}\\D|" + innKeyWord + "\\d{5}\\D" +
                        innKeyWord + "\\d{12}$|"+ innKeyWord + "\\d{10}$|" + innKeyWord + "\\d{5}$"; // to take into account that INN may takes place in the end of the string
-    Pattern pattern = Pattern.compile(regExpINN);
+    Pattern patternINN = Pattern.compile(regExpINN);
+
+    int posMessage = str.indexOf("{2:");
+    if (posMessage >= 0) {
+      int endPos = str.indexOf("}", posMessage);
+      if (endPos >= 0) {
+        char urgent = str.charAt(endPos - 1);
+        if (urgent == 'U') isUrgent = true;
+      }
+    }
 
     String blockHeader = "{4:";
     String blockTrailer = "-}";
-    int posMessage = str.indexOf(blockHeader);
+    posMessage = str.indexOf(blockHeader);
 
     StringBuilder tagContent = new StringBuilder();
 
@@ -247,18 +258,22 @@ public class FDocument {
             // Process previous tag
             if (!startOfMessage) {
               if (tagContent.length() > 0) {
+
                 if (tagName.equals("20")) {
                   docNum = tagContent.toString();
                 }
+
                 else if (tagName.equals("32A")) {
                   docDate = Helper.getXMLDate(tagContent.substring(0, 6));
                   amount = Long.parseLong(tagContent.substring(9).replace(".", ""));
                 }
+
                 else if (tagName.equals("50K") || tagName.equals("59")) {
                   String rawClientName = "";
                   String accountNo = null;
                   String inn = null;
-                  String clientName = null;
+                  StringBuilder cpp = new StringBuilder();
+                  StringBuilder clientName = new StringBuilder();
                   if (tagContent.toString().startsWith("/")) {
                     int crlf = tagContent.indexOf(System.lineSeparator());
                     if (crlf == 0) crlf = tagContent.length();
@@ -272,32 +287,66 @@ public class FDocument {
                   int innPos = -1;
                   int innEnd = -1;
                   try { // Search for INN in any place of client name with regex
-                    Matcher matcher = pattern.matcher(rawClientName);
+                    Matcher matcher = patternINN.matcher(rawClientName);
                     if (matcher.find()) {
                       innPos = matcher.start();
                       if (innPos >= 0) innEnd = matcher.end();
                       if (innEnd < rawClientName.length()) innEnd--; // When INN in the middle of string - it matches with yet another symbol after, need to account it
+                      inn = rawClientName.substring(innPos + innKeyWord.length(), innEnd); // INN extracts without CPP
+                      if (rawClientName.substring(innEnd, innEnd + 4).equals("/KPP")) {
+                        // Try to extract CPP just after INN - it may be several next digits (not more than 9)
+                        innEnd += 4;
+                        for (; innEnd < rawClientName.length(); innEnd++) {
+                          char ch = rawClientName.charAt(innEnd);
+                          if (Character.isDigit(ch)) cpp.append(ch);
+                          else {
+                            if (ch != ' ') innEnd--; // Alphabet char is a part of client name
+                            break;
+                          }
+                          if (cpp.length() >= 9) break;
+                        }
+                      }
                     }
                   }
                   catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
                   }
                   if (innPos >= 0 && innEnd >= 0) {
-                    inn = rawClientName.substring(innPos + innKeyWord.length(), innEnd);
-                    clientName = rawClientName.substring(0, innPos) + rawClientName.substring(innEnd);
+                    if (innPos > 0) clientName.append(rawClientName.substring(0, innPos));
+                    clientName.append(rawClientName.substring(innEnd + 1).toString().trim());
                   }
                   else
-                    clientName = rawClientName;
+                    clientName.append(rawClientName.trim());
                   if (tagName.equals("50K")) {
                     payerAccount = accountNo;
                     payerINN = inn;
-                    payerName = clientName;
+                    if (cpp.length() > 0) payerCPP = cpp.toString();
+                    payerName = clientName.toString();
                   }
                   else {
                     payeeAccount = accountNo;
                     payeeINN = inn;
-                    payeeName = clientName;
+                    if (cpp.length() > 0) payeeCPP = cpp.toString();
+                    payeeName = clientName.toString();
                   }
                 }
+
+                else if (tagName.equals("52A")) {
+                  int pos = tagContent.indexOf("BIK");
+                  if (pos >= 0) {
+                    int end = tagContent.indexOf(System.lineSeparator(), pos);
+                    if (end < 0) end = tagContent.length();
+                    payerBankBIC = tagContent.substring(pos + 3, end);
+                  }
+                }
+
+                else if (tagName.equals("53B")) {
+                  if (tagContent.substring(0, 1).equals("/")) {;
+                    int end = tagContent.indexOf(System.lineSeparator());
+                    if (end < 0) end = tagContent.length();
+                    payerBankAccount = tagContent.substring(1, end);
+                  }
+                }
+
                 else if (tagName.equals("57D")) {
                   int pos = tagContent.indexOf("/");
                   int end = -1;
@@ -313,12 +362,15 @@ public class FDocument {
                     payeeBankBIC = tagContent.substring(pos + 3, end);
                   }
                 }
+
                 else if (tagName.equals("70")) {
                   purposePart1 = tagContent.toString().replace(System.lineSeparator(), "");
                 }
+
                 else if (tagName.equals("72")) {
                   purposePart2 = tagContent.toString().replace(System.lineSeparator(), "");
                 }
+
                 else if (tagName.equals("77B")) {
                   referenceMT103 = tagContent.toString();
                 }
@@ -475,14 +527,17 @@ public class FDocument {
     str.append("32A:");
     str.append(Helper.getSWIFTDate(docDate));
     str.append("RUB");
-    str.append(String.format("%.2f", (float) amount / 100).replace(',','.'));
+    str.append(String.format("%d.%02d", amount / 100, amount % 100));
     str.append(System.lineSeparator());
 
     str.append("50K:");
     iPos = 0; iStr = 0; participant.setLength(0);
-    if (payerINN != null) { participant.append("INN"); participant.append(payerINN); participant.append(" "); }
+    if (payerAccount != null) { str.append("/"); str.append(payerAccount); str.append(System.lineSeparator()); iStr = 1; } // 1st string
+    if (payerINN != null) {
+      participant.append("INN"); participant.append(payerINN);
+      if (payerName != null) participant.append(" "); // Separate INN by space with next client name
+    }
     if (payerName != null) participant.append(payerName);
-    if (payerAccount != null) { str.append("/"); str.append(payerAccount); str.append(System.lineSeparator()); iStr = 1; }
     for (int j = iStr; j <= 4; j++) {
       str.append(participant.substring(iPos, Math.min(iPos + 35, participant.length())));
       str.append(System.lineSeparator());
@@ -490,11 +545,28 @@ public class FDocument {
       if (iPos > participant.length() - 1) break;
     }
 
+    if (payerBankBIC != null) {
+      str.append("52A:");
+      str.append("BIK");
+      str.append(payerBankBIC);
+      str.append(System.lineSeparator());
+    }
+
+    if (payerBankAccount != null) {
+      str.append("53B:");
+      str.append("/");
+      str.append(payerBankAccount);
+      str.append(System.lineSeparator());
+    }
+
     str.append("57D:");
     iPos = 0; iStr = 0; participant.setLength(0);
-    if (payeeBankBIC != null) { participant.append("BIK"); participant.append(payeeBankBIC); participant.append(" "); }
+    if (payeeBankAccount != null) { str.append("/"); str.append(payeeBankAccount); str.append(System.lineSeparator()); iStr = 1; } // 1st string
+    if (payeeBankBIC != null) {
+      participant.append("BIK"); participant.append(payeeBankBIC);
+      if(payeeBankName != null) participant.append(" "); // Separate BIC by space with next bank name
+    }
     if (payeeBankName != null) participant.append(payeeBankName);
-    if (payeeBankAccount != null) { str.append("/"); str.append(payeeBankAccount); str.append(System.lineSeparator()); iStr = 1; }
     for (int j = iStr; j <= 4; j++) {
       str.append(participant.substring(iPos, Math.min(iPos + 35, participant.length())));
       str.append(System.lineSeparator());
@@ -504,9 +576,17 @@ public class FDocument {
 
     str.append("59:");
     iPos = 0; iStr = 0; participant.setLength(0);
-    if (payeeINN != null) { participant.append("INN"); participant.append(payeeINN); participant.append(" "); }
+    if (payeeAccount != null) { str.append("/"); str.append(payeeAccount); str.append(System.lineSeparator()); iStr = 1; } // 1st string
+    if (payeeINN != null) {
+      participant.append("INN"); participant.append(payeeINN);
+      if (payeeName != null && payeeCPP == null) participant.append(" "); // Separate INN by space with next client name
+    }
+    if (payeeCPP != null) {
+      participant.append("/KPP"); participant.append(payeeCPP);
+      if (payeeName != null) participant.append(" "); // Separate INN by space with next client name
+    }
     if (payeeName != null) participant.append(payeeName);
-    if (payeeAccount != null) { str.append("/"); str.append(payeeAccount); str.append(System.lineSeparator()); iStr = 1; }
+
     for (int j = iStr; j <= 4; j++) {
       str.append(participant.substring(iPos, Math.min(iPos + 35, participant.length())));
       str.append(System.lineSeparator());
@@ -607,39 +687,39 @@ public class FDocument {
       if (isUrgent != compared.isUrgent) return false;
       if (isTax != compared.isTax) return false;
 
-      if (!Helper.cmpNullString(docNum, compared.docNum)) return false;
-      if (!Helper.cmpNullString(docDate, compared.docDate)) return false;
+      if (Helper.isStrNullMismatch(docNum, compared.docNum)) return false;
+      if (Helper.isStrNullMismatch(docDate, compared.docDate)) return false;
       if ((amount != null && compared.amount == null) || (amount == null && compared.amount != null)) return false;
       if (!(amount != null && amount.equals(compared.amount))) return false;
-      if (!Helper.cmpNullString(purpose, compared.purpose)) return false;
-      if (!Helper.cmpNullString(UIN, compared.UIN)) return false;
+      if (Helper.isStrNullMismatch(purpose, compared.purpose)) return false;
+      if (Helper.isStrNullMismatch(UIN, compared.UIN)) return false;
 
-      if (!Helper.cmpNullString(payerName, compared.payerName)) return false;
-      if (!Helper.cmpNullString(payerAccount, compared.payerAccount)) return false;
-      if (!Helper.cmpNullString(payerINN, compared.payerINN)) return false;
-      if (!Helper.cmpNullString(payerCPP, compared.payerCPP)) return false;
+      if (Helper.isStrNullMismatch(payerName, compared.payerName)) return false;
+      if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) return false;
+      if (Helper.isStrNullMismatch(payerINN, compared.payerINN)) return false;
+      if (Helper.isStrNullMismatch(payerCPP, compared.payerCPP)) return false;
 
-      if (!Helper.cmpNullString(payerBankName, compared.payerBankName)) return false;
-      if (!Helper.cmpNullString(payerBankBIC, compared.payerBankBIC)) return false;
-      if (!Helper.cmpNullString(payerBankAccount, compared.payerBankAccount)) return false;
+      if (Helper.isStrNullMismatch(payerBankName, compared.payerBankName)) return false;
+      if (Helper.isStrNullMismatch(payerBankBIC, compared.payerBankBIC)) return false;
+      if (Helper.isStrNullMismatch(payerBankAccount, compared.payerBankAccount)) return false;
 
-      if (!Helper.cmpNullString(payeeName, compared.payeeName)) return false;
-      if (!Helper.cmpNullString(payeeAccount, compared.payeeAccount)) return false;
-      if (!Helper.cmpNullString(payeeINN, compared.payeeINN)) return false;
-      if (!Helper.cmpNullString(payeeCPP, compared.payeeCPP)) return false;
+      if (Helper.isStrNullMismatch(payeeName, compared.payeeName)) return false;
+      if (Helper.isStrNullMismatch(payeeAccount, compared.payeeAccount)) return false;
+      if (Helper.isStrNullMismatch(payeeINN, compared.payeeINN)) return false;
+      if (Helper.isStrNullMismatch(payeeCPP, compared.payeeCPP)) return false;
 
-      if (!Helper.cmpNullString(payeeBankName, compared.payeeBankName)) return false;
-      if (!Helper.cmpNullString(payeeBankBIC, compared.payeeBankBIC)) return false;
-      if (!Helper.cmpNullString(payeeBankAccount, compared.payeeBankAccount)) return false;
+      if (Helper.isStrNullMismatch(payeeBankName, compared.payeeBankName)) return false;
+      if (Helper.isStrNullMismatch(payeeBankBIC, compared.payeeBankBIC)) return false;
+      if (Helper.isStrNullMismatch(payeeBankAccount, compared.payeeBankAccount)) return false;
 
-      if (!Helper.cmpNullString(taxStatus, compared.taxStatus)) return false;
-      if (!Helper.cmpNullString(CBC, compared.CBC)) return false;
-      if (!Helper.cmpNullString(OCATO, compared.OCATO)) return false;
-      if (!Helper.cmpNullString(taxPaytReason, compared.taxPaytReason)) return false;
-      if (!Helper.cmpNullString(taxPeriod, compared.taxPeriod)) return false;
-      if (!Helper.cmpNullString(taxDocNum, compared.taxDocNum)) return false;
-      if (!Helper.cmpNullString(taxDocDate, compared.taxDocDate)) return false;
-      if (!Helper.cmpNullString(taxPaytKind, compared.taxPaytKind)) return false;
+      if (Helper.isStrNullMismatch(taxStatus, compared.taxStatus)) return false;
+      if (Helper.isStrNullMismatch(CBC, compared.CBC)) return false;
+      if (Helper.isStrNullMismatch(OCATO, compared.OCATO)) return false;
+      if (Helper.isStrNullMismatch(taxPaytReason, compared.taxPaytReason)) return false;
+      if (Helper.isStrNullMismatch(taxPeriod, compared.taxPeriod)) return false;
+      if (Helper.isStrNullMismatch(taxDocNum, compared.taxDocNum)) return false;
+      if (Helper.isStrNullMismatch(taxDocDate, compared.taxDocDate)) return false;
+      if (Helper.isStrNullMismatch(taxPaytKind, compared.taxPaytKind)) return false;
 
     }
     return true;
@@ -669,8 +749,8 @@ public class FDocument {
         str.append(System.lineSeparator());
       }
 
-      if (!Helper.cmpNullString(docNum, compared.docNum)) oneMismatch(str, "DocNum", docNum, compared.docNum);
-      if (!Helper.cmpNullString(docDate, compared.docDate)) oneMismatch(str, "DocDate", docDate, compared.docDate);
+      if (Helper.isStrNullMismatch(docNum, compared.docNum)) oneMismatch(str, "DocNum", docNum, compared.docNum);
+      if (Helper.isStrNullMismatch(docDate, compared.docDate)) oneMismatch(str, "DocDate", docDate, compared.docDate);
       if ((amount != null && compared.amount == null) || (amount == null && compared.amount != null)) {
         str.append(" Amount not specified: "); str.append(amount); str.append(" against ");
         str.append(compared.amount);
@@ -680,24 +760,24 @@ public class FDocument {
         str.append(" Amount mismatch: "); str.append(amount); str.append(" against "); str.append(compared.amount);
         str.append(System.lineSeparator());
       };
-      if (!Helper.cmpNullString(purpose, compared.purpose)) oneMismatch(str, "Purpose", purpose, compared.purpose);
-      if (!Helper.cmpNullString(UIN, compared.UIN)) oneMismatch(str, "UIN", UIN, compared.UIN);
+      if (Helper.isStrNullMismatch(purpose, compared.purpose)) oneMismatch(str, "Purpose", purpose, compared.purpose);
+      if (Helper.isStrNullMismatch(UIN, compared.UIN)) oneMismatch(str, "UIN", UIN, compared.UIN);
 
-      if (!Helper.cmpNullString(payerName, compared.payerName)) oneMismatch(str, "PayerName", payerName, compared.payerName);
-      if (!Helper.cmpNullString(payerAccount, compared.payerAccount)) oneMismatch(str, "PayerAccount", payerAccount, compared.payerAccount);
-      if (!Helper.cmpNullString(payerINN, compared.payerINN)) oneMismatch(str, "PayerINN", payerINN, compared.payerINN);
-      if (!Helper.cmpNullString(payerCPP, compared.payerCPP)) oneMismatch(str, "PayerCPP", payerCPP, compared.payerCPP);
-      if (!Helper.cmpNullString(payerBankName, compared.payerBankName)) oneMismatch(str, "PayerBankName", payerBankName, compared.payerBankName);
-      if (!Helper.cmpNullString(payerBankBIC, compared.payerBankBIC)) oneMismatch(str, "PayerBankBIC", payerBankBIC, compared.payerBankBIC);
-      if (!Helper.cmpNullString(payerBankAccount, compared.payerBankAccount)) oneMismatch(str, "PayerBankAccount", payerBankAccount, compared.payerBankAccount);
+      if (Helper.isStrNullMismatch(payerName, compared.payerName)) oneMismatch(str, "PayerName", payerName, compared.payerName);
+      if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) oneMismatch(str, "PayerAccount", payerAccount, compared.payerAccount);
+      if (Helper.isStrNullMismatch(payerINN, compared.payerINN)) oneMismatch(str, "PayerINN", payerINN, compared.payerINN);
+      if (Helper.isStrNullMismatch(payerCPP, compared.payerCPP)) oneMismatch(str, "PayerCPP", payerCPP, compared.payerCPP);
+      if (Helper.isStrNullMismatch(payerBankName, compared.payerBankName)) oneMismatch(str, "PayerBankName", payerBankName, compared.payerBankName);
+      if (Helper.isStrNullMismatch(payerBankBIC, compared.payerBankBIC)) oneMismatch(str, "PayerBankBIC", payerBankBIC, compared.payerBankBIC);
+      if (Helper.isStrNullMismatch(payerBankAccount, compared.payerBankAccount)) oneMismatch(str, "PayerBankAccount", payerBankAccount, compared.payerBankAccount);
 
-      if (!Helper.cmpNullString(payeeName, compared.payeeName)) oneMismatch(str, "PayeeName", payeeName, compared.payeeName);
-      if (!Helper.cmpNullString(payeeAccount, compared.payeeAccount)) oneMismatch(str, "PayeeAccount", payeeAccount, compared.payeeAccount);
-      if (!Helper.cmpNullString(payeeINN, compared.payeeINN)) oneMismatch(str, "PayeeINN", payeeINN, compared.payeeINN);
-      if (!Helper.cmpNullString(payeeCPP, compared.payeeCPP)) oneMismatch(str, "PayeeCPP", payeeCPP, compared.payeeCPP);
-      if (!Helper.cmpNullString(payeeBankName, compared.payeeBankName)) oneMismatch(str, "PayeeBankName", payeeBankName, compared.payeeBankName);
-      if (!Helper.cmpNullString(payeeBankBIC, compared.payeeBankBIC)) oneMismatch(str, "PayeeBankBIC", payeeBankBIC, compared.payeeBankBIC);
-      if (!Helper.cmpNullString(payeeBankAccount, compared.payeeBankAccount)) oneMismatch(str, "PayeeBankAccount", payeeBankAccount, compared.payeeBankAccount);
+      if (Helper.isStrNullMismatch(payeeName, compared.payeeName)) oneMismatch(str, "PayeeName", payeeName, compared.payeeName);
+      if (Helper.isStrNullMismatch(payeeAccount, compared.payeeAccount)) oneMismatch(str, "PayeeAccount", payeeAccount, compared.payeeAccount);
+      if (Helper.isStrNullMismatch(payeeINN, compared.payeeINN)) oneMismatch(str, "PayeeINN", payeeINN, compared.payeeINN);
+      if (Helper.isStrNullMismatch(payeeCPP, compared.payeeCPP)) oneMismatch(str, "PayeeCPP", payeeCPP, compared.payeeCPP);
+      if (Helper.isStrNullMismatch(payeeBankName, compared.payeeBankName)) oneMismatch(str, "PayeeBankName", payeeBankName, compared.payeeBankName);
+      if (Helper.isStrNullMismatch(payeeBankBIC, compared.payeeBankBIC)) oneMismatch(str, "PayeeBankBIC", payeeBankBIC, compared.payeeBankBIC);
+      if (Helper.isStrNullMismatch(payeeBankAccount, compared.payeeBankAccount)) oneMismatch(str, "PayeeBankAccount", payeeBankAccount, compared.payeeBankAccount);
 
     }
     return str.toString();

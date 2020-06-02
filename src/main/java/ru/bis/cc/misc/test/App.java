@@ -16,8 +16,6 @@ import java.util.Properties;
  */
 public class App {
 
-  private static Logger logger = null; // We will define configuration later
-
   private static HashMap<Long, FDocument> sampleDocs = new HashMap<>(); // Checked documents array
   private static HashMap<Long, FDocument> patternDocs = new HashMap<>(); // Pattern documents array (for compare)
 
@@ -39,7 +37,8 @@ public class App {
     if (Files.isRegularFile(Paths.get(log4JPropertyFile))) {
       System.setProperty("log4j.configurationFile", log4JPropertyFile);
     }
-    logger = LogManager.getLogger(App.class);
+    // We will define configuration later
+    Logger logger = LogManager.getLogger(App.class);
 
     FileInputStream fis;
     Properties property = new Properties();
@@ -53,7 +52,8 @@ public class App {
       outMT103Path = property.getProperty("outMT103Path");
       inMT103Path = property.getProperty("inMT103Path");
       xsdPath = property.getProperty("xsdPath");
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.error("THE0001: Error opening properties file: " + configFile);
     }
 

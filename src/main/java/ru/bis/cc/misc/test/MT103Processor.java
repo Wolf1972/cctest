@@ -78,7 +78,7 @@ class MT103Processor {
           oneMT103.append(System.lineSeparator());
         }
         else {
-          oneMT103.append(line.substring(0, end + 2));
+          oneMT103.append(line, 0, end + 2);
           FDocument fDoc = new FDocument();
           fDoc.getMT103(oneMT103.toString());
           fDocs.put(fDoc.getId(), fDoc);
@@ -129,7 +129,9 @@ class MT103Processor {
             writer.write(String.format("%10s", value.getId()).replace(' ','0'));
             writer.write("1107");
             writer.write(Helper.getSWIFTDate(value.getDate()));
-            writer.write("N}");
+            if (value.getIsUrgent()) writer.write("U");
+            else writer.write("N");
+            writer.write("}");
             writer.write(str);
           }
         }

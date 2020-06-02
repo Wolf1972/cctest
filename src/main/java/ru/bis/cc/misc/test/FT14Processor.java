@@ -37,7 +37,6 @@ class FT14Processor {
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, chs));
       if (fDocs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
-          Long key = item.getKey();
           FDocument value = item.getValue();
           String str = value.putFT14();
           if (str != null) {

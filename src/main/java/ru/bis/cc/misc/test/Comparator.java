@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Comparator {
+class Comparator {
 
   private Logger logger;
 
@@ -41,7 +41,6 @@ public class Comparator {
     }
     for (Map.Entry<Long, FDocument> item : sample.entrySet()) {
       Long sampleKey = item.getKey();
-      FDocument sampleDoc = item.getValue();
       if (!pattern.containsKey(sampleKey)) {
         logger.error("THE0203: Sample document with ID: " + sampleKey + " is not found in pattern.");
         iMissinginPattern++;

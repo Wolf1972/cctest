@@ -80,16 +80,16 @@ class Helper {
     }
   }
 
-  /** Compares two strings, each may be null
+  /** Compares two strings, each may be null - if strings mismatch, returns TRUE
    *
    * @param s1 - 1st string
    * @param s2 - 2nd string
-   * @return boolean: strings are equal - true/false
+   * @return boolean: strings are mismatch - true/false
    */
-  static boolean cmpNullString(String s1, String s2) {
-    if ((s1 != null && s2 == null) || (s1 == null && s2 != null)) return false;
-    if (s1 != null) return s1.equals(s2); // don't need to check s2 with null
-    return true;
+  static boolean isStrNullMismatch(String s1, String s2) {
+    if ((s1 != null && s2 == null) || (s1 == null && s2 != null)) return true;
+    if (s1 != null) return !s1.equals(s2); // don't need to check s2 with null
+    return false;
   }
 
   /** Checks if string begins with symbols that were determined in specified mask
