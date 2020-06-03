@@ -41,7 +41,7 @@ class MT103Processor {
         if (isRegularFile(path)) {
           String fileName = path.getFileName().toString();
           if (Helper.isSWIFTFile(inPath + fileName, logger)) {
-            if (!readOne(inPath + fileName, fDocs)) filesError++;
+            if (!readFile(inPath + fileName, fDocs)) filesError++;
           } else {
             logger.error("THE0402: File " + fileName + " is not contains XML prolog.");
             filesError++;
@@ -65,7 +65,7 @@ class MT103Processor {
    * @param fDocs    - documents array reference
    * @return boolean: success or fail (true/false)
    */
-  private boolean readOne(String fileName, HashMap<Long, FDocument> fDocs) {
+  private boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
     int msgCount = 0;
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -80,7 +80,7 @@ class MT103Processor {
         else {
           oneMT103.append(line, 0, end + 2);
           FDocument fDoc = new FDocument();
-          fDoc.getMT103(oneMT103.toString());
+          MT103Parser.fromString(oneMT103.toString(), fDoc);
           fDocs.put(fDoc.getId(), fDoc);
           msgCount++;
           oneMT103.setLength(0);
@@ -115,7 +115,7 @@ class MT103Processor {
       if (fDocs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
           FDocument value = item.getValue();
-          String str = value.putMT103();
+          String str = MT103Parser.toString(value);
           if (str != null) {
             writer.write("{1:");
             writer.write("F01");
@@ -124,12 +124,12 @@ class MT103Processor {
             writer.write("}");
             writer.write("{2:O103");
             writer.write("1007");
-            writer.write(Helper.getSWIFTDate(value.getDate()));
+            writer.write(Helper.getSWIFTDate(value.docDate));
             writer.write("DBEBRUMMAXXX");
             writer.write(String.format("%10s", value.getId()).replace(' ','0'));
             writer.write("1107");
-            writer.write(Helper.getSWIFTDate(value.getDate()));
-            if (value.getIsUrgent()) writer.write("U");
+            writer.write(Helper.getSWIFTDate(value.docDate));
+            if (value.isUrgent) writer.write("U");
             else writer.write("N");
             writer.write("}");
             writer.write(str);
@@ -137,7 +137,8 @@ class MT103Processor {
         }
       }
       writer.close();
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.error("THE0411: Error write output file " + outFile);
     }
   }

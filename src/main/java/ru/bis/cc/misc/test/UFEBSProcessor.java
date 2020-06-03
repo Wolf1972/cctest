@@ -51,13 +51,15 @@ class UFEBSProcessor {
           logger.info("THI0501: Processing file: " + inPath + fileName);
           if (Helper.isXMLFile(inPath + fileName, logger)) {
             if (!readOne(inPath + fileName, fDocs)) filesError++;
-          } else {
+          }
+          else {
             logger.error("THE0502: File " + fileName + " is not contains XML prolog.");
             filesError++;
           }
         }
       }
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.error("THE0501: Error while file system access: " + inPath);
       filesError++;
     }
@@ -91,7 +93,7 @@ class UFEBSProcessor {
               String nodeName = ed.getNodeName();
               if (nodeName.matches("ED10[134]")) {
                 FDocument fDoc = new FDocument();
-                fDoc.getED(ed);
+                UFEBSParser.fromXML(ed, fDoc);
                 logger.trace("THI0510: Packet item: " + fDoc.toString());
                 Long id = fDoc.getId();
                 if (!fDocs.containsKey(id)) {
@@ -105,14 +107,16 @@ class UFEBSProcessor {
             }
           }
         }
-      } else if (rootNodeName.matches("ED10[134]")) { // For single EPD
+      }
+      else if (rootNodeName.matches("ED10[134]")) { // For single EPD
         if (Helper.isXMLValid(fileName, XSDPath + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd", logger)) {
           FDocument fDoc = new FDocument();
-          fDoc.getED(root);
+          UFEBSParser.fromXML(root, fDoc);
           logger.trace("THI0513: Single ED: " + fDoc.toString());
           fDocs.put(fDoc.getId(), fDoc);
         }
-      } else {
+      }
+      else {
         logger.error("THE0514: File " + fileName + " contains unknown root element: " + rootNodeName);
       }
 
