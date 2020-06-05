@@ -38,6 +38,8 @@ class FT14Parser {
     str.append(String.format("%" + String.format("%d", 371 - str.length() - 1) + "s", " ")); // 371 - absolute pos for docNum
     str.append(String.format("%10s", doc.docNum));
     if (doc.payerAccount != null) str.append(String.format("%20s", doc.payerAccount)); // 381, payerAccount just after docNum
+    str.append(String.format("%" + String.format("%d", 485 - str.length() - 1) + "s", " ")); // 485 - absolute pos for priority
+    str.append(String.format("%2s", doc.priority).replace(" ", "0"));
     str.append(String.format("%" + String.format("%d", 593 - str.length() - 1) + "s", " ")); // 593 - absolute pos for payerName (it doesn't use for payment create)
     str.append(String.format("%-140s", doc.payerName));
     str.append(String.format("%" + String.format("%d", 1365 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for PA-payments)

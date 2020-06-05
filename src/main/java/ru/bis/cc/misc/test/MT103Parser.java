@@ -29,6 +29,8 @@ class MT103Parser {
       }
     }
 
+    doc.transKind = "01"; // TODO
+
     String blockHeader = "{4:";
     String blockTrailer = "-}";
     posMessage = str.indexOf(blockHeader);

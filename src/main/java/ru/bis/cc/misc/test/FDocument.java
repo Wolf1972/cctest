@@ -13,6 +13,10 @@ public class FDocument {
   Long amount;
   String purpose;
   String UIN;
+  String priority;
+  String chargeOffDate;
+  String receiptDate;
+  String transKind;
 
   String payerName;
   String payerAccount;
@@ -124,6 +128,11 @@ public class FDocument {
       if (Helper.isStrNullMismatch(purpose, compared.purpose)) return false;
       if (Helper.isStrNullMismatch(UIN, compared.UIN)) return false;
 
+      if (Helper.isStrNullMismatch(priority, compared.priority)) return false;
+      if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) return false;
+      if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) return false;
+      if (Helper.isStrNullMismatch(transKind, compared.transKind)) return false;
+
       if (Helper.isStrNullMismatch(payerName, compared.payerName)) return false;
       if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) return false;
       if (Helper.isStrNullMismatch(payerINN, compared.payerINN)) return false;
@@ -190,6 +199,10 @@ public class FDocument {
       };
       if (Helper.isStrNullMismatch(purpose, compared.purpose)) oneMismatch(str, "Purpose", purpose, compared.purpose);
       if (Helper.isStrNullMismatch(UIN, compared.UIN)) oneMismatch(str, "UIN", UIN, compared.UIN);
+      if (Helper.isStrNullMismatch(priority, compared.priority)) oneMismatch(str, "Priority", priority, compared.priority);
+      if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) oneMismatch(str, "ChargeOff", chargeOffDate, compared.chargeOffDate);
+      if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) oneMismatch(str, "ReceiptDate", receiptDate, compared.receiptDate);
+      if (Helper.isStrNullMismatch(transKind, compared.transKind)) oneMismatch(str, "TransKind", transKind, compared.transKind);
 
       if (Helper.isStrNullMismatch(payerName, compared.payerName)) oneMismatch(str, "PayerName", payerName, compared.payerName);
       if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) oneMismatch(str, "PayerAccount", payerAccount, compared.payerAccount);

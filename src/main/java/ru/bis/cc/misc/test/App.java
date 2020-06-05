@@ -27,6 +27,7 @@ public class App {
     String patternPath = ".\\target\\pattern\\";
     String outFT14Path = ".\\target\\out-ft14\\";
     String outMT103Path = ".\\target\\out-mt103\\";
+    String outEDPath = ".\\target\\out-ed\\";
     String inMT103Path = ".\\target\\in-mt103\\";
     String xsdPath = ".\\target\\XMLSchemas\\";
 
@@ -50,6 +51,7 @@ public class App {
       patternPath = property.getProperty("patternPath");
       outFT14Path = property.getProperty("outFT14Path");
       outMT103Path = property.getProperty("outMT103Path");
+      outEDPath = property.getProperty("outEDPath");
       inMT103Path = property.getProperty("inMT103Path");
       xsdPath = property.getProperty("xsdPath");
     }
@@ -60,6 +62,8 @@ public class App {
     UFEBSProcessor procUFEBS = new UFEBSProcessor(xsdPath, logger);
     procUFEBS.readAll(patternPath, patternDocs);
     procUFEBS.readAll(samplePath, sampleDocs);
+
+    procUFEBS.createAll(outEDPath, sampleDocs);
 
     Comparator comparator = new Comparator(logger);
     comparator.compare(patternDocs, sampleDocs);

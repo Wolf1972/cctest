@@ -9,11 +9,13 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
 import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
@@ -130,4 +132,69 @@ class UFEBSProcessor {
     return true;
   }
 
+  /**
+   * Creates UFEBS files for all specified documents array: urgent payments place into individual files,
+   * non-urgent documents places in common packet file
+   *
+   * @param outPath = path for create MT103 file
+   * @param fDocs   - documents array reference
+   */
+  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
+    if (!Files.isDirectory(Paths.get(outPath))) {
+      logger.error("0520: Error access output directory " + outPath);
+      return;
+    }
+    String prolog = "<?xml version=\"1.0\" encoding=\"utf8\" ?>";
+    // Has documents array contains non-urgent payments? Calculate count and total sum of all documents in packet
+    int packetCount = 0;
+    Long packetSum = 0L;
+    String packetDate = "";
+    for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
+      FDocument doc = item.getValue();
+      if (!doc.isUrgent) {
+        packetCount++;
+        packetSum += doc.amount;
+        packetDate = doc.docDate;
+      }
+    }
+    try {
+      BufferedWriter packetWriter = null;
+      String outFile = "";
+      if (packetCount > 0) {
+        outFile = outPath + "pck000000.xml";
+        OutputStream osp = new FileOutputStream(outFile);
+        packetWriter = new BufferedWriter(new OutputStreamWriter(osp));
+        packetWriter.write(prolog + System.lineSeparator());
+        packetWriter.write(UFEBSParser.packetRoot(packetDate, packetCount, packetSum) + System.lineSeparator());
+      }
+      for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
+        FDocument doc = item.getValue();
+        if (doc.isUrgent) {
+          outFile = outPath + "one" + String.format("%06d", doc.getId()) + ".xml";
+          OutputStream oss = new FileOutputStream(outFile);
+          BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss));
+          singleWriter.write(prolog + System.lineSeparator());
+          String str = UFEBSParser.toString(doc);
+          singleWriter.write(str);
+          singleWriter.close();
+          String rootNodeName = "ED101"; // TODO
+          Helper.isXMLValid(outFile, XSDPath + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd", logger);
+        }
+        else {
+          String str = UFEBSParser.toString(doc);
+          packetWriter.write(str);
+        }
+      }
+      if (packetCount > 0) {
+        packetWriter.write("</PacketEPD>" + System.lineSeparator());
+        packetWriter.close();
+        Helper.isXMLValid(outFile, XSDPath + "ed\\cbr_packetepd_v2020.2.0.xsd", logger);
+      }
+
+    }
+    catch (IOException e) {
+      logger.error("0521: Error write output file with ED.");
+    }
+
+  }
 }
