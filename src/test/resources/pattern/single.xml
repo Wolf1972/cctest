@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="WINDOWS-1251" ?>
+<ED101 EDAuthor="4525101000" EDDate="2020-05-14" EDNo="600000000" PaymentID="0" PaymentPrecedence="60" PaytKind="4" Priority="3" Sum="2645209" SystemCode="05" TransKind="01" xmlns="urn:cbr-ru:ed:v2.0">
+<AccDoc AccDocDate="2020-05-14" AccDocNo="143"/>
+<Payer INN="7702216772" KPP="770501001">
+<Name>ООО &quot;ДОЙЧЕ БАНК&quot;</Name>
+<Bank BIC="044525101" CorrespAcc="30101810100000000101"/>
+</Payer>
+<Payee INN="5834029976" KPP="583487001" PersonalAcc="40101810100000000101">
+<Name>УФК по Пензенской области</Name>
+<Bank BIC="045655001"/>
+</Payee>
+<Purpose>Пеня по налогу на имущество за 3 квартал 2020 г.</Purpose>
+<DepartmentalInfo CBC="18210602010022000110" DocDate="0" DocNo="0" DrawerStatus="01" OKATO="45277583" PaytReason="ЗД" TaxPeriod="КВ.03.2020"/>
+</ED101>
