@@ -27,7 +27,7 @@ class FT14Processor {
    */
   void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("THE0301: Error access output directory " + outPath);
+      logger.error("0301: Error access output directory " + outPath);
       return;
     }
     String outFile = outPath + "ft14test.txt";
@@ -47,7 +47,7 @@ class FT14Processor {
       }
       writer.close();
     } catch (IOException e) {
-      logger.error("THE0302: Error write output file " + outFile);
+      logger.error("0302: Error write output file " + outFile);
     }
   }
 

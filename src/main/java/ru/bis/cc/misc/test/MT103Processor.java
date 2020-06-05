@@ -43,19 +43,19 @@ class MT103Processor {
           if (Helper.isSWIFTFile(inPath + fileName, logger)) {
             if (!readFile(inPath + fileName, fDocs)) filesError++;
           } else {
-            logger.error("THE0402: File " + fileName + " is not contains XML prolog.");
+            logger.error("0402: File " + fileName + " is not contains XML prolog.");
             filesError++;
           }
 
-          logger.info("THI0401: Processing file: " + inPath + fileName);
+          logger.info("0401: Processing file: " + inPath + fileName);
         }
       }
     } catch (IOException e) {
-      logger.error("THE0401: Error while file system access: " + inPath);
+      logger.error("0401: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("THI0403: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("THI0404: Documents added: " + fDocs.size());
+    logger.info("0403: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0404: Documents added: " + fDocs.size());
   }
 
   /**
@@ -65,7 +65,7 @@ class MT103Processor {
    * @param fDocs    - documents array reference
    * @return boolean: success or fail (true/false)
    */
-  private boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
     int msgCount = 0;
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -90,10 +90,10 @@ class MT103Processor {
       }
     }
     catch (IOException e) {
-      logger.error("THE0410: Error while file read: " + fileName);
+      logger.error("0410: Error while file read: " + fileName);
       return false;
     }
-    logger.info("THI0410: Messages read: " + msgCount);
+    logger.info("0410: Messages read: " + msgCount);
     return true;
   }
 
@@ -105,7 +105,7 @@ class MT103Processor {
    */
   void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("THE0410: Error access output directory " + outPath);
+      logger.error("0410: Error access output directory " + outPath);
       return;
     }
     String outFile = outPath + "mt103test.txt";
@@ -139,7 +139,7 @@ class MT103Processor {
       writer.close();
     }
     catch (IOException e) {
-      logger.error("THE0411: Error write output file " + outFile);
+      logger.error("0411: Error write output file " + outFile);
     }
   }
 

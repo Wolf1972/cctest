@@ -48,23 +48,23 @@ class UFEBSProcessor {
         filesCount++;
         if (isRegularFile(path)) {
           String fileName = path.getFileName().toString();
-          logger.info("THI0501: Processing file: " + inPath + fileName);
+          logger.info("0501: Processing file: " + inPath + fileName);
           if (Helper.isXMLFile(inPath + fileName, logger)) {
             if (!readOne(inPath + fileName, fDocs)) filesError++;
           }
           else {
-            logger.error("THE0502: File " + fileName + " is not contains XML prolog.");
+            logger.error("0502: File " + fileName + " is not contains XML prolog.");
             filesError++;
           }
         }
       }
     }
     catch (IOException e) {
-      logger.error("THE0501: Error while file system access: " + inPath);
+      logger.error("0501: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("THI0502: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("THI0503: Documents added: " + fDocs.size());
+    logger.info("0502: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0503: Documents added: " + fDocs.size());
   }
 
   /**
@@ -74,7 +74,7 @@ class UFEBSProcessor {
    * @param fDocs    - documents array reference
    * @return boolean: success or fail (true/false)
    */
-  private boolean readOne(String fileName, HashMap<Long, FDocument> fDocs) {
+  boolean readOne(String fileName, HashMap<Long, FDocument> fDocs) {
     try {
 
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -94,15 +94,15 @@ class UFEBSProcessor {
               if (nodeName.matches("ED10[134]")) {
                 FDocument fDoc = new FDocument();
                 UFEBSParser.fromXML(ed, fDoc);
-                logger.trace("THI0510: Packet item: " + fDoc.toString());
+                logger.trace("0510: Packet item: " + fDoc.toString());
                 Long id = fDoc.getId();
                 if (!fDocs.containsKey(id)) {
                   fDocs.put(id, fDoc);
                 } else {
-                  logger.error("THE0511: Document ID " + id + "has already added.");
+                  logger.error("0511: Document ID " + id + "has already added.");
                 }
               } else {
-                logger.error("THE0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+                logger.error("0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
               }
             }
           }
@@ -112,19 +112,19 @@ class UFEBSProcessor {
         if (Helper.isXMLValid(fileName, XSDPath + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd", logger)) {
           FDocument fDoc = new FDocument();
           UFEBSParser.fromXML(root, fDoc);
-          logger.trace("THI0513: Single ED: " + fDoc.toString());
+          logger.trace("0513: Single ED: " + fDoc.toString());
           fDocs.put(fDoc.getId(), fDoc);
         }
       }
       else {
-        logger.error("THE0514: File " + fileName + " contains unknown root element: " + rootNodeName);
+        logger.error("0514: File " + fileName + " contains unknown root element: " + rootNodeName);
       }
 
     } catch (ParserConfigurationException | SAXException e) {
-      logger.error("THE0515: Error parsing file " + fileName, e);
+      logger.error("0515: Error parsing file " + fileName, e);
       return false;
     } catch (IOException e) {
-      logger.error("THE0516. Error while file access: " + fileName, e);
+      logger.error("0516. Error while file access: " + fileName);
       return false;
     }
     return true;

@@ -30,7 +30,7 @@ class Helper {
       raf.close();
     }
     catch (IOException e) {
-      logger.error("THE0101: Error access file: " + fileName, e);
+      logger.error("0101: Error access file: " + fileName, e);
     }
     return false;
   }
@@ -46,7 +46,7 @@ class Helper {
       raf.close();
     }
     catch (IOException e) {
-      logger.error("THE0101: Error access file: " + fileName, e);
+      logger.error("0101: Error access file: " + fileName, e);
     }
     return false;
   }
@@ -59,7 +59,7 @@ class Helper {
    */
   static boolean isXMLValid(String fileName, String xsdFile, Logger logger) {
     if (!Files.isRegularFile(Paths.get(xsdFile))) {
-      logger.error("THE0102: Error access XSD file " + xsdFile);
+      logger.error("0102: Error access XSD file " + xsdFile);
       return false;
     }
     try {
@@ -67,15 +67,15 @@ class Helper {
       Schema schema = factory.newSchema(new StreamSource(xsdFile));
       Validator validator = schema.newValidator();
       validator.validate(new StreamSource(fileName));
-      logger.trace("THI0101: XSD check completed for file " + fileName);
+      logger.trace("0101: XSD check completed for file " + fileName);
       return true;
     }
     catch (IOException e) {
-      logger.error("THE0103: Error access file " + fileName + " while XML scheme check.", e);
+      logger.error("0103: Error access file " + fileName + " while XML scheme check.", e);
       return false;
     }
     catch (SAXException e) {
-      logger.error("THE0104: XML file " + fileName + " doesn't accord with XML scheme.", e);
+      logger.error("0104: XML file " + fileName + " doesn't accord with XML scheme.", e);
       return false;
     }
   }

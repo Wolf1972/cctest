@@ -54,7 +54,7 @@ public class App {
       xsdPath = property.getProperty("xsdPath");
     }
     catch (IOException e) {
-      logger.error("THE0001: Error opening properties file: " + configFile);
+      logger.error("0001: Error opening properties file: " + configFile);
     }
 
     UFEBSProcessor procUFEBS = new UFEBSProcessor(xsdPath, logger);
@@ -74,7 +74,7 @@ public class App {
     procMT103.readAll(inMT103Path, sampleDocs);
     comparator.compare(patternDocs, sampleDocs);
 
-    logger.info("THI0001: End of work.");
+    logger.info("0000: End of work.");
 
   }
 
