@@ -1,17 +1,15 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Properties;
 
 /**
- * UFEBS files parsing, converting to FT14 packet, comparing results of UFEBS parsing from 2 directories
+ * Files processing: parse, compares and assembles files in FT14, SWIFT and UFEBS format
  *
  */
 public class App {
@@ -21,62 +19,96 @@ public class App {
 
   public static void main(String[] args) {
 
-    String configPath = ".\\target\\";
-
-    String samplePath = ".\\target\\in\\";
-    String patternPath = ".\\target\\pattern\\";
-    String outFT14Path = ".\\target\\out-ft14\\";
-    String outMT103Path = ".\\target\\out-mt103\\";
-    String outEDPath = ".\\target\\out-ed\\";
-    String inMT103Path = ".\\target\\in-mt103\\";
-    String xsdPath = ".\\target\\XMLSchemas\\";
-
     System.out.println("UFEBS CC test helper (c) BIS 2020.");
 
+    Options options = new Options();
+    Option action = new Option("a", "action", true, "Type of action: transform,compare, check.");
+    action.setArgs(1); action.isRequired();
+    options.addOption(action);
+    Option input = new Option("i", "input", true, "Input files directory.");
+    input.setArgs(1);
+    options.addOption(input);
+    Option output = new Option("o", "output", true, "Output files directory.");
+    output.setArgs(1);
+    options.addOption(output);
+    Option outType = new Option("t", "type", true, "Output files type: UFEBS, FT14, MT103 etc.");
+    outType.setArgs(1);
+    options.addOption(outType);
+    Option pattern = new Option("p", "pattern", true, "Pattern files directory.");
+    pattern.setArgs(1);
+    options.addOption(pattern);
+    Option xsd = new Option("x", "xsd", true, "XSD files directory.");
+    pattern.setArgs(1);
+    options.addOption(xsd);
+
+    // Command line options
+    String cmdAction = ""; // Action
+    String cmdType = ""; // Type of output file
+    String inPath = "";
+    String outPath = "";
+    String patternPath = "";
+    String xsdPath = "";
+
+    CommandLineParser parser = new DefaultParser();
+    try {
+      CommandLine command = parser.parse(options, args);
+
+      String[] arguments = command.getOptionValues("a");
+      if (arguments != null && arguments.length > 0) cmdAction = arguments[0];
+      arguments = command.getOptionValues("i");
+      if (arguments != null && arguments.length > 0) inPath = arguments[0];
+      arguments = command.getOptionValues("o");
+      if (arguments != null && arguments.length > 0) outPath = arguments[0];
+      arguments = command.getOptionValues("t");
+      if (arguments != null && arguments.length > 0) cmdType = arguments[0];
+      arguments = command.getOptionValues("p");
+      if (arguments != null && arguments.length > 0) patternPath = arguments[0];
+      arguments = command.getOptionValues("x");
+      if (arguments != null && arguments.length > 0) xsdPath = arguments[0];
+
+    }
+    catch (ParseException e) {
+      System.out.println("Command line parse exception. " + e.getStackTrace());
+    }
+
     // Looking for log4j
-    String log4JPropertyFile = configPath + "log4j2.xml"; // Is Log4j configuration file in custom place?
+    String log4JPropertyFile = "log4j2.xml"; // Is Log4j configuration file in custom place?
     if (Files.isRegularFile(Paths.get(log4JPropertyFile))) {
       System.setProperty("log4j.configurationFile", log4JPropertyFile);
     }
     // We will define configuration later
     Logger logger = LogManager.getLogger(App.class);
 
-    FileInputStream fis;
-    Properties property = new Properties();
-    String configFile = configPath + "config.properties";
-    try {
-      fis = new FileInputStream(configFile);
-      property.load(fis);
-      samplePath = property.getProperty("inPath");
-      patternPath = property.getProperty("patternPath");
-      outFT14Path = property.getProperty("outFT14Path");
-      outMT103Path = property.getProperty("outMT103Path");
-      outEDPath = property.getProperty("outEDPath");
-      inMT103Path = property.getProperty("inMT103Path");
-      xsdPath = property.getProperty("xsdPath");
+    if (cmdAction != null) {
+      if (cmdAction.equalsIgnoreCase("compare")) {
+        AProcessor procIn = ProcessorFabric.getProcessor(inPath, logger);
+        if (procIn != null) procIn.readAll(inPath, sampleDocs);
+        AProcessor procPattern = ProcessorFabric.getProcessor(patternPath, logger);
+        if (procPattern != null) procPattern.readAll(patternPath, patternDocs);
+        if (procIn != null && procPattern != null) {
+          Comparator comparator = new Comparator(logger);
+          comparator.compare(patternDocs, sampleDocs);
+        }
+      }
+      else if (cmdAction.equalsIgnoreCase("transform")) {
+        AProcessor procIn = ProcessorFabric.getProcessor(inPath, logger);
+        if (procIn != null) procIn.readAll(inPath, sampleDocs);
+        try {
+          FileType fileType = FileType.valueOf(cmdType);
+          AProcessor procOut = ProcessorFabric.getProcessor(fileType, logger);
+          if (procOut != null) procOut.createAll(outPath, sampleDocs);
+        }
+        catch (IllegalArgumentException e) {
+          logger.error("0002: Unknown format type: " + cmdType);
+        }
+      }
+      else if (cmdAction.equalsIgnoreCase("check")) {
+        AProcessor procIn = ProcessorFabric.getProcessor(inPath, logger);
+        if (procIn != null && procIn.getClass() == UFEBSProcessor.class) {
+          procIn.checkAll(inPath, xsdPath, logger);
+        }
+      }
     }
-    catch (IOException e) {
-      logger.error("0001: Error opening properties file: " + configFile);
-    }
-
-    UFEBSProcessor procUFEBS = new UFEBSProcessor(xsdPath, logger);
-    procUFEBS.readAll(patternPath, patternDocs);
-    procUFEBS.readAll(samplePath, sampleDocs);
-
-    procUFEBS.createAll(outEDPath, sampleDocs);
-
-    Comparator comparator = new Comparator(logger);
-    comparator.compare(patternDocs, sampleDocs);
-
-    FT14Processor procFT14 = new FT14Processor(logger);
-    procFT14.createAll(outFT14Path, patternDocs);
-
-    MT103Processor procMT103 = new MT103Processor(logger);
-
-    procMT103.createAll(outMT103Path, patternDocs);
-    sampleDocs.clear();
-    procMT103.readAll(inMT103Path, sampleDocs);
-    comparator.compare(patternDocs, sampleDocs);
 
     logger.info("0000: End of work.");
 

@@ -8,17 +8,18 @@ class MT103Parser {
   /** Loads object from MT103
    *
    * @param str = string with MT103 message
-   * @param doc - financial document
+   * @return financial document
    */
-  static void fromString(String str, FDocument doc) {
+  static FDocument fromString(String str) {
 
     String[] fields = {"20", "32A", "50K", "52A", "53B", "57D", "59", "70", "72", "77B"};
-    StringBuilder tag = new StringBuilder();
 
     String innKeyWord = "INN";
     String regExpINN = innKeyWord + "\\d{12}\\D|"+ innKeyWord + "\\d{10}\\D|" + innKeyWord + "\\d{5}\\D" +
             innKeyWord + "\\d{12}$|"+ innKeyWord + "\\d{10}$|" + innKeyWord + "\\d{5}$"; // to take into account that INN may takes place in the end of the string
     Pattern patternINN = Pattern.compile(regExpINN);
+
+    FDocument doc = new FDocument();
 
     int posMessage = str.indexOf("{2:");
     if (posMessage >= 0) {
@@ -29,8 +30,6 @@ class MT103Parser {
       }
     }
 
-    doc.transKind = "01"; // TODO
-
     String blockHeader = "{4:";
     String blockTrailer = "-}";
     posMessage = str.indexOf(blockHeader);
@@ -38,6 +37,7 @@ class MT103Parser {
     StringBuilder tagContent = new StringBuilder();
 
     if (posMessage >= 0) {
+
       posMessage += blockHeader.length();
       if (str.substring(posMessage, posMessage + System.lineSeparator().length()).equals(System.lineSeparator()))
         posMessage += System.lineSeparator().length(); // skip possible CRLF from "{4:"
@@ -57,7 +57,7 @@ class MT103Parser {
           oneLine = str.substring(posMessage, endString);
           posMessage = endString + System.lineSeparator().length();
         } else { // last string of message
-          oneLine = str.substring(posMessage, str.length());
+          oneLine = str.substring(posMessage);
           posMessage = str.length();
         }
         endString = oneLine.indexOf(blockTrailer);
@@ -134,6 +134,7 @@ class MT103Parser {
                     }
                   }
                   catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
+
                   }
                   if (innPos >= 0 && innEnd >= 0) {
                     if (innPos > 0) clientName.append(rawClientName.substring(0, innPos));
@@ -261,8 +262,9 @@ class MT103Parser {
       }
     }
     else {
-      // There is no block 4: in parsing message
+      return null;
     }
+    return doc;
   }
 
   /** Creates MT103 string from object

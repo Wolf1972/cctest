@@ -16,7 +16,7 @@ import static java.nio.file.Files.newDirectoryStream;
 /** Class for SWIFT MT103 proceessing
  *
  */
-class MT103Processor {
+class MT103Processor extends SWIFTProcessor {
 
   private Logger logger;
 
@@ -40,7 +40,7 @@ class MT103Processor {
         filesCount++;
         if (isRegularFile(path)) {
           String fileName = path.getFileName().toString();
-          if (Helper.isSWIFTFile(inPath + fileName, logger)) {
+          if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.MT103) {
             if (!readFile(inPath + fileName, fDocs)) filesError++;
           } else {
             logger.error("0402: File " + fileName + " is not contains XML prolog.");
@@ -79,9 +79,8 @@ class MT103Processor {
         }
         else {
           oneMT103.append(line, 0, end + 2);
-          FDocument fDoc = new FDocument();
-          MT103Parser.fromString(oneMT103.toString(), fDoc);
-          fDocs.put(fDoc.getId(), fDoc);
+          FDocument fDoc = MT103Parser.fromString(oneMT103.toString());
+          if (fDoc != null) fDocs.put(fDoc.getId(), fDoc);
           msgCount++;
           oneMT103.setLength(0);
           oneMT103.append(line.substring(end + 2));

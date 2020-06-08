@@ -8,9 +8,12 @@ class UFEBSParser {
   /** Loads object from XML node
    *
    * @param node - XML node with one document (ED1xx) or packet (PacketED)
-   * @param doc - financial document
+   * @return  FDocument - financial document
    */
-  static void fromXML(Node node, FDocument doc) {
+  static FDocument fromXML(Node node) {
+
+    FDocument doc = new FDocument();
+
     if (node.getNodeType() != Node.TEXT_NODE) {
 
       NamedNodeMap attr = node.getAttributes();
@@ -49,6 +52,8 @@ class UFEBSParser {
           if (nestedNode != null) doc.docNum = nestedNode.getNodeValue();
           nestedNode = attr.getNamedItem("AccDocDate");
           if (nestedNode != null) doc.docDate = nestedNode.getNodeValue();
+          if (doc.chargeOffDate == null) doc.chargeOffDate = doc.docDate;
+          if (doc.receiptDate == null) doc.receiptDate = doc.docDate;
         }
 
         else if (nodeName.equals("Payer")) {
@@ -131,6 +136,10 @@ class UFEBSParser {
         }
       }
     }
+    else {
+      return null;
+    }
+    return doc;
   }
 
   /** Returns string with one ED
@@ -139,7 +148,7 @@ class UFEBSParser {
    * @return string with XML node ED1xx
    */
   static String toString(FDocument doc) {
-    StringBuffer str = new StringBuffer();
+    StringBuilder str = new StringBuilder();
 
     str.append("<ED101 EDAuthor=\"4525101000\"");
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
@@ -210,11 +219,10 @@ class UFEBSParser {
    * @return string with root element
    */
   static String packetRoot(String date, int quantity, Long sum) {
-    String str = "<PacketEPD EDAuthor=\"" + "4525101000\"" +
+    return "<PacketEPD EDAuthor=\"" + "4525101000\"" +
                  " EDDate=\"" + date + "\" EDNo=\"1000001\" EDReceiver=\"4652001000\"" +
                  " EDQuantity=\"" + quantity + "\"" + " Sum=\"" + sum + "\"" +
                  " SystemCode=\"02\" xmlns=\"urn:cbr-ru:ed:v2.0\">";
-    return str;
   }
 
 }

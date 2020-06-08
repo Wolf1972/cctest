@@ -59,27 +59,27 @@ public class FDocument {
 
   @Override
   public String toString() {
-      String str = "EDNo: " + edNo + ", EDDate: " + edDate +
-                   ", DocNo: " + docNum + ", Date: " + docDate +
-                   ", Amount: " + amount / 100 + "." + amount % 100 + System.lineSeparator() +
-                   " Payer Bank: " + payerBankName + ", BIC: " + payerBankBIC + ", Account: " + payerBankAccount + System.lineSeparator() +
-                   " Payer Name: " + payerName + ", Account: " + payerAccount +
-                   ", INN: " + payerINN + ", CPP: " + payerCPP + System.lineSeparator() +
-                   " Payee Bank: " + payeeBankName + ", BIC: " + payeeBankBIC + ", Account: " + payeeBankAccount + System.lineSeparator() +
-                   " Payee Name: " + payeeName + ", Account: " + payeeAccount +
-                   ", INN: " + payeeINN + ", CPP: " + payeeCPP + System.lineSeparator() +
-                   " Purpose: " + purpose;
-      String tax = "";
-      if (taxStatus != null) tax += " Status: " + taxStatus;
-      if (CBC != null) tax += " CBC: " + CBC;
-      if (OCATO != null) tax += " OCATO: " + OCATO;
-      if (taxPaytReason != null) tax += " Reason: " + taxPaytReason;
-      if (taxPeriod != null) tax += " Period: " + taxPeriod;
-      if (taxDocNum != null) tax += " DocNo: " + taxDocNum;
-      if (taxDocDate != null) tax += " DocDate: " + taxDocDate;
-      if (taxPaytKind != null) tax += " Kind: " + taxPaytKind;
-      if (tax.length() > 0) str = str + System.lineSeparator() + tax;
-      return str;
+    String str = "EDNo: " + edNo + ", EDDate: " + edDate +
+                 ", DocNo: " + docNum + ", Date: " + docDate +
+                 ", Amount: " + amount / 100 + "." + amount % 100 + System.lineSeparator() +
+                 " Payer Bank: " + payerBankName + ", BIC: " + payerBankBIC + ", Account: " + payerBankAccount + System.lineSeparator() +
+                 " Payer Name: " + payerName + ", Account: " + payerAccount +
+                 ", INN: " + payerINN + ", CPP: " + payerCPP + System.lineSeparator() +
+                 " Payee Bank: " + payeeBankName + ", BIC: " + payeeBankBIC + ", Account: " + payeeBankAccount + System.lineSeparator() +
+                 " Payee Name: " + payeeName + ", Account: " + payeeAccount +
+                 ", INN: " + payeeINN + ", CPP: " + payeeCPP + System.lineSeparator() +
+                 " Purpose: " + purpose;
+    String tax = "";
+    if (taxStatus != null) tax += " TaxStatus: " + taxStatus;
+    if (CBC != null) tax += " CBC: " + CBC;
+    if (OCATO != null) tax += " OCATO: " + OCATO;
+    if (taxPaytReason != null) tax += " Reason: " + taxPaytReason;
+    if (taxPeriod != null) tax += " Period: " + taxPeriod;
+    if (taxDocNum != null) tax += " DocNo: " + taxDocNum;
+    if (taxDocDate != null) tax += " DocDate: " + taxDocDate;
+    if (taxPaytKind != null) tax += " Kind: " + taxPaytKind;
+    if (tax.length() > 0) str = str + System.lineSeparator() + tax;
+    return str;
   }
 
   /** Function assembles tax attfibutes string
@@ -112,8 +112,16 @@ public class FDocument {
     return taxStr.toString();
   }
 
-  @Override
-  public boolean equals(Object obj) {
+  /** Compares current object with other
+   *
+   * @param obj - object to compare
+   * @param strictLevel - strict level
+   *    0 - base compare, suits for compare all documents (compares only common fields)
+   *    1 - strict compare, suits for compare documents loads from FT14 (common fields and priority, transaction kind)
+   *    2 - more strict compare with all fields, suits for documents loads from UFEBS only
+   * @return: boolean - objects are equal (true/false)
+   */
+  public boolean equals(Object obj, int strictLevel) {
     if (obj == null) return false;
     if (obj.getClass() != FDocument.class) return false;
     else {
@@ -128,10 +136,14 @@ public class FDocument {
       if (Helper.isStrNullMismatch(purpose, compared.purpose)) return false;
       if (Helper.isStrNullMismatch(UIN, compared.UIN)) return false;
 
-      if (Helper.isStrNullMismatch(priority, compared.priority)) return false;
-      if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) return false;
-      if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) return false;
-      if (Helper.isStrNullMismatch(transKind, compared.transKind)) return false;
+      if (strictLevel > 0) {
+        if (Helper.isStrNullMismatch(priority, compared.priority)) return false;
+        if (Helper.isStrNullMismatch(transKind, compared.transKind)) return false;
+        if (strictLevel > 1) {
+          if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) return false;
+          if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) return false;
+        }
+      }
 
       if (Helper.isStrNullMismatch(payerName, compared.payerName)) return false;
       if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) return false;
@@ -167,9 +179,13 @@ public class FDocument {
   /** Returns string with compare details
    *
    * @param obj object to compare
+   * @param strictLevel - strict level
+   *    0 - base compare, suits for compare all documents (compares only common fields)
+   *    1 - strict compare, suits for compare documents loads from FT14 (common fields and priority, transaction kind)
+   *    2 - more strict compare with all fields, suits for documents loads from UFEBS only   *
    * @return string with list of mismatches
    */
-  String mismatchDescribe(Object obj) {
+  String mismatchDescribe(Object obj, int strictLevel) {
     StringBuilder str = new StringBuilder();
     str.append("Document ID: "); str.append(getId());
     if (obj == null) str.append(" Compared object is null");
@@ -199,10 +215,15 @@ public class FDocument {
       };
       if (Helper.isStrNullMismatch(purpose, compared.purpose)) oneMismatch(str, "Purpose", purpose, compared.purpose);
       if (Helper.isStrNullMismatch(UIN, compared.UIN)) oneMismatch(str, "UIN", UIN, compared.UIN);
-      if (Helper.isStrNullMismatch(priority, compared.priority)) oneMismatch(str, "Priority", priority, compared.priority);
-      if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) oneMismatch(str, "ChargeOff", chargeOffDate, compared.chargeOffDate);
-      if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) oneMismatch(str, "ReceiptDate", receiptDate, compared.receiptDate);
-      if (Helper.isStrNullMismatch(transKind, compared.transKind)) oneMismatch(str, "TransKind", transKind, compared.transKind);
+
+      if (strictLevel > 0) {
+        if (Helper.isStrNullMismatch(priority, compared.priority)) oneMismatch(str, "Priority", priority, compared.priority);
+        if (Helper.isStrNullMismatch(transKind, compared.transKind)) oneMismatch(str, "TransKind", transKind, compared.transKind);
+        if (strictLevel > 1) {
+          if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) oneMismatch(str, "ChargeOff", chargeOffDate, compared.chargeOffDate);
+          if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) oneMismatch(str, "ReceiptDate", receiptDate, compared.receiptDate);
+        }
+      }
 
       if (Helper.isStrNullMismatch(payerName, compared.payerName)) oneMismatch(str, "PayerName", payerName, compared.payerName);
       if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) oneMismatch(str, "PayerAccount", payerAccount, compared.payerAccount);

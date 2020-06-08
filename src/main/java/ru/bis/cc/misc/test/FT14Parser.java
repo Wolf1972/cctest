@@ -51,6 +51,8 @@ class FT14Parser {
     str.append(String.format("%" + String.format("%d", 1593 - str.length() - 1) + "s", " ")); // 1593 - absolute pos for payeeBankBIC
     str.append("BIK"); str.append(String.format("%9s", doc.payeeBankBIC));
     // 1628 - absolute pos for payeeBankName
+    str.append(String.format("%" + String.format("%d", 1663 - str.length() - 1) + "s", " ")); // 1663 - absolute pos for payeeAccount
+    if (doc.transKind != null) { str.append("*"); str.append(String.format("%2s", doc.transKind).replace(" ", "0")); }
     str.append(String.format("%" + String.format("%d", 1765 - str.length() - 1) + "s", " ")); // 1765 - absolute pos for payeeAccount
     str.append(String.format("%20s", doc.payeeAccount));
     str.append(String.format("%" + String.format("%d", 1793 - str.length() - 1) + "s", " ")); // 1793 - absolute pos for payeeINN

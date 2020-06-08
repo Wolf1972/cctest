@@ -23,14 +23,12 @@ import static java.nio.file.Files.newDirectoryStream;
 /** Class for UFEBS proceessing
  *
  */
-class UFEBSProcessor {
+class UFEBSProcessor extends XMLProcessor {
 
   private Logger logger;
-  private String XSDPath;
 
-  UFEBSProcessor(String XSDPath, Logger logger) {
+  UFEBSProcessor(Logger logger) {
     this.logger = logger;
-    this.XSDPath = XSDPath;
   }
 
   /**
@@ -51,7 +49,7 @@ class UFEBSProcessor {
         if (isRegularFile(path)) {
           String fileName = path.getFileName().toString();
           logger.info("0501: Processing file: " + inPath + fileName);
-          if (Helper.isXMLFile(inPath + fileName, logger)) {
+          if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.UFEBS) {
             if (!readOne(inPath + fileName, fDocs)) filesError++;
           }
           else {
@@ -86,16 +84,15 @@ class UFEBSProcessor {
       Node root = document.getDocumentElement();
       String rootNodeName = root.getNodeName();
       if (rootNodeName.equals("PacketEPD")) { // For packets EPD
-        if (Helper.isXMLValid(fileName, XSDPath + "ed\\cbr_packetepd_v2020.2.0.xsd", logger)) {
-          NodeList eds = root.getChildNodes();
-          for (int i = 0; i < eds.getLength(); i++) {
-            // Each node: ED, empty text etc
-            Node ed = eds.item(i);
-            if (ed.getNodeType() != Node.TEXT_NODE) {
-              String nodeName = ed.getNodeName();
-              if (nodeName.matches("ED10[134]")) {
-                FDocument fDoc = new FDocument();
-                UFEBSParser.fromXML(ed, fDoc);
+        NodeList eds = root.getChildNodes();
+        for (int i = 0; i < eds.getLength(); i++) {
+          // Each node: ED, empty text etc
+          Node ed = eds.item(i);
+          if (ed.getNodeType() != Node.TEXT_NODE) {
+            String nodeName = ed.getNodeName();
+            if (nodeName.matches("ED10[134]")) {
+              FDocument fDoc = UFEBSParser.fromXML(ed);
+              if (fDoc != null) {
                 logger.trace("0510: Packet item: " + fDoc.toString());
                 Long id = fDoc.getId();
                 if (!fDocs.containsKey(id)) {
@@ -103,17 +100,17 @@ class UFEBSProcessor {
                 } else {
                   logger.error("0511: Document ID " + id + "has already added.");
                 }
-              } else {
-                logger.error("0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
               }
+            }
+            else {
+              logger.error("0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
             }
           }
         }
       }
       else if (rootNodeName.matches("ED10[134]")) { // For single EPD
-        if (Helper.isXMLValid(fileName, XSDPath + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd", logger)) {
-          FDocument fDoc = new FDocument();
-          UFEBSParser.fromXML(root, fDoc);
+        FDocument fDoc = UFEBSParser.fromXML(root);
+        if (fDoc != null) {
           logger.trace("0513: Single ED: " + fDoc.toString());
           fDocs.put(fDoc.getId(), fDoc);
         }
@@ -178,23 +175,20 @@ class UFEBSProcessor {
           singleWriter.write(str);
           singleWriter.close();
           String rootNodeName = "ED101"; // TODO
-          Helper.isXMLValid(outFile, XSDPath + "ed\\" + "cbr_" + rootNodeName + "_v2020.2.0.xsd", logger);
         }
         else {
           String str = UFEBSParser.toString(doc);
-          packetWriter.write(str);
+          if (packetWriter != null) packetWriter.write(str);
         }
       }
       if (packetCount > 0) {
         packetWriter.write("</PacketEPD>" + System.lineSeparator());
         packetWriter.close();
-        Helper.isXMLValid(outFile, XSDPath + "ed\\cbr_packetepd_v2020.2.0.xsd", logger);
       }
 
     }
     catch (IOException e) {
       logger.error("0521: Error write output file with ED.");
     }
-
   }
 }

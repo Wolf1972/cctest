@@ -1,84 +1,6 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 class Helper {
-  /** Checks if file is XML
-   *
-   * @param fileName - check file, full path
-   * @return boolean: is file XML - true/false
-   */
-  static boolean isXMLFile(String fileName, Logger logger) {
-    try {
-      RandomAccessFile raf = new RandomAccessFile(fileName, "r");
-      String firstStr = raf.readLine();
-      if (firstStr != null) {
-        if (firstStr.matches("^<\\?xml?.+"))
-          return true;
-      }
-      raf.close();
-    }
-    catch (IOException e) {
-      logger.error("0101: Error access file: " + fileName, e);
-    }
-    return false;
-  }
-
-  static boolean isSWIFTFile(String fileName, Logger logger) {
-    try {
-      RandomAccessFile raf = new RandomAccessFile(fileName, "r");
-      String firstStr = raf.readLine();
-      if (firstStr != null) {
-        if (firstStr.matches("^\\{1:?.+"))
-          return true;
-      }
-      raf.close();
-    }
-    catch (IOException e) {
-      logger.error("0101: Error access file: " + fileName, e);
-    }
-    return false;
-  }
-
-  /** Checks XML file against XML scheme
-   *
-   * @param fileName - check file, full path
-   * @param xsdFile - XSD file for root element
-   * @return boolean: is XML file accords XSD - true/false
-   */
-  static boolean isXMLValid(String fileName, String xsdFile, Logger logger) {
-    if (!Files.isRegularFile(Paths.get(xsdFile))) {
-      logger.error("0102: Error access XSD file " + xsdFile);
-      return false;
-    }
-    try {
-      SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      Schema schema = factory.newSchema(new StreamSource(xsdFile));
-      Validator validator = schema.newValidator();
-      validator.validate(new StreamSource(fileName));
-      logger.trace("0101: XSD check completed for file " + fileName);
-      return true;
-    }
-    catch (IOException e) {
-      logger.error("0103: Error access file " + fileName + " while XML scheme check.", e);
-      return false;
-    }
-    catch (SAXException e) {
-      logger.error("0104: XML file " + fileName + " doesn't accord with XML scheme.", e);
-      return false;
-    }
-  }
 
   /** Compares two strings, each may be null - if strings mismatch, returns TRUE
    *
@@ -128,6 +50,5 @@ class Helper {
     if (SWIFTDate.length() < 6) return "";
     return "20" + SWIFTDate.substring(0, 2) + "-" + SWIFTDate.substring(2, 4) + "-" + SWIFTDate.substring(4, 6);
   }
-
 
 }
