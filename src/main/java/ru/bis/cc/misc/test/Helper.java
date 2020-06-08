@@ -1,5 +1,8 @@
 package ru.bis.cc.misc.test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 class Helper {
 
   /** Compares two strings, each may be null - if strings mismatch, returns TRUE
@@ -49,6 +52,21 @@ class Helper {
     if (SWIFTDate == null) return "";
     if (SWIFTDate.length() < 6) return "";
     return "20" + SWIFTDate.substring(0, 2) + "-" + SWIFTDate.substring(2, 4) + "-" + SWIFTDate.substring(4, 6);
+  }
+
+  /** Function sets specified date into documents array
+   *
+   * @param date - date in XML format [YYYY-MM-DD]
+   * @param array - documents array
+   */
+  static void setDate(String date, HashMap<Long, FDocument> array) {
+    for (Map.Entry<Long, FDocument> item : array.entrySet()) {
+      FDocument doc = item.getValue();
+      doc.edDate = date;
+      doc.docDate = date;
+      if (doc.chargeOffDate != null) doc.chargeOffDate = date;
+      if (doc.receiptDate != null) doc.receiptDate = date;
+    }
   }
 
 }

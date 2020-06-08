@@ -4,18 +4,19 @@ public class FDocument {
 
   // Financial document attributes, access from another classes is free - I don't want to create too many getters/setters
   String edNo;
-  String edDate;
+  String edDate; // YYYY-MM-DD
+  String referenceBq;
   String referenceMT103;
   boolean isUrgent;
 
   String docNum;
-  String docDate;
+  String docDate; // YYYY-MM-DD
   Long amount;
   String purpose;
   String UIN;
   String priority;
-  String chargeOffDate;
-  String receiptDate;
+  String chargeOffDate; // YYYY-MM-DD
+  String receiptDate;   // YYYY-MM-DD
   String transKind;
 
   String payerName;
@@ -259,4 +260,5 @@ public class FDocument {
     str.append(System.lineSeparator());
     return str;
   }
+
 }

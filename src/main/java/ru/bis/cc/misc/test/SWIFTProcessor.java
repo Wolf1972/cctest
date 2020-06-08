@@ -1,7 +1,5 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
-
 import java.util.HashMap;
 
 class SWIFTProcessor extends AProcessor {
@@ -11,12 +9,18 @@ class SWIFTProcessor extends AProcessor {
   }
 
   @Override
+  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+    return false;
+  }
+
+  @Override
   void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
 
   }
 
   @Override
-  void checkAll(String inqPath, String xsdPath, Logger logger) {
+  void checkAll(String inqPath, String xsdPath) {
 
   }
+
 }

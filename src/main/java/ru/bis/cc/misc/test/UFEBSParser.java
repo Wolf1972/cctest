@@ -150,7 +150,10 @@ class UFEBSParser {
   static String toString(FDocument doc) {
     StringBuilder str = new StringBuilder();
 
-    str.append("<ED101 EDAuthor=\"4525101000\"");
+    String rootNodeName = "ED101"; // TODO
+    str.append("<");
+    str.append(rootNodeName);
+    str.append(" EDAuthor=\"4525101000\"");
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
     str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
     if (doc.UIN != null) { str.append(" PaymentID=\""); str.append(doc.UIN); str.append("\""); }

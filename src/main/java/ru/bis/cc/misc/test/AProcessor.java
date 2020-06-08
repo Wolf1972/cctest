@@ -1,11 +1,13 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 
-public abstract class AProcessor {
+abstract class AProcessor {
 
-  abstract void readAll(String inPath, HashMap<Long, FDocument> fDocs);
+  abstract void readAll(String inPath, HashMap<Long, FDocument> fDocs); // Reads all files from specified directory
+  abstract boolean readFile(String fileName, HashMap<Long, FDocument> fDocs); // Reads one file with one or several messages
+
   abstract void createAll(String outPath, HashMap<Long, FDocument> fDocs);
-  abstract void checkAll(String inqPath, String xsdPath, Logger logger);
+
+  abstract void checkAll(String inqPath, String xsdPath);
 }

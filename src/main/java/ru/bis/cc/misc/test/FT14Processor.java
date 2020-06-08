@@ -24,6 +24,11 @@ class FT14Processor extends AProcessor {
     logger.error("0310: There is no method for FT14 create.");
   }
 
+  @Override
+  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+    return false;
+  }
+
   /**
    * Creates FT14 file for all documents from specified array
    *
@@ -44,11 +49,8 @@ class FT14Processor extends AProcessor {
       if (fDocs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
           FDocument value = item.getValue();
-          String str = FT14Parser.toString(value);
-          if (str != null) {
-            writer.write(str);
-            writer.write(System.lineSeparator());
-          }
+          writer.write(FT14Parser.toString(value));
+          writer.write(System.lineSeparator());
         }
       }
       writer.close();
@@ -58,7 +60,7 @@ class FT14Processor extends AProcessor {
   }
 
   @Override
-  void checkAll(String inqPath, String xsdPath, Logger logger) {
+  void checkAll(String inqPath, String xsdPath) {
     logger.error("0310: There is no method for FT14 check.");
   }
 

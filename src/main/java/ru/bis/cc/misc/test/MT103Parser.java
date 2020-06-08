@@ -134,11 +134,11 @@ class MT103Parser {
                     }
                   }
                   catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
-
+                    // Just do not parse INN from string, nothing else matters
                   }
                   if (innPos >= 0 && innEnd >= 0) {
-                    if (innPos > 0) clientName.append(rawClientName.substring(0, innPos));
-                    clientName.append(rawClientName.substring(innEnd + 1).toString().trim());
+                    if (innPos > 0) clientName.append(rawClientName, 0, innPos);
+                    clientName.append(rawClientName.substring(innEnd + 1).trim());
                   }
                   else
                     clientName.append(rawClientName.trim());
@@ -166,7 +166,7 @@ class MT103Parser {
                 }
 
                 else if (tagName.equals("53B")) {
-                  if (tagContent.substring(0, 1).equals("/")) {;
+                  if (tagContent.substring(0, 1).equals("/")) {
                     int end = tagContent.indexOf(System.lineSeparator());
                     if (end < 0) end = tagContent.length();
                     doc.payerBankAccount = tagContent.substring(1, end);
@@ -175,15 +175,14 @@ class MT103Parser {
 
                 else if (tagName.equals("57D")) {
                   int pos = tagContent.indexOf("/");
-                  int end = -1;
                   if (pos >= 0) {
-                    end = tagContent.indexOf(System.lineSeparator(), pos);
+                    int end = tagContent.indexOf(System.lineSeparator(), pos);
                     if (end < 0) end = tagContent.length();
                     doc.payeeBankAccount = tagContent.substring(pos + 1, end);
                   }
                   pos = tagContent.indexOf("BIK");
                   if (pos >= 0) {
-                    end = tagContent.indexOf(System.lineSeparator(), pos);
+                    int end = tagContent.indexOf(System.lineSeparator(), pos);
                     if (end < 0) end = tagContent.length();
                     doc.payeeBankBIC = tagContent.substring(pos + 3, end);
                   }
@@ -228,10 +227,9 @@ class MT103Parser {
         else posStart = 0;
       }
       String taxAttrBegin = purposePart1.substring(posStart, posStart + 2);
-      String taxAttrSeparator = "";
       int taxAttrLen = 0;
       if (taxAttrBegin.equals("//") || taxAttrBegin.equals("\\\\")) {
-        taxAttrSeparator = taxAttrBegin.substring(0, 1);
+        String taxAttrSeparator = taxAttrBegin.substring(0, 1);
         StringTokenizer tokenizer = new StringTokenizer(purposePart1.substring(posStart + 2),taxAttrSeparator);
         int i = 0; taxAttrLen = 2;
         doc.isTax = true;

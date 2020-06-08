@@ -114,25 +114,22 @@ class MT103Processor extends SWIFTProcessor {
       if (fDocs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
           FDocument value = item.getValue();
-          String str = MT103Parser.toString(value);
-          if (str != null) {
-            writer.write("{1:");
-            writer.write("F01");
-            writer.write("DEUTRUMMXXXX");
-            writer.write(String.format("%10s", value.getId()).replace(' ','0'));
-            writer.write("}");
-            writer.write("{2:O103");
-            writer.write("1007");
-            writer.write(Helper.getSWIFTDate(value.docDate));
-            writer.write("DBEBRUMMAXXX");
-            writer.write(String.format("%10s", value.getId()).replace(' ','0'));
-            writer.write("1107");
-            writer.write(Helper.getSWIFTDate(value.docDate));
-            if (value.isUrgent) writer.write("U");
-            else writer.write("N");
-            writer.write("}");
-            writer.write(str);
-          }
+          writer.write("{1:");
+          writer.write("F01");
+          writer.write("DEUTRUMMXXXX");
+          writer.write(String.format("%10s", value.getId()).replace(' ','0'));
+          writer.write("}");
+          writer.write("{2:O103");
+          writer.write("1007");
+          writer.write(Helper.getSWIFTDate(value.docDate));
+          writer.write("DBEBRUMMAXXX");
+          writer.write(String.format("%10s", value.getId()).replace(' ','0'));
+          writer.write("1107");
+          writer.write(Helper.getSWIFTDate(value.docDate));
+          if (value.isUrgent) writer.write("U");
+          else writer.write("N");
+          writer.write("}");
+          writer.write(MT103Parser.toString(value));
         }
       }
       writer.close();

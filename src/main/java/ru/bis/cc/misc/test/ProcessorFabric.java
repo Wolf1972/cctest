@@ -12,7 +12,7 @@ import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
 
 enum FileType {
-  UNKNOWN, UFEBS, MT103, FT14
+  UNKNOWN, UFEBS, MT103, FT14, BQ
 }
 
 class ProcessorFabric {
@@ -30,6 +30,9 @@ class ProcessorFabric {
       return new MT103Processor(logger);
     else if (fileType == FileType.FT14)
       return new FT14Processor(logger);
+    else if (fileType == FileType.BQ)
+      return new BQProcessor(logger);
+
     return null;
   }
 
@@ -63,7 +66,7 @@ class ProcessorFabric {
           return FileType.UFEBS;
         else if (firstStr.matches("^\\{1:.+")) // SWIFT
           return FileType.MT103;
-        else if (firstStr.matches("^[CD]LMOS.+")) // FT14
+        else if (firstStr.matches("^..MOS.+")) // FT14 - RTMOS, CLMOS
           return FileType.FT14;
       }
       raf.close();
@@ -81,7 +84,7 @@ class ProcessorFabric {
    * @param inqPath - path for check files, full path
    * @return enum with file type from FileType
    */
-  static FileType fileTypeInDirectory(String inqPath, Logger logger) {
+  private static FileType fileTypeInDirectory(String inqPath, Logger logger) {
     try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inqPath))) {
       for (Path path : directoryStream) {
         if (isRegularFile(path)) {

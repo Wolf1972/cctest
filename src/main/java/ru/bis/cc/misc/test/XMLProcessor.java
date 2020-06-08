@@ -25,13 +25,61 @@ import static java.nio.file.Files.newDirectoryStream;
 
 class XMLProcessor extends AProcessor {
 
+  Logger logger;
+  XMLProcessor(Logger logger) {
+    this.logger = logger;
+  }
+
+  /**
+   * Process input directory and loads all files with XML into specified documents array
+   *
+   * @param inPath   = input path
+   * @param fDocs    - reference to documents array
+   */
+  @Override
+  void readAll(String inPath, HashMap<Long, FDocument> fDocs) {
+
+    int filesCount = 0;
+    int filesError = 0;
+
+    try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
+      for (Path path : directoryStream) {
+        if (isRegularFile(path)) {
+          filesCount++;
+          String fileName = path.getFileName().toString();
+          if (!readFile(inPath + fileName, fDocs)) filesError++;
+        }
+      }
+    }
+    catch (IOException e) {
+      logger.error("0501: Error while file system access: " + inPath);
+      filesError++;
+    }
+    logger.info("0502: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0503: Documents added: " + fDocs.size());
+  }
+
+  /** Function reads one XML with one single message or several messages in packet
+   *
+   * @param fileName - XML file name
+   * @param fDocs - documents array
+   */
+  @Override
+  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+    return false;
+  }
+
+  @Override
+  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
+  }
+
   /** Checks XML file against XML scheme
    *
    * @param fileName - check file, full path
    * @param xsdPath - path to XSD files, file determines by XML root element
    * @return boolean: is XML file accords XSD - true/false
    */
-  private boolean isXMLValid(String fileName, String xsdPath, Logger logger) {
+  boolean isXMLValid(String fileName, String xsdPath) {
 
     if (!Files.isDirectory(Paths.get(xsdPath))) {
       logger.error("0101: Error XSD path " + xsdPath);
@@ -76,25 +124,39 @@ class XMLProcessor extends AProcessor {
     }
   }
 
-  void checkAll(String inqPath, String xsdPath, Logger logger) {
+  void checkAll(String inqPath, String xsdPath) {
+
+    int filesCount = 0;
+    int filesError = 0;
+
     try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inqPath))) {
       for (Path path : directoryStream) {
         if (isRegularFile(path)) {
-          isXMLValid(path.toString(), xsdPath, logger);
+          filesCount++;
+          if (!isXMLValid(path.toString(), xsdPath)) filesError++;
         }
       }
+      logger.info("0502: Files processed: " + filesCount + ", errors: " + filesError);
     } catch (IOException e) {
       logger.error("0106: Error while file system access: " + inqPath);
     }
   }
 
-  @Override
-  void readAll(String inPath, HashMap<Long, FDocument> fDocs) {
-
+  /** Puts one document into array with key control
+   *
+   * @param doc - document to add
+   * @param fDocs - documents array
+   */
+  void addOne(FDocument doc, HashMap<Long, FDocument> fDocs) {
+    if (doc != null) {
+      logger.trace("0513: Single ED: " + doc.toString());
+      if (fDocs.containsKey(doc.getId())) {
+        logger.error("0516: Document with ID " + doc.getId() + " has already added to array.");
+      }
+      else {
+        fDocs.put(doc.getId(), doc);
+      }
+    }
   }
 
-  @Override
-  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
-
-  }
 }
