@@ -269,7 +269,9 @@ public class AppTest
     String patternPath = ".\\src\\test\\resources\\pattern\\";
     String outPath = ".\\src\\test\\resources\\out\\";
 
-    HashMap <Long, FDocument> packet = new HashMap<>();
+    FDocumentArray patternDocs = new FDocumentArray();
+    FDocumentArray sampleDocs = new FDocumentArray();
+    FDocumentArray packet = new FDocumentArray();
 
     // UFEBS processor test
     UFEBSProcessor procUFEBS = new UFEBSProcessor(logger);
@@ -277,14 +279,14 @@ public class AppTest
     assertTrue("UFEBS packet file parse error.", procUFEBS.readFile(patternPath + "packet.xml", patternDocs));
 
     // UFEBS assembler test
-    for (Map.Entry<Long, FDocument> item : patternDocs.entrySet()) { // Build array with non-urgent documents only (to create one packet)
+    for (Map.Entry<Long, FDocument> item : patternDocs.docs.entrySet()) { // Build array with non-urgent documents only (to create one packet)
       FDocument doc = item.getValue();
-      if (!doc.isUrgent) packet.put(doc.getId(), doc);
+      if (!doc.isUrgent) packet.add(doc, logger);
     }
     procUFEBS.createAll(outPath, packet);
     assertTrue("UFEBS packet XSD check error.", procUFEBS.isXMLValid(outPath + "pck000000.xml", xsdPath));
     assertTrue("UFEBS created packet file parse error.", procUFEBS.readFile(outPath + "pck000000.xml", sampleDocs));
-    sampleDocs.clear();
+    sampleDocs.docs.clear();
 
     // FT14 assembler test
     String outFT14File = outPath + "ft14test.txt"; // First of all - delete previous test results

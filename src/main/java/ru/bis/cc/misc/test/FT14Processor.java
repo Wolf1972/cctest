@@ -6,7 +6,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 /** Class for FT14 proceessing
@@ -20,12 +19,12 @@ class FT14Processor extends AProcessor {
   }
 
   @Override
-  void readAll(String inPath, HashMap<Long, FDocument> fDocs) {
+  void readAll(String inPath, FDocumentArray fDocs) {
     logger.error("0310: There is no method for FT14 create.");
   }
 
   @Override
-  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+  boolean readFile(String fileName, FDocumentArray fDocs) {
     return false;
   }
 
@@ -36,7 +35,7 @@ class FT14Processor extends AProcessor {
    * @param fDocs   - documents array reference
    */
   @Override
-  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
+  void createAll(String outPath, FDocumentArray fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
       logger.error("0301: Error access output directory " + outPath);
       return;
@@ -46,8 +45,8 @@ class FT14Processor extends AProcessor {
       Charset chs = Charset.forName("ISO-8859-5");
       OutputStream os = new FileOutputStream(outFile);
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, chs));
-      if (fDocs.size() > 0) {
-        for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
+      if (fDocs.docs.size() > 0) {
+        for (Map.Entry<Long, FDocument> item : fDocs.docs.entrySet()) {
           FDocument value = item.getValue();
           writer.write(FT14Parser.toString(value));
           writer.write(System.lineSeparator());

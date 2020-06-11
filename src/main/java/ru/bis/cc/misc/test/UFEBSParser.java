@@ -142,7 +142,7 @@ class UFEBSParser {
     return doc;
   }
 
-  /** Returns string with one ED
+  /** Returns string with one ED1xx
    *
    * @param doc - document
    * @return string with XML node ED1xx
@@ -150,10 +150,17 @@ class UFEBSParser {
   static String toString(FDocument doc) {
     StringBuilder str = new StringBuilder();
 
-    String rootNodeName = "ED101"; // TODO
+    String rootNodeName; // UFEBS message type
+    if (doc.transKind.equals("02")) rootNodeName = "ED103";
+    else if (doc.transKind.equals("06")) rootNodeName = "ED104";
+    else if (doc.transKind.equals("16")) rootNodeName = "ED105";
+    else rootNodeName = "ED101";
     str.append("<");
     str.append(rootNodeName);
-    str.append(" EDAuthor=\"4525101000\"");
+
+    if (doc.payerBankBIC.equals("044525101")) str.append(" EDAuthor=\"4525101000\" EDReceiver=\"4525225000\"");
+    else str.append(" EDAuthor=\"4525225000\" EDReceiver=\"4525101000\"");
+
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
     str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
     if (doc.UIN != null) { str.append(" PaymentID=\""); str.append(doc.UIN); str.append("\""); }
@@ -211,21 +218,65 @@ class UFEBSParser {
       str.append(" />");
     }
 
-    str.append("</ED101>"); str.append(System.lineSeparator());
+    str.append("</"); str.append(rootNodeName); str.append(">"); str.append(System.lineSeparator());
+
     return str.toString();
   }
 
-  /** Returns root element for packet (PacketEPD)
+  /** Returns string with one confirmation (ED206)
    *
-   * @param quantity = quantity of documents in packet
-   * @param sum = total sum of documents in packet
-   * @return string with root element
+   * @param doc - document
+   * @return string with XML node ED206
    */
-  static String packetRoot(String date, int quantity, Long sum) {
-    return "<PacketEPD EDAuthor=\"" + "4525101000\"" +
-                 " EDDate=\"" + date + "\" EDNo=\"1000001\" EDReceiver=\"4652001000\"" +
-                 " EDQuantity=\"" + quantity + "\"" + " Sum=\"" + sum + "\"" +
-                 " SystemCode=\"02\" xmlns=\"urn:cbr-ru:ed:v2.0\">";
+  static String toConfirmation(FDocument doc) {
+    StringBuilder str = new StringBuilder();
+    /*
+    <ED206 EDNo="280001" EDDate="2015-09-15" EDAuthor="1112223334" EDReceiver="4525101000" Acc="30101810100000000101" BICCorr="044583001" Sum="10000" TransDate="2015-09-15" TransTime="12:10:01" CorrAcc="" DC="1">
+       <AccDoc AccDocNo="100" AccDocDate="2015-09-15" />
+       <EDRefID EDNo="480001" EDDate="2015-09-15" EDAuthor="4525101000" />
+    </ED206>
+     */
+    boolean isReverse = !doc.payerBankBIC.equals("044525101");
+
+    str.append("<ED206");
+    str.append(" EDNo=\""); str.append(doc.generateEDNo(doc.edNo, "2")); str.append("\"");
+    str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
+    if (!isReverse) {
+      str.append(" EDAuthor=\""); str.append("4525101000"); str.append("\"");
+      str.append(" EDReceiver=\""); str.append("4525225000"); str.append("\"");
+      str.append(" BICCorr=\""); str.append(doc.payeeBankBIC); str.append("\"");
+      str.append(" DC=\"2\"");
+    }
+    else {
+      str.append(" EDAuthor=\""); str.append("4525225000"); str.append("\"");
+      str.append(" EDReceiver=\""); str.append("4525101000"); str.append("\"");
+      str.append(" BICCorr=\""); str.append(doc.payerBankBIC); str.append("\"");
+      str.append(" DC=\"1\"");
+    }
+    str.append(" Acc=\"30101810100000000101\"");
+    str.append(" Sum=\""); str.append(doc.amount.toString()); str.append("\"");
+    str.append(" TransDate=\""); str.append(doc.docDate); str.append("\"");
+    str.append(" TransTime=\"10:00:01\"");
+    str.append(">");
+
+    str.append("<AccDoc");
+    str.append(" AccDocNo=\""); str.append(doc.docNum); str.append("\"");
+    str.append(" AccDocDate=\""); str.append(doc.docDate); str.append("\"");
+    str.append(" />");
+
+    str.append("<EDRefID");
+    str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
+    str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
+    if (!isReverse) {
+      str.append(" EDAuthor=\"4525101000\"");
+    }
+    else {
+      str.append(" EDAuthor=\"4525225000\"");
+    }
+    str.append(" />");
+
+    str.append("</ED206>");
+    return str.toString();
   }
 
 }

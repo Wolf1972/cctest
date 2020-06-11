@@ -13,7 +13,7 @@ class FT14Parser {
 //    if (Helper.matchMask(payerAccount, "301,302")) return null; // Filter output records by payer account
 
     // Build tax attributes string It has to be add to payment purpose
-    StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it difference with document purpose (contains tax attributes)
+    StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it differences with document purpose (contains tax attributes)
     locPurpose.append(doc.getTaxAttrs());
     locPurpose.append(doc.purpose);
 

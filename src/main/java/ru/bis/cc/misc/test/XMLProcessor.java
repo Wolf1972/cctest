@@ -18,7 +18,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 
 import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
@@ -37,7 +36,7 @@ class XMLProcessor extends AProcessor {
    * @param fDocs    - reference to documents array
    */
   @Override
-  void readAll(String inPath, HashMap<Long, FDocument> fDocs) {
+  void readAll(String inPath, FDocumentArray fDocs) {
 
     int filesCount = 0;
     int filesError = 0;
@@ -55,8 +54,8 @@ class XMLProcessor extends AProcessor {
       logger.error("0501: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("0502: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("0503: Documents added: " + fDocs.size());
+    logger.info("0502: XML files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0503: Documents added: " + fDocs.docs.size());
   }
 
   /** Function reads one XML with one single message or several messages in packet
@@ -65,12 +64,12 @@ class XMLProcessor extends AProcessor {
    * @param fDocs - documents array
    */
   @Override
-  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+  boolean readFile(String fileName, FDocumentArray fDocs) {
     return false;
   }
 
   @Override
-  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
+  void createAll(String outPath, FDocumentArray fDocs) {
   }
 
   /** Checks XML file against XML scheme
@@ -95,11 +94,14 @@ class XMLProcessor extends AProcessor {
       if (rootNodeName.equals("PacketEPD")) { // For packets EPD
         xsdFile = xsdPath + "\\ed\\cbr_packetepd_v2020.2.0.xsd";
       }
+      else if (rootNodeName.equals("PacketESID")) { // For packets ESIS
+        xsdFile = xsdPath + "\\ed\\cbr_packetesid_v2020.2.0.xsd";
+      }
       else if (rootNodeName.startsWith("ED1")) { // For single EPD
         xsdFile = xsdPath + "\\ed\\cbr_" + rootNodeName + "_v2020.2.0.xsd";
       }
       else {
-        logger.error("0102: Error access file " + fileName + " while XML scheme check.");
+        logger.error("0102: XSD scheme for " + rootNodeName + " not found.");
         return false;
       }
 
@@ -136,26 +138,10 @@ class XMLProcessor extends AProcessor {
           if (!isXMLValid(path.toString(), xsdPath)) filesError++;
         }
       }
-      logger.info("0502: Files processed: " + filesCount + ", errors: " + filesError);
-    } catch (IOException e) {
-      logger.error("0106: Error while file system access: " + inqPath);
+      logger.info("0502: Check files for XSD: " + filesCount + ", errors: " + filesError);
     }
-  }
-
-  /** Puts one document into array with key control
-   *
-   * @param doc - document to add
-   * @param fDocs - documents array
-   */
-  void addOne(FDocument doc, HashMap<Long, FDocument> fDocs) {
-    if (doc != null) {
-      logger.trace("0513: Single ED: " + doc.toString());
-      if (fDocs.containsKey(doc.getId())) {
-        logger.error("0516: Document with ID " + doc.getId() + " has already added to array.");
-      }
-      else {
-        fDocs.put(doc.getId(), doc);
-      }
+    catch (IOException e) {
+      logger.error("0106: Error while file system access: " + inqPath);
     }
   }
 

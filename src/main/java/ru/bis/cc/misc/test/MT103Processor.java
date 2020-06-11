@@ -7,7 +7,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.file.Files.isRegularFile;
@@ -30,7 +29,7 @@ class MT103Processor extends SWIFTProcessor {
    * @param inPath   = input path
    * @param fDocs    - reference to documents array
    */
-  void readAll(String inPath, HashMap<Long, FDocument> fDocs) {
+  void readAll(String inPath, FDocumentArray fDocs) {
 
     int filesCount = 0;
     int filesError = 0;
@@ -55,7 +54,7 @@ class MT103Processor extends SWIFTProcessor {
       filesError++;
     }
     logger.info("0403: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("0404: Documents added: " + fDocs.size());
+    logger.info("0404: Documents added: " + fDocs.docs.size());
   }
 
   /**
@@ -65,7 +64,7 @@ class MT103Processor extends SWIFTProcessor {
    * @param fDocs    - documents array reference
    * @return boolean: success or fail (true/false)
    */
-  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
+  boolean readFile(String fileName, FDocumentArray fDocs) {
     int msgCount = 0;
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -79,8 +78,8 @@ class MT103Processor extends SWIFTProcessor {
         }
         else {
           oneMT103.append(line, 0, end + 2);
-          FDocument fDoc = MT103Parser.fromString(oneMT103.toString());
-          if (fDoc != null) fDocs.put(fDoc.getId(), fDoc);
+          FDocument doc = MT103Parser.fromString(oneMT103.toString());
+          if (doc != null) fDocs.add(doc, logger);
           msgCount++;
           oneMT103.setLength(0);
           oneMT103.append(line.substring(end + 2));
@@ -102,7 +101,7 @@ class MT103Processor extends SWIFTProcessor {
    * @param outPath = path for create MT103 file
    * @param fDocs   - documents array reference
    */
-  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
+  void createAll(String outPath, FDocumentArray fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
       logger.error("0410: Error access output directory " + outPath);
       return;
@@ -111,8 +110,8 @@ class MT103Processor extends SWIFTProcessor {
     try {
       OutputStream os = new FileOutputStream(outFile);
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
-      if (fDocs.size() > 0) {
-        for (Map.Entry<Long, FDocument> item : fDocs.entrySet()) {
+      if (fDocs.docs.size() > 0) {
+        for (Map.Entry<Long, FDocument> item : fDocs.docs.entrySet()) {
           FDocument value = item.getValue();
           writer.write("{1:");
           writer.write("F01");

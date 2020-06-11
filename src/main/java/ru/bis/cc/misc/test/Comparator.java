@@ -2,7 +2,6 @@ package ru.bis.cc.misc.test;
 
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 
 class Comparator {
@@ -27,24 +26,24 @@ class Comparator {
   }
 
   /**
-   * Compares 2 documents arrays
+   * Compares 2 arrays of document
    *
    * @param pattern - pattern
    * @param sample  - checked sample
    */
-  boolean compare(HashMap<Long, FDocument> pattern, HashMap<Long, FDocument> sample) {
+  boolean compare(FDocumentArray pattern, FDocumentArray sample) {
 
     int iMismatch = 0;
     int iMissingInSample = 0;
     int iMissinginPattern = 0;
 
-    for (Map.Entry<Long, FDocument> item : pattern.entrySet()) {
+    for (Map.Entry<Long, FDocument> item : pattern.docs.entrySet()) {
       Long patternKey = item.getKey();
       FDocument patternDoc = item.getValue();
-      if (sample.containsKey(patternKey)) {
-        if (!patternDoc.equals(sample.get(patternKey), strictLevel)) {
+      if (sample.docs.containsKey(patternKey)) {
+        if (!patternDoc.equals(sample.docs.get(patternKey), strictLevel)) {
           logger.error("0201: Mismatch pattern and sample documents with ID: " + patternKey);
-          logger.error("0201: " + patternDoc.mismatchDescribe(sample.get(patternKey), strictLevel));
+          logger.error("0201: " + patternDoc.mismatchDescribe(sample.docs.get(patternKey), strictLevel));
           iMismatch++;
         }
       } else {
@@ -52,9 +51,9 @@ class Comparator {
         iMissingInSample++;
       }
     }
-    for (Map.Entry<Long, FDocument> item : sample.entrySet()) {
+    for (Map.Entry<Long, FDocument> item : sample.docs.entrySet()) {
       Long sampleKey = item.getKey();
-      if (!pattern.containsKey(sampleKey)) {
+      if (!pattern.docs.containsKey(sampleKey)) {
         logger.error("0203: Sample document with ID: " + sampleKey + " is not found in pattern.");
         iMissinginPattern++;
       }

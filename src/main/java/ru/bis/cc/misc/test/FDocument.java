@@ -87,7 +87,7 @@ public class FDocument {
    *
    * @return string with tax attributes, separated by "/" or "\"
    */
-  public String getTaxAttrs() {
+  String getTaxAttrs() {
     StringBuilder taxStr = new StringBuilder();
     if (isTax) {
       // First of all: we have to determine - which separator we are going to use - "/" or "\"
@@ -120,9 +120,9 @@ public class FDocument {
    *    0 - base compare, suits for compare all documents (compares only common fields)
    *    1 - strict compare, suits for compare documents loads from FT14 (common fields and priority, transaction kind)
    *    2 - more strict compare with all fields, suits for documents loads from UFEBS only
-   * @return: boolean - objects are equal (true/false)
+   * @return boolean - objects are equal (true/false)
    */
-  public boolean equals(Object obj, int strictLevel) {
+  boolean equals(Object obj, int strictLevel) {
     if (obj == null) return false;
     if (obj.getClass() != FDocument.class) return false;
     else {
@@ -203,8 +203,8 @@ public class FDocument {
         str.append(System.lineSeparator());
       }
 
-      if (Helper.isStrNullMismatch(docNum, compared.docNum)) oneMismatch(str, "DocNum", docNum, compared.docNum);
-      if (Helper.isStrNullMismatch(docDate, compared.docDate)) oneMismatch(str, "DocDate", docDate, compared.docDate);
+      if (Helper.isStrNullMismatch(docNum, compared.docNum)) str.append(oneMismatch("DocNum", docNum, compared.docNum));
+      if (Helper.isStrNullMismatch(docDate, compared.docDate)) str.append(oneMismatch( "DocDate", docDate, compared.docDate));
       if ((amount != null && compared.amount == null) || (amount == null && compared.amount != null)) {
         str.append(" Amount not specified: "); str.append(amount); str.append(" against ");
         str.append(compared.amount);
@@ -213,34 +213,34 @@ public class FDocument {
       else if (!(amount != null && amount.equals(compared.amount))) {
         str.append(" Amount mismatch: "); str.append(amount); str.append(" against "); str.append(compared.amount);
         str.append(System.lineSeparator());
-      };
-      if (Helper.isStrNullMismatch(purpose, compared.purpose)) oneMismatch(str, "Purpose", purpose, compared.purpose);
-      if (Helper.isStrNullMismatch(UIN, compared.UIN)) oneMismatch(str, "UIN", UIN, compared.UIN);
+      }
+      if (Helper.isStrNullMismatch(purpose, compared.purpose)) str.append(oneMismatch( "Purpose", purpose, compared.purpose));
+      if (Helper.isStrNullMismatch(UIN, compared.UIN)) str.append(oneMismatch( "UIN", UIN, compared.UIN));
 
       if (strictLevel > 0) {
-        if (Helper.isStrNullMismatch(priority, compared.priority)) oneMismatch(str, "Priority", priority, compared.priority);
-        if (Helper.isStrNullMismatch(transKind, compared.transKind)) oneMismatch(str, "TransKind", transKind, compared.transKind);
+        if (Helper.isStrNullMismatch(priority, compared.priority)) str.append(oneMismatch( "Priority", priority, compared.priority));
+        if (Helper.isStrNullMismatch(transKind, compared.transKind)) str.append(oneMismatch("TransKind", transKind, compared.transKind));
         if (strictLevel > 1) {
-          if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) oneMismatch(str, "ChargeOff", chargeOffDate, compared.chargeOffDate);
-          if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) oneMismatch(str, "ReceiptDate", receiptDate, compared.receiptDate);
+          if (Helper.isStrNullMismatch(chargeOffDate, compared.chargeOffDate)) str.append(oneMismatch("ChargeOff", chargeOffDate, compared.chargeOffDate));
+          if (Helper.isStrNullMismatch(receiptDate, compared.receiptDate)) str.append(oneMismatch("ReceiptDate", receiptDate, compared.receiptDate));
         }
       }
 
-      if (Helper.isStrNullMismatch(payerName, compared.payerName)) oneMismatch(str, "PayerName", payerName, compared.payerName);
-      if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) oneMismatch(str, "PayerAccount", payerAccount, compared.payerAccount);
-      if (Helper.isStrNullMismatch(payerINN, compared.payerINN)) oneMismatch(str, "PayerINN", payerINN, compared.payerINN);
-      if (Helper.isStrNullMismatch(payerCPP, compared.payerCPP)) oneMismatch(str, "PayerCPP", payerCPP, compared.payerCPP);
-      if (Helper.isStrNullMismatch(payerBankName, compared.payerBankName)) oneMismatch(str, "PayerBankName", payerBankName, compared.payerBankName);
-      if (Helper.isStrNullMismatch(payerBankBIC, compared.payerBankBIC)) oneMismatch(str, "PayerBankBIC", payerBankBIC, compared.payerBankBIC);
-      if (Helper.isStrNullMismatch(payerBankAccount, compared.payerBankAccount)) oneMismatch(str, "PayerBankAccount", payerBankAccount, compared.payerBankAccount);
+      if (Helper.isStrNullMismatch(payerName, compared.payerName)) str.append(oneMismatch( "PayerName", payerName, compared.payerName));
+      if (Helper.isStrNullMismatch(payerAccount, compared.payerAccount)) str.append(oneMismatch( "PayerAccount", payerAccount, compared.payerAccount));
+      if (Helper.isStrNullMismatch(payerINN, compared.payerINN)) str.append(oneMismatch("PayerINN", payerINN, compared.payerINN));
+      if (Helper.isStrNullMismatch(payerCPP, compared.payerCPP)) str.append(oneMismatch( "PayerCPP", payerCPP, compared.payerCPP));
+      if (Helper.isStrNullMismatch(payerBankName, compared.payerBankName)) str.append(oneMismatch( "PayerBankName", payerBankName, compared.payerBankName));
+      if (Helper.isStrNullMismatch(payerBankBIC, compared.payerBankBIC)) str.append(oneMismatch( "PayerBankBIC", payerBankBIC, compared.payerBankBIC));
+      if (Helper.isStrNullMismatch(payerBankAccount, compared.payerBankAccount)) str.append(oneMismatch( "PayerBankAccount", payerBankAccount, compared.payerBankAccount));
 
-      if (Helper.isStrNullMismatch(payeeName, compared.payeeName)) oneMismatch(str, "PayeeName", payeeName, compared.payeeName);
-      if (Helper.isStrNullMismatch(payeeAccount, compared.payeeAccount)) oneMismatch(str, "PayeeAccount", payeeAccount, compared.payeeAccount);
-      if (Helper.isStrNullMismatch(payeeINN, compared.payeeINN)) oneMismatch(str, "PayeeINN", payeeINN, compared.payeeINN);
-      if (Helper.isStrNullMismatch(payeeCPP, compared.payeeCPP)) oneMismatch(str, "PayeeCPP", payeeCPP, compared.payeeCPP);
-      if (Helper.isStrNullMismatch(payeeBankName, compared.payeeBankName)) oneMismatch(str, "PayeeBankName", payeeBankName, compared.payeeBankName);
-      if (Helper.isStrNullMismatch(payeeBankBIC, compared.payeeBankBIC)) oneMismatch(str, "PayeeBankBIC", payeeBankBIC, compared.payeeBankBIC);
-      if (Helper.isStrNullMismatch(payeeBankAccount, compared.payeeBankAccount)) oneMismatch(str, "PayeeBankAccount", payeeBankAccount, compared.payeeBankAccount);
+      if (Helper.isStrNullMismatch(payeeName, compared.payeeName)) str.append(oneMismatch("PayeeName", payeeName, compared.payeeName));
+      if (Helper.isStrNullMismatch(payeeAccount, compared.payeeAccount)) str.append(oneMismatch( "PayeeAccount", payeeAccount, compared.payeeAccount));
+      if (Helper.isStrNullMismatch(payeeINN, compared.payeeINN)) str.append(oneMismatch( "PayeeINN", payeeINN, compared.payeeINN));
+      if (Helper.isStrNullMismatch(payeeCPP, compared.payeeCPP)) str.append(oneMismatch( "PayeeCPP", payeeCPP, compared.payeeCPP));
+      if (Helper.isStrNullMismatch(payeeBankName, compared.payeeBankName)) str.append(oneMismatch( "PayeeBankName", payeeBankName, compared.payeeBankName));
+      if (Helper.isStrNullMismatch(payeeBankBIC, compared.payeeBankBIC)) str.append(oneMismatch( "PayeeBankBIC", payeeBankBIC, compared.payeeBankBIC));
+      if (Helper.isStrNullMismatch(payeeBankAccount, compared.payeeBankAccount)) str.append(oneMismatch( "PayeeBankAccount", payeeBankAccount, compared.payeeBankAccount));
 
     }
     return str.toString();
@@ -248,17 +248,78 @@ public class FDocument {
 
   /** Function describes one attribute mismatch
    *
-   * @param str - common string with all mismatches
    * @param attrName - name of attribute
    * @param val1 - compare value 1
    * @param val2 - compare value 2
    * @return common string with all mismatches
    */
-  private StringBuilder oneMismatch(StringBuilder str, String attrName, String val1, String val2) {
+  private StringBuilder oneMismatch(String attrName, String val1, String val2) {
+    StringBuilder str = new StringBuilder();
     str.append(" "); str.append(attrName); str.append(" mismatch: ");
     str.append(val1); str.append(" against "); str.append(val2);
     str.append(System.lineSeparator());
     return str;
+  }
+
+  /** Function returns new reverse document by instance document (swaps payer and payee, bank payer and payee, changes document number and purpose)
+   *
+   * @return new reversed document
+   */
+  FDocument reverse() {
+
+    FDocument rev = new FDocument();
+
+    rev.edNo = generateEDNo(edNo, "1");
+    rev.edDate = edDate;
+    rev.isUrgent = isUrgent;
+
+    rev.docNum = docNum;
+    rev.docDate = docDate;
+    rev.amount = amount;
+    rev.purpose = "+++" + purpose;
+    rev.UIN = UIN;
+    rev.priority = priority;
+    rev.chargeOffDate = chargeOffDate;
+    rev.receiptDate = receiptDate;
+    rev.transKind = transKind;
+
+    rev.payerName = payeeName; // Swap payer
+    rev.payerAccount = payeeAccount;
+    rev.payerINN = payeeINN;
+    rev.payerCPP = payeeCPP;
+
+    rev.payerBankName = payeeBankName;  // Swap payer bank
+    rev.payerBankBIC = payeeBankBIC;
+    rev.payerBankAccount = payeeBankAccount;
+
+    rev.payeeName = payerName; // Swap payee
+    rev.payeeAccount = payerAccount;
+    rev.payeeINN = payerINN;
+    rev.payeeCPP = payerCPP;
+
+    rev.payeeBankName = payerBankName;
+    rev.payeeBankBIC = payerBankBIC;
+    rev.payeeBankAccount = payerBankAccount;
+
+    // We don't copy tax attributes - we didn't expect to receive incoming tax documents
+
+    return rev;
+  }
+
+  /** Function generates unique EDNo - tries to add specified digit at left (9 digits at all as maximum)
+   *
+   * @param source - source EDNo
+   * @param digit - left digit to create unique number (adds at left), e.g "1" - for reverse documents. "2" - for confirmations. etc
+   * @return = new EDNo
+   */
+  String generateEDNo(String source, String digit) {
+
+    String newNum = source; // Try to evaluate unique EDNo
+    if (newNum == null) newNum = getId().toString();
+    else if (newNum.length() == 0) newNum = getId().toString();
+    if (newNum.length() < 9) newNum = digit + String.format("%9s", newNum).replace(" ", "0");
+    else newNum = digit + newNum.substring(newNum.length() - 8);
+    return newNum;
   }
 
 }

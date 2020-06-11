@@ -10,22 +10,22 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.HashMap;
 
-public class BQProcessor extends XMLProcessor {
+class BQProcessor extends XMLProcessor {
 
   BQProcessor(Logger logger) {
     super(logger);
   }
 
+  /**
+   * Process one BQ file, fills fDocs array
+   *
+   * @param fileName - file name to parse (full path)
+   * @param docs - documents array
+   * @return boolean: success or fail for file processing (true/false)
+   */
   @Override
-  boolean readFile(String fileName, HashMap<Long, FDocument> fDocs) {
-    /**
-     * Process one BQ file, fills fDocs array
-     *
-     * @param fileName - file name to parse (full path)
-     * @return boolean: success or fail for file processing (true/false)
-     */
+  boolean readFile(String fileName, FDocumentArray docs) {
     try {
 
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -42,7 +42,7 @@ public class BQProcessor extends XMLProcessor {
             String nodeName = ed.getNodeName();
             if (nodeName.equals("doc")) {
               FDocument doc = BQParser.fromXML(ed);
-              addOne(doc, fDocs);
+              docs.add(doc, logger);
             }
             else {
               logger.error("0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
@@ -72,7 +72,7 @@ public class BQProcessor extends XMLProcessor {
   }
 
   @Override
-  void createAll(String outPath, HashMap<Long, FDocument> fDocs) {
+  void createAll(String outPath, FDocumentArray fDocs) {
     super.createAll(outPath, fDocs);
   }
 }
