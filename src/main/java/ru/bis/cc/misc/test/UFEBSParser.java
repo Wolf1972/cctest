@@ -230,12 +230,6 @@ class UFEBSParser {
    */
   static String toConfirmation(FDocument doc) {
     StringBuilder str = new StringBuilder();
-    /*
-    <ED206 EDNo="280001" EDDate="2015-09-15" EDAuthor="1112223334" EDReceiver="4525101000" Acc="30101810100000000101" BICCorr="044583001" Sum="10000" TransDate="2015-09-15" TransTime="12:10:01" CorrAcc="" DC="1">
-       <AccDoc AccDocNo="100" AccDocDate="2015-09-15" />
-       <EDRefID EDNo="480001" EDDate="2015-09-15" EDAuthor="4525101000" />
-    </ED206>
-     */
     boolean isReverse = !doc.payerBankBIC.equals("044525101");
 
     str.append("<ED206");
@@ -257,7 +251,8 @@ class UFEBSParser {
     str.append(" Sum=\""); str.append(doc.amount.toString()); str.append("\"");
     str.append(" TransDate=\""); str.append(doc.docDate); str.append("\"");
     str.append(" TransTime=\"10:00:01\"");
-    str.append(">");
+    str.append(" xmlns=\"urn:cbr-ru:ed:v2.0\"");
+    str.append(" >");
 
     str.append("<AccDoc");
     str.append(" AccDocNo=\""); str.append(doc.docNum); str.append("\"");
@@ -276,6 +271,35 @@ class UFEBSParser {
     str.append(" />");
 
     str.append("</ED206>");
+    return str.toString();
+  }
+
+  /** Returns string with one statement line (ED211/TransInfo)
+   *
+   * @param doc - document
+   * @return string with XML node ED211/TransInfo
+   */
+  static String toStatement(FDocument doc) {
+    StringBuilder str = new StringBuilder();
+    boolean isReverse = !doc.payerBankBIC.equals("044525101");
+
+    str.append("<TransInfo");
+    str.append(" AccDocNo=\""); str.append(doc.docNum); str.append("\"");
+    str.append(" TransKind=\""); str.append(doc.transKind); str.append("\"");
+    str.append(" BICCorr=\""); str.append(doc.payerBankBIC); str.append("\"");
+    str.append(" PayerPersonalAcc=\""); str.append(doc.payerAccount); str.append("\"");
+    str.append(" PayeePersonalAcc=\""); str.append(doc.payeeAccount); str.append("\"");
+    str.append(" Sum=\""); str.append(doc.amount); str.append("\"");
+    str.append(" DC=\""); str.append(isReverse ? "1": "2"); str.append("\"");
+    str.append(" TurnoverKind=\"1\"");
+    str.append(" >");
+    str.append("<EDRefID");
+    str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
+    str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
+    str.append(" EDAuthor=\""); str.append(isReverse? "4525225000": "4525101000"); str.append("\"");
+    str.append(" />");
+    str.append("</TransInfo>");
+
     return str.toString();
   }
 

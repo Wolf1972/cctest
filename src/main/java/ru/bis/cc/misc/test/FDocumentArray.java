@@ -44,6 +44,31 @@ class FDocumentArray {
     }
   }
 
+  /** Function returns date of any first document
+   *
+   * @return date in XML format [YYYY-MM-DD]
+   */
+  String getDate() {
+    for (Map.Entry<Long, FDocument> item : docs.entrySet()) {
+      FDocument doc = item.getValue();
+      return doc.edDate;
+    }
+    return null;
+  }
+
+  /** Function returns total sum of all documents
+   *
+   * @return - total sum
+   */
+  Long getSum() {
+    long total = 0;
+    for (Map.Entry<Long, FDocument> item : docs.entrySet()) {
+      FDocument doc = item.getValue();
+      total += doc.amount;
+    }
+    return total;
+  }
+
   /** Creates new document array with incoming (reverse) documents, assembled by outgoing (internal documents are not included)
    *
    * @param logger - current logger

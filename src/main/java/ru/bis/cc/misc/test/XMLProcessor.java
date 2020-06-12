@@ -97,7 +97,7 @@ class XMLProcessor extends AProcessor {
       else if (rootNodeName.equals("PacketESID")) { // For packets ESIS
         xsdFile = xsdPath + "\\ed\\cbr_packetesid_v2020.2.0.xsd";
       }
-      else if (rootNodeName.startsWith("ED1")) { // For single EPD
+      else if (rootNodeName.startsWith("ED")) { // For single EPD
         xsdFile = xsdPath + "\\ed\\cbr_" + rootNodeName + "_v2020.2.0.xsd";
       }
       else {

@@ -119,6 +119,7 @@ class UFEBSProcessor extends XMLProcessor {
     }
     if (packetCount > 0) {
       StringBuilder str = new StringBuilder(getProlog());
+      str.append(System.lineSeparator());
       str.append("<"); str.append(rootName);
       String edAuthor = "4525101000";
       String edReceiver = "4525225000";
@@ -216,7 +217,7 @@ class UFEBSProcessor extends XMLProcessor {
           OutputStream oss = new FileOutputStream(outFile);
           BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, codePage));
           singleWriter.write(getProlog() + System.lineSeparator());
-          String str = UFEBSParser.toString(doc);
+          String str = UFEBSParser.toConfirmation(doc);
           singleWriter.write(str);
           singleWriter.close();
         }
@@ -243,6 +244,72 @@ class UFEBSProcessor extends XMLProcessor {
    * @param revs - reversed documents array (or null)
    */
   void createStatement(String outPath, FDocumentArray docs, FDocumentArray revs) {
+    if (!Files.isDirectory(Paths.get(outPath))) {
+      logger.error("0520: Error access output directory " + outPath);
+      return;
+    }
+    try {
+      String outPacketFile = outPath + "stm3000000.xml";
+      OutputStream osp = new FileOutputStream(outPacketFile);
+      BufferedWriter packetWriter = new BufferedWriter(new OutputStreamWriter(osp, codePage));
+
+      String date = docs.getDate();
+      String edAuthor = "4525225000";
+      String edReceiver = "4525101000";
+
+      StringBuilder str = new StringBuilder();
+      str.append("<PacketESID ");
+      str.append(" EDNo=\"3000000\"");
+      str.append(" EDDate=\""); str.append(date); str.append("\"");
+      str.append(" EDAuthor=\""); str.append(edAuthor); str.append("\"");
+      str.append(" EDReceiver=\""); str.append(edReceiver); str.append("\"");
+      str.append(" EDQuantity=\"1\"");
+      str.append(" xmlns=\"urn:cbr-ru:ed:v2.0\">");
+      str.append("<ED211 ");
+      str.append(" EDNo=\"4000000\"");
+      str.append(" EDDate=\""); str.append(date); str.append("\"");
+      str.append(" EDAuthor=\""); str.append(edAuthor); str.append("\"");
+      str.append(" EDReceiver=\""); str.append(edReceiver); str.append("\"");
+      str.append(" AbstractKind=\"0\"");
+      str.append(" LastMovetDate=\""); str.append(date); str.append("\"");
+      str.append(" AbstractDate=\""); str.append(date); str.append("\"");
+      str.append(" BeginTime=\"01:00:00\"");
+      str.append(" EndTime=\"23:59:59\"");
+      str.append(" BIC=\"044500001\"");
+      str.append(" Acc=\"30101810100000000101\"");
+
+      long debet = docs.getSum();
+      long credit = revs != null? revs.getSum(): 0L;
+      long inRest = debet + 10000L;
+      long outRest = inRest - debet + credit;
+      str.append(" EnterBal=\""); str.append(inRest); str.append("\"");
+      str.append(" OutBal=\""); str.append(outRest); str.append("\"");
+      if (debet > 0) { str.append(" DebetSum=\""); str.append(debet); str.append("\""); }
+      if (credit > 0) { str.append(" CreditSum=\""); str.append(credit); str.append("\""); }
+      str.append(" >");
+
+      packetWriter.write(str + System.lineSeparator());
+
+      for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
+        FDocument doc = item.getValue();
+        String line = UFEBSParser.toStatement(doc) + System.lineSeparator();
+        packetWriter.write(line);
+      }
+      if (revs != null) {
+        for (Map.Entry<Long, FDocument> item : revs.docs.entrySet()) {
+          FDocument doc = item.getValue();
+          String line = UFEBSParser.toStatement(doc) + System.lineSeparator();
+          packetWriter.write(line);
+        }
+      }
+
+      packetWriter.write("</ED211>");
+      packetWriter.write("</PacketESID>" + System.lineSeparator());
+      packetWriter.close();
+    }
+    catch (IOException e) {
+      logger.error("0521: Error write output file with confirmation.");
+    }
     logger.info("0530: UFEBS statement created.");
   }
 

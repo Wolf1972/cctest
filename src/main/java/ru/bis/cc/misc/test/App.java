@@ -30,7 +30,7 @@ public class App {
     options.addOption("x", "xsd", true, "XSD files directory (when specified and input or output files are UFEBS it performs XSD check).");
     options.addOption("d", "date", true, "Change date in transformed documents [YYYY-MM-DD] (for \"transform\" action only).");
     options.addOption("c", "codepage", true, "Code page for output XML files [\"windows-1251\" or \"utf-8\"] (for \"transform\" action only).");
-    options.addOption("r", "reverse", false, "Prepare incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
+    options.addOption("r", "reverse", false, "Output incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
 
     // Command line options
     String cmdAction = null;
@@ -59,7 +59,7 @@ public class App {
 
     }
     catch (ParseException e) {
-      System.out.println("Command line parse exception. ");
+      System.out.println("Command line parse exception.");
       HelpFormatter help = new HelpFormatter();
       help.printHelp(App.class.getSimpleName(), options);
       return;
@@ -72,6 +72,7 @@ public class App {
     }
     // We will define configuration later
     Logger logger = LogManager.getLogger(App.class);
+    logger.trace("0001: Current directory: " + System.getProperty("user.dir"));
 
     if (cmdAction != null) {
 
@@ -117,33 +118,39 @@ public class App {
             procIn.readAll(inPath, sampleDocs);
           }
           try {
-            FileType fileType = FileType.valueOf(cmdOutputType);
-            AProcessor procOut = ProcessorFabric.getProcessor(fileType, logger);
-            if (procOut != null) {
-              if (outPath != null) {
-                if (cmdDate != null) {
-                  logger.info("0012: New date assigned to output documents: " + cmdDate);
-                  sampleDocs.setDate(cmdDate); // Change date
-                }
-                procOut.createAll(outPath, sampleDocs); // Create target documents
-                if (procOut.getClass() == UFEBSProcessor.class) {
-                  if (cmdReverse) { // Create reverse documents if UFEBS and -r option
-                    reverseDocs = sampleDocs.createReverse(logger);
-                    procOut.createAll(outPath, reverseDocs);
-                    UFEBSProcessor procUFEBS = (UFEBSProcessor) procOut; // Downcast with no doubts
-                    if (cmdCodePage != null) procUFEBS.setCodePage(cmdCodePage);
-                    procUFEBS.createConfirmations(outPath, sampleDocs);
-                    procUFEBS.createStatement(outPath, sampleDocs, reverseDocs);
+            if (cmdOutputType != null) {
+              FileType fileType = FileType.valueOf(cmdOutputType);
+              AProcessor procOut = ProcessorFabric.getProcessor(fileType, logger);
+              if (procOut != null) {
+                if (outPath != null) {
+                  if (cmdDate != null) {
+                    logger.info("0012: New date assigned to output documents: " + cmdDate);
+                    sampleDocs.setDate(cmdDate); // Change date
                   }
-                  if (xsdPath != null) procOut.checkAll(outPath, xsdPath); // Check output documents if UFEBS
+                  procOut.createAll(outPath, sampleDocs); // Create target documents
+                  if (procOut.getClass() == UFEBSProcessor.class) {
+                    if (cmdReverse) { // Create reverse documents if UFEBS and -r option
+                      reverseDocs = sampleDocs.createReverse(logger);
+                      procOut.createAll(outPath, reverseDocs);
+                      UFEBSProcessor procUFEBS = (UFEBSProcessor) procOut; // Downcast with no doubts
+                      if (cmdCodePage != null) procUFEBS.setCodePage(cmdCodePage);
+                      procUFEBS.createConfirmations(outPath, sampleDocs);
+                      procUFEBS.createStatement(outPath, sampleDocs, reverseDocs);
+                    }
+                    if (xsdPath != null)
+                      procOut.checkAll(outPath, xsdPath); // Check output documents if UFEBS
+                  }
                 }
-              }
-              else {
-                logger.error("0012: Output path doesn't specified. Use -o option.");
+                else {
+                  logger.error("0012: Output path doesn't specified. Use -o option.");
+                }
               }
             }
+            else {
+              logger.error("0012: Output file type doesn't specified. Use -t option.");
+            }
           }
-          catch (IllegalArgumentException e) {
+          catch(IllegalArgumentException e){
             logger.error("0010: Unknown format type specified: " + cmdOutputType);
           }
         }

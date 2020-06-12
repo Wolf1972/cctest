@@ -271,6 +271,7 @@ public class AppTest
 
     FDocumentArray patternDocs = new FDocumentArray();
     FDocumentArray sampleDocs = new FDocumentArray();
+    FDocumentArray reverseDocs = new FDocumentArray();
     FDocumentArray packet = new FDocumentArray();
 
     // UFEBS processor test
@@ -284,9 +285,22 @@ public class AppTest
       if (!doc.isUrgent) packet.add(doc, logger);
     }
     procUFEBS.createAll(outPath, packet);
-    assertTrue("UFEBS packet XSD check error.", procUFEBS.isXMLValid(outPath + "pck000000.xml", xsdPath));
-    assertTrue("UFEBS created packet file parse error.", procUFEBS.readFile(outPath + "pck000000.xml", sampleDocs));
+    assertTrue("UFEBS packet XSD check error.", procUFEBS.isXMLValid(outPath + "pko1000000.xml", xsdPath));
+    assertTrue("UFEBS created packet file parse error.", procUFEBS.readFile(outPath + "pko1000000.xml", sampleDocs));
     sampleDocs.docs.clear();
+
+    reverseDocs = patternDocs.createReverse(logger);
+    procUFEBS.createAll(outPath, reverseDocs);
+    compareTwoFiles(patternPath + "packet-income.xml", outPath + "pki1000000.xml");
+    compareTwoFiles(patternPath + "single-income.xml", outPath + "inc0000143.xml");
+
+    procUFEBS.createConfirmations(outPath, patternDocs);
+    compareTwoFiles(patternPath + "packet-conf.xml", outPath + "ppo2000000.xml");
+    compareTwoFiles(patternPath + "single-conf.xml", outPath + "pco0000143.xml");
+    procUFEBS.createStatement(outPath, sampleDocs, reverseDocs);
+    compareTwoFiles(patternPath + "statement.xml", outPath + "stm3000000.xml");
+
+
 
     // FT14 assembler test
     String outFT14File = outPath + "ft14test.txt"; // First of all - delete previous test results

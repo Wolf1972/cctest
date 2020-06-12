@@ -317,7 +317,7 @@ public class FDocument {
     String newNum = source; // Try to evaluate unique EDNo
     if (newNum == null) newNum = getId().toString();
     else if (newNum.length() == 0) newNum = getId().toString();
-    if (newNum.length() < 9) newNum = digit + String.format("%9s", newNum).replace(" ", "0");
+    if (newNum.length() < 9) newNum = digit + String.format("%8s", newNum).replace(" ", "0");
     else newNum = digit + newNum.substring(newNum.length() - 8);
     return newNum;
   }
