@@ -9,7 +9,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
 
 class BQProcessor extends XMLProcessor {
 
@@ -68,11 +71,46 @@ class BQProcessor extends XMLProcessor {
 
   @Override
   void checkAll(String inqPath, String xsdPath) {
-    logger.error("0701: There is no checker for BQ format.");
+    logger.error("0701: There is no XSD scheme for BQ format.");
   }
 
   @Override
-  void createAll(String outPath, FDocumentArray fDocs) {
-    super.createAll(outPath, fDocs);
+  /**
+   * Creates BQ files for all specified documents array
+   *
+   * @param outPath = path for create BQ files
+   * @param docs   - documents array reference
+   */
+  void createAll(String outPath, FDocumentArray docs) {
+    if (!Files.isDirectory(Paths.get(outPath))) {
+      logger.error("0520: Error access output directory " + outPath);
+      return;
+    }
+    try {
+      setCodePage("windows-1251");
+      String outFile = outPath + "bqtest.xml";
+      OutputStream osp = new FileOutputStream(outFile);
+      BufferedWriter bqWriter = new BufferedWriter(new OutputStreamWriter(osp, getCodePage()));
+
+      StringBuilder str = new StringBuilder();
+      str.append(getProlog()); str.append(System.lineSeparator());
+      str.append("<docs ");
+      str.append(" filial-id=\"0001\"");
+      str.append(" eod=\""); str.append(docs.getDate()); str.append("\"");
+      str.append(" ver-format=\"1.0.0\"");
+      str.append(" xmlns=\"http://www.bis.ru/XCNG/BQ\">");
+      bqWriter.write(str.toString() + System.lineSeparator());
+      for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
+        FDocument doc = item.getValue();
+        String one = BQParser.toString(doc) + System.lineSeparator();
+        bqWriter.write(one);
+      }
+      bqWriter.write("</docs>" + System.lineSeparator());
+      bqWriter.close();
+    }
+    catch (IOException e) {
+      logger.error("0521: Error write output file with BQ.");
+    }
+    logger.info("0522: Output BQ files created.");
   }
 }

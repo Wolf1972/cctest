@@ -4,7 +4,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-class BQParser {
+class BQParser extends XMLParser {
   /** Loads object from XML node
    *
    * @param node - XML node with one document doc
@@ -141,6 +141,77 @@ class BQParser {
       return null;
     }
     return doc;
+  }
+
+  /** Returns string with one <doc> element
+   *
+   * @param doc - document
+   * @return string with XML node <doc>
+   */
+  static String toString(FDocument doc) {
+
+    StringBuilder str = new StringBuilder();
+
+    str.append("<doc");
+    str.append(" id=\""); str.append(doc.edNo != null? doc.edNo : doc.getId()); str.append("\"");
+    str.append(" action=\"update\" >");
+
+    str.append("<reg");
+    str.append(" doc-type=\""); str.append(doc.transKind); str.append("\"");
+    str.append(" doc-num=\""); str.append(doc.docNum); str.append("\"");
+    str.append(" doc-date=\""); str.append(doc.docDate); str.append("\"");
+    str.append(" order-pay=\""); str.append(doc.priority); str.append("\"");
+    if (doc.chargeOffDate != null) { str.append(" chgoff-date=\""); str.append(doc.chargeOffDate); str.append("\""); }
+    if (doc.receiptDate != null) { str.append(" payee-received=\""); str.append(doc.receiptDate); str.append("\""); }
+    str.append(" delivery=\""); str.append(doc.isUrgent? "Э" : "E"); str.append("\"");
+    str.append("/>");
+
+    str.append("<details>"); str.append(replace4Elem(doc.purpose)); str.append("</details>");
+
+    if (doc.isTax) {
+      str.append("<tax-index ");
+      if (doc.taxStatus != null) { str.append(" status-index=\""); str.append(doc.taxStatus); str.append("\""); } // 101
+      if (doc.CBC != null) { str.append(" cbc=\""); str.append(doc.CBC); str.append("\""); } // 104
+      if (doc.OCATO != null) { str.append(" ocato=\""); str.append(doc.OCATO); str.append("\""); } // 105
+      if (doc.taxPaytReason != null) { str.append(" purpose-index=\""); str.append(doc.taxPaytReason); str.append("\"");} // 106
+      if (doc.taxPeriod != null) { str.append(" period-index=\""); str.append(doc.taxPeriod); str.append("\"");} // 107
+      if (doc.taxDocNum != null) { str.append(" num-index=\""); str.append(doc.taxDocNum); str.append("\"");} // 108
+      if (doc.taxDocDate != null) { str.append(" date-index=\""); str.append(doc.taxDocDate); str.append("\"");} // 109
+      if (doc.taxPaytKind != null) { str.append(" tax-index=\""); str.append(doc.taxPaytKind); str.append("\"");} // 110
+      str.append(" />");
+    }
+
+    str.append("<payer");
+    str.append(" name=\""); str.append(replace4Attr(doc.payerName)); str.append("\"");
+    if (doc.payerAccount != null) { str.append(" acct=\""); str.append(doc.payerAccount); str.append("\""); }
+    if (doc.payerINN != null) { str.append(" inn=\""); str.append(doc.payerINN); str.append("\""); }
+    if (doc.payerCPP != null) { str.append(" kpp=\""); str.append(doc.payerCPP); str.append("\""); }
+    str.append(" />");
+
+    str.append("<payer-bank");
+    if (doc.payerBankName != null) { str.append(" name=\""); str.append(replace4Attr(doc.payerBankName)); str.append("\""); }
+    if (doc.payerBankAccount != null) { str.append(" acct=\""); str.append(doc.payerBankAccount); str.append("\""); }
+    str.append(" ident-code=\""); str.append(doc.payerBankBIC); str.append("\"");
+    str.append(" ident-type=\"МФО-9\"");
+    str.append(" />");
+
+    str.append("<payee");
+    str.append(" name=\""); str.append(replace4Attr(doc.payeeName)); str.append("\"");
+    if (doc.payeeAccount != null) { str.append(" acct=\""); str.append(doc.payeeAccount); str.append("\""); }
+    if (doc.payeeINN != null) { str.append(" inn=\""); str.append(doc.payeeINN); str.append("\""); }
+    if (doc.payeeCPP != null) { str.append(" kpp=\""); str.append(doc.payeeCPP); str.append("\""); }
+    str.append(" />");
+
+    str.append("<payee-bank");
+    if (doc.payeeBankName != null) { str.append(" name=\""); str.append(replace4Attr(doc.payeeBankName)); str.append("\""); }
+    if (doc.payeeBankAccount != null) { str.append(" acct=\""); str.append(doc.payeeBankAccount); str.append("\""); }
+    str.append(" ident-code=\""); str.append(doc.payeeBankBIC); str.append("\"");
+    str.append(" ident-type=\"МФО-9\"");
+    str.append(" />");
+
+    str.append("</doc>");
+
+    return str.toString();
   }
 
 }

@@ -258,6 +258,22 @@ public class AppTest
     }
   }
 
+  /** Test for file type automatic determine function
+   *
+   */
+  @Test
+  public void getFileTypeTest() {
+    String patternPath = ".\\src\\test\\resources\\pattern\\";
+    assertEquals("FT14", FileType.FT14, ProcessorFabric.fileType(patternPath + "ft14test.txt", logger));
+    assertEquals("MT103", FileType.MT103, ProcessorFabric.fileType(patternPath + "mt103test.txt", logger));
+    assertEquals("UFEBS single", FileType.UFEBS, ProcessorFabric.fileType(patternPath + "single.xml", logger));
+    assertEquals("UFEBS packet", FileType.UFEBS, ProcessorFabric.fileType(patternPath + "packet.xml", logger));
+    assertEquals("BQ", FileType.BQ, ProcessorFabric.fileType(patternPath + "bqtest.xml", logger));
+    assertEquals("?", FileType.UNKNOWN, ProcessorFabric.fileType(patternPath + "nofile.xml", logger));
+    assertEquals("?txt", FileType.UNKNOWN, ProcessorFabric.fileType(patternPath + "unknown.txt", logger));
+    assertEquals("?xml", FileType.UNKNOWN, ProcessorFabric.fileType(patternPath + "unknown.xml", logger));
+  }
+
   /** Integrity test - test functionality at all
    *
    */
@@ -297,10 +313,8 @@ public class AppTest
     procUFEBS.createConfirmations(outPath, patternDocs);
     compareTwoFiles(patternPath + "packet-conf.xml", outPath + "ppo2000000.xml");
     compareTwoFiles(patternPath + "single-conf.xml", outPath + "pco0000143.xml");
-    procUFEBS.createStatement(outPath, sampleDocs, reverseDocs);
+    procUFEBS.createStatement(outPath, patternDocs, reverseDocs);
     compareTwoFiles(patternPath + "statement.xml", outPath + "stm3000000.xml");
-
-
 
     // FT14 assembler test
     String outFT14File = outPath + "ft14test.txt"; // First of all - delete previous test results
@@ -326,6 +340,15 @@ public class AppTest
     // Comparator test - compare pattern documents was loaded from UFEBS, sample documents was loaded from MT103
     Comparator comparator = new Comparator(logger);
     assertTrue("Comparator error found when testing UFEBS and MT103 documents.", comparator.compare(patternDocs, sampleDocs));
+
+    // BQ assembler test
+    BQProcessor procBQ = new BQProcessor(logger);
+    procBQ.createAll(outPath, patternDocs);
+    compareTwoFiles(patternPath + "bqtest.xml", outPath + "bqtest.xml");
+
+    // BQ parser test
+    procBQ.readFile(outPath + "bqtest.xml", sampleDocs);
+    assertTrue("Comparator error found when testing UFEBS and BQ documents.", comparator.compare(patternDocs, sampleDocs));
 
   }
 

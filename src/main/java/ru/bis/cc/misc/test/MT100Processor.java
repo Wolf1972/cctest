@@ -12,20 +12,20 @@ import java.util.Map;
 import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
 
-/** Class for SWIFT MT103 proceessing
+/** Class for SWIFT MT100 proceessing
  *
  */
-class MT103Processor extends SWIFTProcessor {
+class MT100Processor extends SWIFTProcessor {
 
   private Logger logger;
 
-  MT103Processor(Logger logger) {
+  MT100Processor(Logger logger) {
     this.logger = logger;
   }
 
   /**
-   * Process one MT103 input directory and loads all MT103s into specified documents array
-   * MT103 - text file, UTF-8 encoding
+   * Process one MT100 input directory and loads all MT100s into specified documents array
+   * MT100 - binary file with one or several messages (length = 3200 bytes), ISO-8859-5 encoding
    *
    * @param inPath   = input path
    * @param fDocs    - reference to documents array
@@ -59,7 +59,7 @@ class MT103Processor extends SWIFTProcessor {
   }
 
   /**
-   * Process one MT103 file, fills fDocs array
+   * Process one MT100 file, fills fDocs array
    *
    * @param fileName - file name to parse (full path)
    * @param fDocs    - documents array reference
@@ -70,21 +70,21 @@ class MT103Processor extends SWIFTProcessor {
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
       String line;
-      StringBuilder oneMT103 = new StringBuilder();
+      StringBuilder message = new StringBuilder();
       while ((line = reader.readLine()) != null) {
         int end = line.indexOf("-}");
         if (end < 0) {
-          oneMT103.append(line);
-          oneMT103.append(System.lineSeparator());
+          message.append(line);
+          message.append(System.lineSeparator());
         }
         else {
-          oneMT103.append(line, 0, end + 2);
-          FDocument doc = MT103Parser.fromString(oneMT103.toString());
+          message.append(line, 0, end + 2);
+          FDocument doc = MT103Parser.fromString(message.toString());
           if (doc != null) fDocs.add(doc, logger);
           msgCount++;
-          oneMT103.setLength(0);
-          oneMT103.append(line.substring(end + 2));
-          oneMT103.append(System.lineSeparator());
+          message.setLength(0);
+          message.append(line.substring(end + 2));
+          message.append(System.lineSeparator());
         }
       }
     }
@@ -97,7 +97,7 @@ class MT103Processor extends SWIFTProcessor {
   }
 
   /**
-   * Creates MT103 file for all specified documents array
+   * Creates MT100 file for all specified documents array
    *
    * @param outPath = path for create MT103 file
    * @param fDocs   - documents array reference
@@ -129,7 +129,7 @@ class MT103Processor extends SWIFTProcessor {
           if (value.isUrgent) writer.write("U");
           else writer.write("N");
           writer.write("}");
-          writer.write(MT103Parser.toString(value));
+          writer.write(MT100Parser.toString(value));
         }
       }
       writer.close();

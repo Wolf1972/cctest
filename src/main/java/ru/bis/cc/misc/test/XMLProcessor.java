@@ -24,7 +24,9 @@ import static java.nio.file.Files.newDirectoryStream;
 
 class XMLProcessor extends AProcessor {
 
+  private String codePage = "utf-8";
   Logger logger;
+
   XMLProcessor(Logger logger) {
     this.logger = logger;
   }
@@ -66,6 +68,30 @@ class XMLProcessor extends AProcessor {
   @Override
   boolean readFile(String fileName, FDocumentArray fDocs) {
     return false;
+  }
+
+  /** Function sets specified code page for XML output
+   *
+   * @param codePage - code page name ("windows-1251" or "utf-8" allowed)
+   */
+  void setCodePage(String codePage) {
+    this.codePage = codePage;
+  }
+
+  /** Function returns name of code page was set
+   *
+   * @return - string with "utf-8" or "windows-1251"
+   */
+  String getCodePage() {
+    return codePage;
+  }
+
+  /** Function returns string with XML prolog
+   *
+   * @return - string with prolog with code page
+   */
+  String getProlog() {
+    return "<?xml version=\"1.0\" encoding=\"" + codePage + "\" ?>";
   }
 
   @Override

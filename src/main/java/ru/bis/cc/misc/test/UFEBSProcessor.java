@@ -19,8 +19,6 @@ import java.util.Map;
  */
 class UFEBSProcessor extends XMLProcessor {
 
-  private String codePage = "utf-8";
-
   UFEBSProcessor(Logger logger) {
     super(logger);
   }
@@ -77,22 +75,6 @@ class UFEBSProcessor extends XMLProcessor {
       logger.error("0516. Error while file access: " + fileName);
     }
     return false;
-  }
-
-  /** Function sets specified code page for XML output
-   *
-   * @param codePage - code page name ("windows-1251" or "utf-8" allowed)
-   */
-  void setCodePage(String codePage) {
-    this.codePage = codePage;
-  }
-
-  /** Function returns string with XML prolog
-   *
-   * @return - string with prolog with code page
-   */
-  private String getProlog() {
-    return "<?xml version=\"1.0\" encoding=\"" + codePage + "\" ?>";
   }
 
   /** Function returns string with packet root or null (if documents array has no non-urgent documents).
@@ -161,7 +143,7 @@ class UFEBSProcessor extends XMLProcessor {
       if (rootElement != null) {
         String outPacketFile = outPath + (docs.isReversePacket ? "pki1000000.xml" : "pko1000000.xml");
         OutputStream osp = new FileOutputStream(outPacketFile);
-        packetWriter = new BufferedWriter(new OutputStreamWriter(osp, codePage));
+        packetWriter = new BufferedWriter(new OutputStreamWriter(osp, getCodePage()));
         packetWriter.write(rootElement + System.lineSeparator());
       }
       for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
@@ -169,7 +151,7 @@ class UFEBSProcessor extends XMLProcessor {
         if (doc.isUrgent) {
           String outFile = outPath + (doc.payerBankBIC.equals("044525101")? "out" : "inc") + String.format("%07d", doc.getId()) + ".xml";
           OutputStream oss = new FileOutputStream(outFile);
-          BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, codePage));
+          BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, getCodePage()));
           singleWriter.write(getProlog() + System.lineSeparator());
           String str = UFEBSParser.toString(doc);
           singleWriter.write(str);
@@ -207,7 +189,7 @@ class UFEBSProcessor extends XMLProcessor {
       if (rootElement != null) {
         String outPacketFile = outPath + (docs.isReversePacket ? "ppi2000000.xml" : "ppo2000000.xml");
         OutputStream osp = new FileOutputStream(outPacketFile);
-        packetWriter = new BufferedWriter(new OutputStreamWriter(osp, codePage));
+        packetWriter = new BufferedWriter(new OutputStreamWriter(osp, getCodePage()));
         packetWriter.write(rootElement + System.lineSeparator());
       }
       for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
@@ -215,7 +197,7 @@ class UFEBSProcessor extends XMLProcessor {
         if (doc.isUrgent) {
           String outFile = outPath + (doc.payerBankBIC.equals("044525101")? "pco" : "pci") + String.format("%07d", doc.getId()) + ".xml";
           OutputStream oss = new FileOutputStream(outFile);
-          BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, codePage));
+          BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, getCodePage()));
           singleWriter.write(getProlog() + System.lineSeparator());
           String str = UFEBSParser.toConfirmation(doc);
           singleWriter.write(str);
@@ -251,13 +233,14 @@ class UFEBSProcessor extends XMLProcessor {
     try {
       String outPacketFile = outPath + "stm3000000.xml";
       OutputStream osp = new FileOutputStream(outPacketFile);
-      BufferedWriter packetWriter = new BufferedWriter(new OutputStreamWriter(osp, codePage));
+      BufferedWriter packetWriter = new BufferedWriter(new OutputStreamWriter(osp, getCodePage()));
 
       String date = docs.getDate();
       String edAuthor = "4525225000";
       String edReceiver = "4525101000";
 
       StringBuilder str = new StringBuilder();
+      str.append(getProlog()); str.append(System.lineSeparator());
       str.append("<PacketESID ");
       str.append(" EDNo=\"3000000\"");
       str.append(" EDDate=\""); str.append(date); str.append("\"");

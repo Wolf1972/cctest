@@ -12,7 +12,7 @@ import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
 
 enum FileType {
-  UNKNOWN, UFEBS, MT103, FT14, BQ
+  UNKNOWN, UFEBS, MT103, FT14, BQ, MT100
 }
 
 class ProcessorFabric {
@@ -62,17 +62,53 @@ class ProcessorFabric {
       RandomAccessFile raf = new RandomAccessFile(fileName, "r");
       String firstStr = raf.readLine();
       if (firstStr != null) {
-        if (firstStr.matches("^<\\?xml?.+")) // XML
-          return FileType.UFEBS;
-        else if (firstStr.matches("^\\{1:.+")) // SWIFT
-          return FileType.MT103;
+        if (firstStr.matches("^<\\?xml?.+")) { // XML
+          // Try to read root element (without XML parsing)
+          int pos = firstStr.indexOf("?>");
+          String rootName = "";
+          do {
+            pos = firstStr.indexOf("<", pos);
+            if (pos >= 0) { // Root element in this string
+              rootName = firstStr.substring(pos + 1);
+              pos = rootName.indexOf(" ");
+              if (pos >= 0) {
+                rootName = rootName.substring(0, pos);
+              }
+              break;
+            }
+            else {
+              firstStr = raf.readLine(); pos = 0;
+            }
+          }
+          while (firstStr != null);
+          if (rootName.matches("docs")) {
+            return FileType.BQ;
+          }
+          else if (rootName.matches("ED.+") || rootName.matches("Packet.+")) {
+            return FileType.UFEBS;
+          }
+          return FileType.UNKNOWN;
+        }
+        else if (firstStr.matches("^\\{1:.+")) { // SWIFT
+          int pos = firstStr.indexOf("{2:"); // Message type from block 2: "{2:O100"
+          if (pos >= 0) {
+            String msgType = firstStr.substring(pos + 4, pos + 7);
+            if (msgType.equals("100")) {
+              return FileType.MT100;
+            }
+            else if (msgType.equals("103")) {
+              return FileType.MT103;
+            }
+          }
+          return FileType.UNKNOWN;
+        }
         else if (firstStr.matches("^..MOS.+")) // FT14 - RTMOS, CLMOS
           return FileType.FT14;
       }
       raf.close();
     }
     catch (IOException e) {
-      logger.error("0101: Error access file: " + fileName, e);
+      logger.error("0101: Error access file: " + fileName);
     }
     return FileType.UNKNOWN;
   }

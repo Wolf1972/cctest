@@ -4,7 +4,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-class UFEBSParser {
+class UFEBSParser extends XMLParser {
   /** Loads object from XML node
    *
    * @param node - XML node with one document (ED1xx) or packet (PacketED)
@@ -184,7 +184,7 @@ class UFEBSParser {
     if (doc.payerCPP != null) { str.append(" KPP=\""); str.append(doc.payerCPP); str.append("\""); }
     if (doc.payerINN != null) { str.append(" INN=\""); str.append(doc.payerINN); str.append("\""); }
     str.append(">");
-    str.append("<Name>"); str.append(doc.payerName); str.append("</Name>");
+    str.append("<Name>"); str.append(replace4Elem(doc.payerName)); str.append("</Name>");
     str.append("<Bank");
     if (doc.payerBankAccount != null) { str.append(" CorrespAcc=\""); str.append(doc.payerBankAccount); str.append("\""); }
     str.append(" BIC=\""); str.append(doc.payerBankBIC); str.append("\"");
@@ -196,14 +196,14 @@ class UFEBSParser {
     if (doc.payeeCPP != null) { str.append(" KPP=\""); str.append(doc.payeeCPP); str.append("\""); }
     if (doc.payeeINN != null) { str.append(" INN=\""); str.append(doc.payeeINN); str.append("\""); }
     str.append(">");
-    str.append("<Name>"); str.append(doc.payeeName); str.append("</Name>");
+    str.append("<Name>"); str.append(replace4Elem(doc.payeeName)); str.append("</Name>");
     str.append("<Bank");
     if (doc.payeeBankAccount != null) { str.append(" CorrespAcc=\""); str.append(doc.payeeBankAccount); str.append("\""); }
     str.append(" BIC=\""); str.append(doc.payeeBankBIC); str.append("\"");
     str.append("/>");
     str.append("</Payee>");
 
-    str.append("<Purpose>"); str.append(doc.purpose); str.append("</Purpose>");
+    str.append("<Purpose>"); str.append(replace4Elem(doc.purpose)); str.append("</Purpose>");
 
     if (doc.isTax) {
       str.append("<DepartmentalInfo ");
