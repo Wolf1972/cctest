@@ -11,7 +11,14 @@ import java.nio.file.Paths;
  * Files processing: parse, compares and assembles files in FT14, SWIFT and UFEBS formats
  *
  */
+
 public class App {
+
+  // TODO: MT940 import and compare
+  // TODO: MT940 export
+  // TODO: FT14 import
+  // TODO: process split operations in FT14 import
+  // TODO: import static information = clients, accounts
 
   private static FDocumentArray sampleDocs = new FDocumentArray(); // Checked documents array
   private static FDocumentArray patternDocs = new FDocumentArray(); // Pattern documents array (for compare)

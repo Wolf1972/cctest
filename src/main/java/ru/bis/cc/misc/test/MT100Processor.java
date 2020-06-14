@@ -67,24 +67,29 @@ class MT100Processor extends SWIFTProcessor {
    */
   boolean readFile(String fileName, FDocumentArray fDocs) {
     int msgCount = 0;
+    byte[] message = new byte[3200]; // Each message in MT100 binary container aligns for 3200 bytes length
+
+    MT100Parser parser = new MT100Parser();
+
     try {
-      BufferedReader reader = new BufferedReader(new FileReader(fileName));
-      String line;
-      StringBuilder message = new StringBuilder();
-      while ((line = reader.readLine()) != null) {
-        int end = line.indexOf("-}");
+      RandomAccessFile raf = new RandomAccessFile(fileName, "r");
+      int count;
+      while ((count = raf.read(message)) == message.length) {
+        String str = new String(message, "ISO-8859-5");
+        str = str.substring(2); // Skip first 2 bytes
+        int end = str.indexOf("-}");
         if (end < 0) {
-          message.append(line);
-          message.append(System.lineSeparator());
+          logger.error("0411: MT100 format error = can't find message end for message " + msgCount);
+          break;
+        }
+        if (str.startsWith("{9:")) { // Is it the end block of binary container?
+          break;
         }
         else {
-          message.append(line, 0, end + 2);
-          FDocument doc = MT103Parser.fromString(message.toString());
+          str = str.substring(0, end + 2);
+          FDocument doc = parser.fromString(str);
           if (doc != null) fDocs.add(doc, logger);
           msgCount++;
-          message.setLength(0);
-          message.append(line.substring(end + 2));
-          message.append(System.lineSeparator());
         }
       }
     }
@@ -107,7 +112,9 @@ class MT100Processor extends SWIFTProcessor {
       logger.error("0410: Error access output directory " + outPath);
       return;
     }
-    String outFile = outPath + "mt103test.txt";
+    MT100Parser parser = new MT100Parser();
+
+    String outFile = outPath + "mt100test.txt";
     try {
       OutputStream os = new FileOutputStream(outFile);
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
@@ -129,7 +136,7 @@ class MT100Processor extends SWIFTProcessor {
           if (value.isUrgent) writer.write("U");
           else writer.write("N");
           writer.write("}");
-          writer.write(MT100Parser.toString(value));
+          writer.write(parser.toString(value));
         }
       }
       writer.close();

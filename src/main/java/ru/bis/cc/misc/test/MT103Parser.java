@@ -4,15 +4,19 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class MT103Parser {
+class MT103Parser extends SWIFTParser {
+
+  MT103Parser() {
+    super();
+    expectedFields = new String[]{"20", "32A", "50K", "52A", "53B", "57D", "59", "70", "72", "77B"};
+  }
+
   /** Loads object from MT103
    *
    * @param str = string with MT103 message
    * @return financial document
    */
-  static FDocument fromString(String str) {
-
-    String[] fields = {"20", "32A", "50K", "52A", "53B", "57D", "59", "70", "72", "77B"};
+  FDocument fromString(String str) {
 
     String innKeyWord = "INN";
     String regExpINN = innKeyWord + "\\d{12}\\D|"+ innKeyWord + "\\d{10}\\D|" + innKeyWord + "\\d{5}\\D" +
@@ -70,8 +74,8 @@ class MT103Parser {
 
           boolean isNewTag = false;
           // Try to find next tag (NB: if message contains unknown tag, then it will be added to last known tag)
-          for (String tagNo : fields) {
-            if (oneLine.startsWith(tagNo + ":")) {
+          for (String tagNo : expectedFields) {
+            if (oneLine.startsWith(":" + tagNo + ":")) {
               isNewTag = true;
               newTag = tagNo;
               break;
@@ -206,7 +210,7 @@ class MT103Parser {
             if (oneLine.length() > 0) {
               tagName = newTag;
               tagContent.setLength(0);
-              tagContent.append(oneLine.substring(newTag.length() + 1));
+              tagContent.append(oneLine.substring(newTag.length() + 2)); // ":" + tagName + ":"
             }
           }
           else {
@@ -217,45 +221,52 @@ class MT103Parser {
         if (startOfMessage) startOfMessage = false;
       } // end of main cycle
 
-      // purposePart1 = "((VO12345))//123456789/01/1234567890123456789012345/1234567/ПЕ/КВ.01.20/123/12.05.2020/1/" + purposePart1 + "УИН0///"; // Inplace test string
-      // purposePart1 = "((VO12345))//123456789/01/1234567890123456789012345/1234567/ПЕ/КВ.01.20/123/12.05.2020/УИН0///" + purposePart1; // Inplace test string
-      // Try to extract tax attributes
-      int posStart = 0;
-      if (purposePart1.substring(0, 2).equals("((")) { // purpose contains VO code - it places before tax attributes
-        posStart = purposePart1.indexOf("))");
-        if (posStart >= 0) posStart += 2;
-        else posStart = 0;
-      }
-      String taxAttrBegin = purposePart1.substring(posStart, posStart + 2);
-      int taxAttrLen = 0;
-      if (taxAttrBegin.equals("//") || taxAttrBegin.equals("\\\\")) {
-        String taxAttrSeparator = taxAttrBegin.substring(0, 1);
-        StringTokenizer tokenizer = new StringTokenizer(purposePart1.substring(posStart + 2),taxAttrSeparator);
-        int i = 0; taxAttrLen = 2;
-        doc.isTax = true;
-        while (tokenizer.hasMoreTokens() && i < 9) {
-          String token = tokenizer.nextToken();
-          if (i == 0) doc.payerCPP = token;
-          if (i == 1) doc.taxStatus = token;
-          if (i == 2) doc.CBC = token;
-          if (i == 3) doc.OCATO = token;
-          if (i == 4) doc.taxPaytReason = token;
-          if (i == 5) doc.taxPeriod = token;
-          if (i == 6) doc.taxDocNum = token;
-          if (i == 7) doc.taxDocDate = token;
-          if (i == 8) if (token.length() <= 1) doc.taxPaytKind = token; else break; // Field 110 may not be specified and final separated may be missed
-          i++; taxAttrLen += token.length() + 1;
+      if (purposePart1.length() > 0) {
+        // purposePart1 = "((VO12345))//123456789/01/1234567890123456789012345/1234567/ПЕ/КВ.01.20/123/12.05.2020/1/" + purposePart1 + "УИН0///"; // Inplace test string
+        // purposePart1 = "((VO12345))//123456789/01/1234567890123456789012345/1234567/ПЕ/КВ.01.20/123/12.05.2020/УИН0///" + purposePart1; // Inplace test string
+        // Try to extract tax attributes
+        int posStart = 0;
+        if (purposePart1.substring(0, 2).equals("((")) { // purpose contains VO code - it places before tax attributes
+          posStart = purposePart1.indexOf("))");
+          if (posStart >= 0) posStart += 2;
+          else posStart = 0;
         }
-      }
-      if (taxAttrLen == 0) doc.purpose = purposePart1 + purposePart2;
-      else doc.purpose = purposePart1.substring(0, posStart) + purposePart1.substring(posStart + taxAttrLen) + purposePart2;
-      // Try to extract UIN
-      posStart = doc.purpose.indexOf("УИН"); if (posStart < 0) posStart = doc.purpose.indexOf("UIN");
-      if (posStart >= 0) {
-        int posEnd = doc.purpose.indexOf("///", posStart);
-        if (posEnd >= 0) {
-          doc.UIN = doc.purpose.substring(posStart + 3, posEnd);
-          doc.purpose = doc.purpose.substring(0, posStart) + doc.purpose.substring(posEnd + 3);
+        String taxAttrBegin = purposePart1.substring(posStart, posStart + 2);
+        int taxAttrLen = 0;
+        if (taxAttrBegin.equals("//") || taxAttrBegin.equals("\\\\")) {
+          String taxAttrSeparator = taxAttrBegin.substring(0, 1);
+          StringTokenizer tokenizer = new StringTokenizer(purposePart1.substring(posStart + 2), taxAttrSeparator);
+          int i = 0;
+          taxAttrLen = 2;
+          doc.isTax = true;
+          while (tokenizer.hasMoreTokens() && i < 9) {
+            String token = tokenizer.nextToken();
+            if (i == 0) doc.payerCPP = token;
+            if (i == 1) doc.taxStatus = token;
+            if (i == 2) doc.CBC = token;
+            if (i == 3) doc.OCATO = token;
+            if (i == 4) doc.taxPaytReason = token;
+            if (i == 5) doc.taxPeriod = token;
+            if (i == 6) doc.taxDocNum = token;
+            if (i == 7) doc.taxDocDate = token;
+            if (i == 8) if (token.length() <= 1) doc.taxPaytKind = token;
+            else break; // Field 110 may not be specified and final separated may be missed
+            i++;
+            taxAttrLen += token.length() + 1;
+          }
+        }
+        if (taxAttrLen == 0) doc.purpose = purposePart1 + purposePart2;
+        else
+          doc.purpose = purposePart1.substring(0, posStart) + purposePart1.substring(posStart + taxAttrLen) + purposePart2;
+        // Try to extract UIN
+        posStart = doc.purpose.indexOf("УИН");
+        if (posStart < 0) posStart = doc.purpose.indexOf("UIN");
+        if (posStart >= 0) {
+          int posEnd = doc.purpose.indexOf("///", posStart);
+          if (posEnd >= 0) {
+            doc.UIN = doc.purpose.substring(posStart + 3, posEnd);
+            doc.purpose = doc.purpose.substring(0, posStart) + doc.purpose.substring(posEnd + 3);
+          }
         }
       }
     }
@@ -269,7 +280,7 @@ class MT103Parser {
    * @param doc - financial document
    * @return MT103 string (unicode), returns null if error or filter
    */
-  static String toString(FDocument doc) {
+  String toString(FDocument doc) {
     int iPos; // current position when we split text to multistring text fields
     int iStr; // current string number when we split text to multistring text fields
 
@@ -279,17 +290,17 @@ class MT103Parser {
     str.append("{4:");
     str.append(System.lineSeparator());
 
-    str.append("20:");
+    str.append(":20:");
     str.append(doc.docNum);
     str.append(System.lineSeparator());
 
-    str.append("32A:");
+    str.append(":32A:");
     str.append(Helper.getSWIFTDate(doc.docDate));
     str.append("RUB");
     str.append(String.format("%d.%02d", doc.amount / 100, doc.amount % 100));
     str.append(System.lineSeparator());
 
-    str.append("50K:");
+    str.append(":50K:");
     iPos = 0; iStr = 0; participant.setLength(0);
     if (doc.payerAccount != null) { str.append("/"); str.append(doc.payerAccount); str.append(System.lineSeparator()); iStr = 1; } // 1st string
     if (doc.payerINN != null) {
@@ -305,20 +316,20 @@ class MT103Parser {
     }
 
     if (doc.payerBankBIC != null) {
-      str.append("52A:");
+      str.append(":52A:");
       str.append("BIK");
       str.append(doc.payerBankBIC);
       str.append(System.lineSeparator());
     }
 
     if (doc.payerBankAccount != null) {
-      str.append("53B:");
+      str.append(":53B:");
       str.append("/");
       str.append(doc.payerBankAccount);
       str.append(System.lineSeparator());
     }
 
-    str.append("57D:");
+    str.append(":57D:");
     iPos = 0; iStr = 0; participant.setLength(0);
     if (doc.payeeBankAccount != null) { str.append("/"); str.append(doc.payeeBankAccount); str.append(System.lineSeparator()); iStr = 1; } // 1st string
     if (doc.payeeBankBIC != null) {
@@ -333,7 +344,7 @@ class MT103Parser {
       if (iPos > participant.length() - 1) break;
     }
 
-    str.append("59:");
+    str.append(":59:");
     iPos = 0; iStr = 0; participant.setLength(0);
     if (doc.payeeAccount != null) { str.append("/"); str.append(doc.payeeAccount); str.append(System.lineSeparator()); iStr = 1; } // 1st string
     if (doc.payeeINN != null) {
@@ -361,11 +372,11 @@ class MT103Parser {
       locPurpose.append("УИН"); locPurpose.append(doc.UIN); locPurpose.append("///");
     }
     // In MT103 payment purpose divides between 70 and 72 fields
-    str.append("70:");
+    str.append(":70:");
     iPos = 0;
     for (int j = 0; j <= 6; j++) {
       if (j == 4) {
-        str.append("72:");
+        str.append(":72:");
       }
       str.append(locPurpose.substring(iPos, Math.min(iPos + 35, locPurpose.length())));
       str.append(System.lineSeparator());
@@ -373,7 +384,7 @@ class MT103Parser {
       if (iPos > locPurpose.length()) break;
     }
 
-    str.append("77B:");
+    str.append(":77B:");
     str.append("REF"); str.append(doc.getId());
     str.append(System.lineSeparator());
 

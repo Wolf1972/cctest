@@ -67,6 +67,9 @@ class MT103Processor extends SWIFTProcessor {
    */
   boolean readFile(String fileName, FDocumentArray fDocs) {
     int msgCount = 0;
+
+    MT103Parser parser = new MT103Parser();
+
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
       String line;
@@ -79,7 +82,7 @@ class MT103Processor extends SWIFTProcessor {
         }
         else {
           oneMT103.append(line, 0, end + 2);
-          FDocument doc = MT103Parser.fromString(oneMT103.toString());
+          FDocument doc = parser.fromString(oneMT103.toString());
           if (doc != null) fDocs.add(doc, logger);
           msgCount++;
           oneMT103.setLength(0);
@@ -107,6 +110,9 @@ class MT103Processor extends SWIFTProcessor {
       logger.error("0410: Error access output directory " + outPath);
       return;
     }
+
+    MT103Parser parser = new MT103Parser();
+
     String outFile = outPath + "mt103test.txt";
     try {
       OutputStream os = new FileOutputStream(outFile);
@@ -129,7 +135,7 @@ class MT103Processor extends SWIFTProcessor {
           if (value.isUrgent) writer.write("U");
           else writer.write("N");
           writer.write("}");
-          writer.write(MT103Parser.toString(value));
+          writer.write(parser.toString(value));
         }
       }
       writer.close();

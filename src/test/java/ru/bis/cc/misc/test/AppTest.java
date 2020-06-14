@@ -15,7 +15,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -27,8 +27,6 @@ public class AppTest
 {
 
   private static Logger logger = LogManager.getLogger(AppTest.class);
-  private static HashMap<Long, FDocument> sampleDocs = new HashMap<>(); // Checked documents array
-  private static HashMap<Long, FDocument> patternDocs = new HashMap<>(); // Pattern documents array (for compare)
 
   /** Test one XML node parsing with ED1xx
    *
@@ -115,24 +113,25 @@ public class AppTest
   public void testMT103Parse() {
     String str =
             "{1:F01DEUTRUMMXXXX0000000101}{2:O1031007200514DBEBRUMMAXXX00000001011107200514N}{4:" + System.lineSeparator() +
-            "20:101" + System.lineSeparator() +
-            "32A:200514RUB100.20" + System.lineSeparator() +
-            "50K:/42301810900000000002" + System.lineSeparator() +
+            ":20:101" + System.lineSeparator() +
+            ":32A:200514RUB100.20" + System.lineSeparator() +
+            ":50K:/42301810900000000002" + System.lineSeparator() +
             "INN776521543603 Payer name" + System.lineSeparator() +
-            "52A:BIK044525101" + System.lineSeparator() +
-            "53B:/30101810100000000101" + System.lineSeparator() +
-            "57D:/30101810000000000001" + System.lineSeparator() +
+            ":52A:BIK044525101" + System.lineSeparator() +
+            ":53B:/30101810100000000101" + System.lineSeparator() +
+            ":57D:/30101810000000000001" + System.lineSeparator() +
             "BIK044583001" + System.lineSeparator() +
-            "59:/40101810800000010041" + System.lineSeparator() +
+            ":59:/40101810800000010041" + System.lineSeparator() +
             "INN7703363868/KPP770102011 Payee" + System.lineSeparator() +
             " name" + System.lineSeparator() +
-            "70://771201325/01/18210101011011000110" + System.lineSeparator() +
+            ":70://771201325/01/18210101011011000110" + System.lineSeparator() +
             "/45286560/ТП/МС.04.2020/20/07.05.202" + System.lineSeparator() +
             "0/1/Payment purpose" + System.lineSeparator() +
             "УИН111///" + System.lineSeparator() +
-            "77B:REF101" + System.lineSeparator() +
+            ":77B:REF101" + System.lineSeparator() +
             "-}";
-    FDocument doc = MT103Parser.fromString(str);
+    MT103Parser mt103parser = new MT103Parser();
+    FDocument doc = mt103parser.fromString(str);
     if (doc != null) {
       assertFalse(doc.isUrgent);
       assertEquals(doc.docNum, "101");
@@ -167,6 +166,48 @@ public class AppTest
     }
     else
       fail("MT103 parse failed.");
+  }
+
+  @Test
+  public void testGetTag() {
+    String[] message = new String[] { "{1:F01DEUTRUMMXXXX0000000101}{2:O1031007200514DBEBRUMMAXXX00000001011107200514N}{4:",
+            ":20:101",
+            ":32A:200514RUB100.20",
+            ":50K:/42301810900000000002",
+            "INN776521543603 Payer name",
+            ":59:/40101810800000010041",
+            "INN7703363868/KPP770102011 Payee",
+            " name",
+            ":70://771201325/01/18210101011011000110",
+            "/45286560/ТП/МС.04.2020/20/07.05.202",
+            "0/1/Payment purpose",
+            "УИН111///",
+            "-}"};
+    MT103Parser mt103parser = new MT103Parser();
+
+    ArrayList<String> tag20 = new ArrayList<>(); tag20.add("101");
+    assertEquals(tag20, mt103parser.getTag(message, "20"));
+
+    ArrayList<String> tag32A = new ArrayList<>(); tag32A.add("200514RUB100.20");
+    assertEquals(tag32A, mt103parser.getTag(message, "32A"));
+
+    ArrayList<String> tag50K = new ArrayList<>();
+    tag50K.add("/42301810900000000002"); tag50K.add("INN776521543603 Payer name");
+    assertEquals(tag50K, mt103parser.getTag(message, "50K"));
+
+    ArrayList<String> tag59 = new ArrayList<>();
+    tag59.add("/40101810800000010041"); tag59.add("INN7703363868/KPP770102011 Payee"); tag59.add(" name");
+    assertEquals(tag59, mt103parser.getTag(message, "59"));
+
+    ArrayList<String> tag70 = new ArrayList<>();
+    tag70.add("//771201325/01/18210101011011000110"); tag70.add("/45286560/ТП/МС.04.2020/20/07.05.202");
+    tag70.add("0/1/Payment purpose"); tag70.add("УИН111///");
+    assertEquals(tag70, mt103parser.getTag(message, "70"));
+
+    ArrayList<String> tag72 = new ArrayList<>();
+    assertEquals(tag72, mt103parser.getTag(message, "72")); // Missing expected tag
+    assertEquals(tag72, mt103parser.getTag(message, "??")); // Unexpected tag
+
   }
 
   /** Test one XML node parsing with ED1xx
@@ -266,6 +307,7 @@ public class AppTest
     String patternPath = ".\\src\\test\\resources\\pattern\\";
     assertEquals("FT14", FileType.FT14, ProcessorFabric.fileType(patternPath + "ft14test.txt", logger));
     assertEquals("MT103", FileType.MT103, ProcessorFabric.fileType(patternPath + "mt103test.txt", logger));
+    assertEquals("MT100", FileType.MT100, ProcessorFabric.fileType(patternPath + "mt100test.dat", logger));
     assertEquals("UFEBS single", FileType.UFEBS, ProcessorFabric.fileType(patternPath + "single.xml", logger));
     assertEquals("UFEBS packet", FileType.UFEBS, ProcessorFabric.fileType(patternPath + "packet.xml", logger));
     assertEquals("BQ", FileType.BQ, ProcessorFabric.fileType(patternPath + "bqtest.xml", logger));
@@ -349,6 +391,10 @@ public class AppTest
     // BQ parser test
     procBQ.readFile(outPath + "bqtest.xml", sampleDocs);
     assertTrue("Comparator error found when testing UFEBS and BQ documents.", comparator.compare(patternDocs, sampleDocs));
+
+    // MT100 parser test
+    MT100Processor procMT100 = new MT100Processor(logger);
+    procMT100.readFile(patternPath + "mt100test.dat", patternDocs);
 
   }
 
