@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 /**
  * Unit test for simple App.
  */
+// TODO: swap actual and expected in all asserts
 public class AppTest
 {
 
@@ -167,6 +168,47 @@ public class AppTest
     else
       fail("MT103 parse failed.");
   }
+
+  @Test
+  public void testMT100Parse() {
+    String str =
+            "{1:F01DEUTRUMMXXXX0229000004}{2:O1001559160128HRANRUMMXXXX00000000011601281559N}{4:" + System.lineSeparator() +
+            ":20:101" + System.lineSeparator() +
+            ":32A:200514RUB100,20" + System.lineSeparator() +
+            ":50:/30110810800000000004" + System.lineSeparator() +
+            "INN7750003904" + System.lineSeparator() +
+            "Payer name" + System.lineSeparator() +
+            ":52D:BIK044525225" + System.lineSeparator() +
+            "Payer bank" + System.lineSeparator() +
+            ":59:/40702810200000000772" + System.lineSeparator() +
+            "INN7707099460" + System.lineSeparator() +
+            "Payee name" + System.lineSeparator() +
+            ":70:Payment purpose" + System.lineSeparator() +
+            ":72:/REC/20.01.2016" + System.lineSeparator() +
+            "-}";
+    MT100Parser mt100parser = new MT100Parser();
+    FDocument doc = mt100parser.fromString(str);
+    if (doc != null) {
+      assertFalse(doc.isUrgent);
+      assertEquals(doc.docNum, "101");
+      assertEquals(doc.docDate, "2020-05-14");
+      assertEquals((long) doc.amount, 10020L);
+      assertEquals(doc.purpose, "Payment purpose");
+
+      assertEquals(doc.payerName, "Payer name");
+      assertEquals(doc.payerINN, "7750003904");
+      assertEquals(doc.payerAccount, "30110810800000000004");
+      assertEquals(doc.payerBankBIC, "044525225");
+
+      assertEquals(doc.payeeName, "Payee name");
+      assertEquals(doc.payeeINN, "7707099460");
+      assertEquals(doc.payeeAccount, "40702810200000000772");
+
+    }
+    else
+      fail("MT100 parse failed.");
+  }
+
 
   @Test
   public void testGetTag() {

@@ -6,7 +6,7 @@ class MT100Parser extends SWIFTParser {
 
   public MT100Parser() {
     super();
-    expectedFields = new String[]{"20", "32A", "50K", "52A", "53B", "57D", "59", "70", "72"};
+    expectedFields = new String[]{"20", "32A", "50", "52D", "59", "70", "72"};
   }
 
   /** Loads object from MT100
@@ -22,34 +22,17 @@ class MT100Parser extends SWIFTParser {
     Pattern patternINN = Pattern.compile(regExpINN);
 
     FDocument doc = new FDocument();
+    readHeader(str, doc);
 
-    int posMessage = str.indexOf("{2:");
-    if (posMessage >= 0) {
-      int endPos = str.indexOf("}", posMessage);
-      if (endPos >= 0) {
-        char urgent = str.charAt(endPos - 1);
-        if (urgent == 'U') doc.isUrgent = true;
-      }
-    }
+    String[] messageLines = splitMessage(str);
 
-    String blockHeader = "{4:";
-    String blockTrailer = "-}";
-    int startOfMessage = str.indexOf(blockHeader);
-    int endOfMessage = str.indexOf(blockTrailer, startOfMessage);
+    read20(messageLines, doc);
+    read32A(messageLines, doc);
+    readCounterparty(messageLines, doc, "50");
+    readBank(messageLines, doc, "52D");
+    readCounterparty(messageLines, doc, "59");
+    readPurpose(messageLines, doc);
 
-    StringBuilder tagContent = new StringBuilder();
-
-    if (startOfMessage >= 0 && endOfMessage > startOfMessage) {
-
-      String[] messageLines = str.split("\n");
-
-      read20(messageLines, doc);
-      read32A(messageLines, doc);
-
-    }
-    else {
-      return null; // Start of block "{4:" or end of block "-}" not found
-    }
     return doc;
   }
 

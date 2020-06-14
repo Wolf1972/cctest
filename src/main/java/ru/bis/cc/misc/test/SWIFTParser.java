@@ -9,6 +9,43 @@ class SWIFTParser {
 
   String[] expectedFields; // List of expected SWIFT fields {"20", "32A" etc}, fills in inherit constructor
 
+  /** Function reads block {2:} and extracts isUrgent
+   *
+   * @param str - string with message
+   * @param doc - document
+   */
+  void readHeader(String str, FDocument doc) {
+    int posMessage = str.indexOf("{2:");
+    if (posMessage >= 0) {
+      int endPos = str.indexOf("}", posMessage);
+      if (endPos >= 0) {
+        char urgent = str.charAt(endPos - 1);
+        if (urgent == 'U') doc.isUrgent = true;
+      }
+    }
+  }
+
+  /** Function splits block {4:} of message for separated strings array
+   *
+   * @param str - string with all message
+   * @return - strings array or empty array (if block {4:} has not found)
+   */
+  String[] splitMessage(String str) {
+
+    String blockHeader = "{4:";
+    String blockTrailer = "-}";
+    int startOfMessage = str.indexOf(blockHeader);
+    int endOfMessage = str.indexOf(blockTrailer, startOfMessage);
+    String[] empty = new String[]{};
+
+    StringBuilder tagContent = new StringBuilder();
+
+    if (startOfMessage >= 0 && endOfMessage > startOfMessage) {
+      return str.replace("\r", "").split("\n"); // Do not use System.lineSeparator, may be file UNIX-style
+    }
+    return empty;
+  }
+
   /** Function returns array of strings with one tag content (:20, :32A etc)
    *
    * @param message - array of message strings
@@ -79,7 +116,8 @@ class SWIFTParser {
     if (tag.size() > 0) {
       String line = tag.get(0);
       doc.docDate = Helper.getXMLDate(line.substring(0, 6));
-      doc.amount = Long.parseLong(line.substring(9).replace(".", ""));
+      String sum = line.substring(9).replace(".", "").replace(",", "");
+      doc.amount = Long.parseLong(sum);
     }
   }
 
@@ -111,8 +149,8 @@ class SWIFTParser {
       String inn = null;
       StringBuilder cpp = new StringBuilder();
       StringBuilder clientName = new StringBuilder();
-      String line = tag.get(0);
 
+      String line = tag.get(0);
       int startNameString = 0;
       if (line.startsWith("/")) { // Has account number?
         accountNo = line.substring(1);
@@ -172,18 +210,101 @@ class SWIFTParser {
     }
   }
 
+  /** Function for process any bank tag (payer bank, payee bank) - 52D, 57D
+   *
+   * Structure: [/account_no]
+   *            [BIK]
+   *            name line 1
+   *            ...
+   *            [name line n]
+   * @param message - string array with message
+   * @param doc - document
+   * @param tagName - tag name (52D, 57D)
+   */
+  void readBank(String[] message, FDocument doc, String tagName) {
+
+    ArrayList<String> tag;
+    tag = getTag(message, tagName);
+
+    if (tag.size() > 0) {
+      String bicKeyWord = "BIK";
+      String regExpINN = bicKeyWord + "\\d{9}\\D|"+ bicKeyWord + "\\d{9}$"; // to take into account that BIK may takes place in the end of the string
+      Pattern patternBIC = Pattern.compile(regExpINN);
+
+      StringBuilder rawBankName = new StringBuilder();
+      StringBuilder bankName = new StringBuilder();
+      String accountNo = null;
+      String bic = null;
+
+      String line = tag.get(0);
+      int startNameString = 0;
+      if (line.startsWith("/")) { // Has account number?
+        accountNo = line.substring(1);
+        startNameString = 1;
+      }
+      for (int i = startNameString; i < tag.size(); i++) {
+        rawBankName.append(tag.get(i));
+      }
+
+      // Try to extract BIC from bank name
+      int bicPos = -1;
+      int bicEnd = -1;
+      try { // Search for INN in any place of client name with regex
+        Matcher matcher = patternBIC.matcher(rawBankName);
+        if (matcher.find()) {
+          bicPos = matcher.start();
+          if (bicPos >= 0) bicEnd = matcher.end();
+          if (bicEnd < rawBankName.length()) bicEnd--; // When BIK in the middle of string - it matches with yet another symbol after, need to account it
+          bic = rawBankName.substring(bicPos + bicKeyWord.length(), bicEnd); // Extracts BIC
+        }
+      }
+      catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
+        // Just do not parse INN from string, nothing else matters
+      }
+      if (bicPos >= 0 && bicEnd >= 0) {
+        if (bicPos > 0) bankName.append(rawBankName, 0, bicPos);
+        bankName.append(rawBankName.substring(bicEnd + 1).trim());
+      }
+      else
+        bankName.append(rawBankName.toString().trim());
+
+      if (tagName.startsWith("52")) {
+        doc.payerBankAccount = accountNo;
+        doc.payerBankBIC = bic;
+        if (bankName.length() > 0) doc.payerBankName = bankName.toString();
+      }
+      else {
+        doc.payeeBankAccount = accountNo;
+        doc.payeeBankBIC = bic;
+        if (bankName.length() > 0) doc.payeeBankName = bankName.toString();
+      }
+    }
+  }
+
   /** Function process payment purpose tags (70, 72) and extracts tax attributes and attributes with keywords (UIN)
    *
    * @param message - message strings array
    * @param doc - document
    */
-  void processPurpose(String[] message, FDocument doc) {
+  void readPurpose(String[] message, FDocument doc) {
 
     StringBuilder purpose = new StringBuilder();
     ArrayList<String> tag = getTag(message, "70");
     for (String str : tag) purpose.append(str);
     tag = getTag(message, "72");
-    for (String str : tag) purpose.append(str);
+    boolean firstStr = true;
+    for (String str : tag) {
+      if (firstStr) {
+        firstStr = false;
+        // Try to extract charge off date (/REC/DD.MM.YYYY)
+        int pos = str.indexOf("/REC/");
+        if (pos >= 0) {
+          String date = str.substring(pos + 5, Math.min(pos + 15, str.length()));
+          str = str.substring(0, pos) + str.substring(Math.min(pos + 15, str.length()));
+        }
+      }
+      purpose.append(str);
+    }
 
     if (purpose.length() > 0) {
       // Try to extract tax attributes
