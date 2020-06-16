@@ -51,7 +51,7 @@ class UFEBSProcessor extends XMLProcessor {
               docs.add(doc, logger);
             }
             else {
-              logger.error("0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+              logger.error("0801: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
               return false;
             }
           }
@@ -64,15 +64,15 @@ class UFEBSProcessor extends XMLProcessor {
         return true;
       }
       else {
-        logger.error("0514: File " + fileName + " contains unknown root element: " + rootNodeName);
+        logger.error("0802: File " + fileName + " contains unknown root element: " + rootNodeName);
       }
       return false;
     }
     catch (ParserConfigurationException | SAXException e) {
-      logger.error("0515: Error parsing file " + fileName, e);
+      logger.error("0803: Error parsing file " + fileName, e);
     }
     catch (IOException e) {
-      logger.error("0516. Error while file access: " + fileName);
+      logger.error("0804. Error while file access: " + fileName);
     }
     return false;
   }
@@ -134,7 +134,7 @@ class UFEBSProcessor extends XMLProcessor {
   void createAll(String outPath, FDocumentArray docs) {
 
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0520: Error access output directory " + outPath);
+      logger.error("0805: Error access output directory " + outPath);
       return;
     }
     try {
@@ -168,9 +168,9 @@ class UFEBSProcessor extends XMLProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("0521: Error write output file with ED.");
+      logger.error("0806: Error write output file with ED.");
     }
-    logger.info("0522: Output UFEBS files created.");
+    logger.info("0807: Output UFEBS files created.");
   }
 
   /** Function generates ED206 confirmations by documents array
@@ -180,7 +180,7 @@ class UFEBSProcessor extends XMLProcessor {
    */
   void createConfirmations(String outPath, FDocumentArray docs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0520: Error access output directory " + outPath);
+      logger.error("0810: Error access output directory " + outPath);
       return;
     }
     try {
@@ -214,9 +214,9 @@ class UFEBSProcessor extends XMLProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("0521: Error write output file with confirmation.");
+      logger.error("0811: Error write output file with confirmation.");
     }
-    logger.info("0530: UFEBS confirmations created.");
+    logger.info("0812: UFEBS confirmations created.");
   }
 
   /** Function generates ED211 statement by documents array
@@ -227,7 +227,7 @@ class UFEBSProcessor extends XMLProcessor {
    */
   void createStatement(String outPath, FDocumentArray docs, FDocumentArray revs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0520: Error access output directory " + outPath);
+      logger.error("0813: Error access output directory " + outPath);
       return;
     }
     try {
@@ -291,9 +291,9 @@ class UFEBSProcessor extends XMLProcessor {
       packetWriter.close();
     }
     catch (IOException e) {
-      logger.error("0521: Error write output file with confirmation.");
+      logger.error("0814: Error write output file with confirmation.");
     }
-    logger.info("0530: UFEBS statement created.");
+    logger.info("0815: UFEBS statement created.");
   }
 
 }

@@ -43,19 +43,19 @@ class MT100Processor extends SWIFTProcessor {
           if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.MT103) {
             if (!readFile(inPath + fileName, fDocs)) filesError++;
           } else {
-            logger.error("0402: File " + fileName + " is not contains XML prolog.");
+            logger.error("0301: File " + fileName + " is not contains XML prolog.");
             filesError++;
           }
 
-          logger.info("0401: Processing file: " + inPath + fileName);
+          logger.info("0302: Processing file: " + inPath + fileName);
         }
       }
     } catch (IOException e) {
-      logger.error("0401: Error while file system access: " + inPath);
+      logger.error("0304: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("0403: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("0404: Documents added: " + fDocs.docs.size());
+    logger.info("0305: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0306: Documents added: " + fDocs.docs.size());
   }
 
   /**
@@ -79,7 +79,7 @@ class MT100Processor extends SWIFTProcessor {
         str = str.substring(2); // Skip first 2 bytes
         int end = str.indexOf("-}");
         if (end < 0) {
-          logger.error("0411: MT100 format error = can't find message end for message " + msgCount);
+          logger.error("0307: MT100 format error = can't find message end for message " + msgCount);
           break;
         }
         if (str.startsWith("{9:")) { // Is it the end block of binary container?
@@ -94,10 +94,10 @@ class MT100Processor extends SWIFTProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("0410: Error while file read: " + fileName);
+      logger.error("0308: Error while file read: " + fileName);
       return false;
     }
-    logger.info("0410: Messages read: " + msgCount);
+    logger.info("0309: Messages read: " + msgCount);
     return true;
   }
 
@@ -109,7 +109,7 @@ class MT100Processor extends SWIFTProcessor {
    */
   void createAll(String outPath, FDocumentArray fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0410: Error access output directory " + outPath);
+      logger.error("0310: Error access output directory " + outPath);
       return;
     }
     MT100Parser parser = new MT100Parser();
@@ -142,7 +142,7 @@ class MT100Processor extends SWIFTProcessor {
       writer.close();
     }
     catch (IOException e) {
-      logger.error("0411: Error write output file " + outFile);
+      logger.error("0311: Error write output file " + outFile);
     }
   }
 

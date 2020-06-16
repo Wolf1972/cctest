@@ -16,18 +16,13 @@ class MT100Parser extends SWIFTParser {
    */
   FDocument fromString(String str) {
 
-    String innKeyWord = "INN";
-    String regExpINN = innKeyWord + "\\d{12}\\D|"+ innKeyWord + "\\d{10}\\D|" + innKeyWord + "\\d{5}\\D" +
-            innKeyWord + "\\d{12}$|"+ innKeyWord + "\\d{10}$|" + innKeyWord + "\\d{5}$"; // to take into account that INN may takes place in the end of the string
-    Pattern patternINN = Pattern.compile(regExpINN);
-
     FDocument doc = new FDocument();
     readHeader(str, doc);
 
     String[] messageLines = splitMessage(str);
 
     read20(messageLines, doc);
-    read32A(messageLines, doc);
+    read32(messageLines, doc);
     readCounterparty(messageLines, doc, "50");
     readBank(messageLines, doc, "52D");
     readCounterparty(messageLines, doc, "59");

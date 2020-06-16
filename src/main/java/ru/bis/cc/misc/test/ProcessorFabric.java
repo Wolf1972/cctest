@@ -47,7 +47,7 @@ class ProcessorFabric {
   static AProcessor getProcessor(String inqPath, Logger logger) {
     FileType fileType = fileTypeInDirectory(inqPath, logger);
     if (fileType == FileType.UNKNOWN) {
-      logger.error("0502: Directory is empty or contains unknown files: " + inqPath);
+      logger.error("0701: Directory is empty or contains unknown files: " + inqPath);
       return null;
     }
     else
@@ -119,7 +119,7 @@ class ProcessorFabric {
       raf.close();
     }
     catch (IOException e) {
-      logger.error("0101: Error access file: " + fileName);
+      logger.error("0702: Error access file: " + fileName);
     }
     return retType;
   }
@@ -140,7 +140,7 @@ class ProcessorFabric {
       }
     }
     catch (IOException e) {
-      logger.error("0501: Error while file system access: " + inqPath);
+      logger.error("0703: Error while file system access: " + inqPath);
     }
     return FileType.UNKNOWN;
   }

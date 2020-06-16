@@ -42,24 +42,25 @@ class Comparator {
       FDocument patternDoc = item.getValue();
       if (sample.docs.containsKey(patternKey)) {
         if (!patternDoc.equals(sample.docs.get(patternKey), strictLevel)) {
-          logger.error("0201: Mismatch pattern and sample documents with ID: " + patternKey);
-          logger.error("0201: " + patternDoc.mismatchDescribe(sample.docs.get(patternKey), strictLevel));
+          logger.error("2001: Mismatch pattern and sample documents with ID: " + patternKey);
+          logger.error("2001: " + patternDoc.mismatchDescribe(sample.docs.get(patternKey), strictLevel));
           iMismatch++;
         }
       } else {
-        logger.error("0202: Pattern document with ID: " + patternKey + " is not found in sample.");
+        logger.error("2002: Pattern document with ID: " + patternKey + " is not found in sample.");
         iMissingInSample++;
       }
     }
     for (Map.Entry<Long, FDocument> item : sample.docs.entrySet()) {
       Long sampleKey = item.getKey();
       if (!pattern.docs.containsKey(sampleKey)) {
-        logger.error("0203: Sample document with ID: " + sampleKey + " is not found in pattern.");
+        logger.error("2003: Sample document with ID: " + sampleKey + " is not found in pattern.");
         iMissinginPattern++;
       }
     }
 
-    logger.info("0200: Compare complete. Mismatches: " + iMismatch + ", not in sample: " + iMissingInSample + ", not in pattern: " + iMissinginPattern);
+    logger.info("2000: Compare complete. " + "Compared: " + sample.docs.size() +
+                   " Mismatches: " + iMismatch + ", not in sample: " + iMissingInSample + ", not in pattern: " + iMissinginPattern);
     return (iMismatch == 0 && iMissinginPattern == 0 && iMissingInSample == 0);
   }
 

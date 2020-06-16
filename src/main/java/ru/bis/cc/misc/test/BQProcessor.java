@@ -48,7 +48,7 @@ class BQProcessor extends XMLProcessor {
               docs.add(doc, logger);
             }
             else {
-              logger.error("0512: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+              logger.error("0101: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
               return false;
             }
           }
@@ -56,22 +56,22 @@ class BQProcessor extends XMLProcessor {
         return true;
       }
       else {
-        logger.error("0514: File " + fileName + " contains unknown root element: " + rootNodeName);
+        logger.error("0102: File " + fileName + " contains unknown root element: " + rootNodeName);
       }
       return false;
     }
     catch (ParserConfigurationException | SAXException e) {
-      logger.error("0515: Error parsing file " + fileName, e);
+      logger.error("0103: Error parsing file " + fileName, e);
     }
     catch (IOException e) {
-      logger.error("0516. Error while file access: " + fileName);
+      logger.error("0104. Error while file access: " + fileName);
     }
     return false;
   }
 
   @Override
   void checkAll(String inqPath, String xsdPath) {
-    logger.error("0701: There is no XSD scheme for BQ format.");
+    logger.error("0105: There is no XSD scheme for BQ format.");
   }
 
   @Override
@@ -83,7 +83,7 @@ class BQProcessor extends XMLProcessor {
    */
   void createAll(String outPath, FDocumentArray docs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0520: Error access output directory " + outPath);
+      logger.error("0110: Error access output directory " + outPath);
       return;
     }
     try {
@@ -109,8 +109,8 @@ class BQProcessor extends XMLProcessor {
       bqWriter.close();
     }
     catch (IOException e) {
-      logger.error("0521: Error write output file with BQ.");
+      logger.error("0111: Error write output file with BQ.");
     }
-    logger.info("0522: Output BQ files created.");
+    logger.info("0112: Output BQ files created.");
   }
 }

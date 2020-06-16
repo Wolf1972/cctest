@@ -110,7 +110,7 @@ class SWIFTParser {
    * @param message - string array with message
    * @param doc - document
    */
-  void read32A(String[] message, FDocument doc) {
+  void read32(String[] message, FDocument doc) {
     ArrayList<String> tag;
     tag = getTag(message, "32A");
     if (tag.size() > 0) {
@@ -180,7 +180,7 @@ class SWIFTParser {
                 if (ch != ' ') innEnd--; // Alphabet char is a part of client name
                 break;
               }
-              if (cpp.length() >= 9) break;
+              if (cpp.length() >= 9) { innEnd++; break; }
             }
           }
         }
@@ -190,7 +190,7 @@ class SWIFTParser {
       }
       if (innPos >= 0 && innEnd >= 0) {
         if (innPos > 0) clientName.append(rawClientName, 0, innPos);
-        clientName.append(rawClientName.substring(innEnd + 1).trim());
+        clientName.append(rawClientName.substring(innEnd).trim());
       }
       else
         clientName.append(rawClientName.toString().trim());
@@ -263,7 +263,7 @@ class SWIFTParser {
       }
       if (bicPos >= 0 && bicEnd >= 0) {
         if (bicPos > 0) bankName.append(rawBankName, 0, bicPos);
-        bankName.append(rawBankName.substring(bicEnd + 1).trim());
+        bankName.append(rawBankName.substring(bicEnd).trim());
       }
       else
         bankName.append(rawBankName.toString().trim());
@@ -355,4 +355,34 @@ class SWIFTParser {
     }
   }
 
+  /** Function process tag 53B
+   *
+   * @param message - string array with message
+   * @param doc - document
+   */
+  void read53(String[] message, FDocument doc) {
+    ArrayList<String> tag;
+    tag = getTag(message, "53B");
+    if (tag.size() > 0) {
+      String tagContent = tag.get(0);
+      if (tagContent.substring(0, 1).equals("/")) {
+        int end = tagContent.indexOf(System.lineSeparator());
+        if (end < 0) end = tagContent.length();
+        doc.payerBankAccount = tagContent.substring(1, end);
+      }
+    }
+  }
+
+  /** Function process tag 77B
+   *
+   * @param message - string array with message
+   * @param doc - document
+   */
+  void read77(String[] message, FDocument doc) {
+    ArrayList<String> tag;
+    tag = getTag(message, "77B");
+    if (tag.size() > 0) {
+      doc.referenceMT103 = tag.get(0);
+    }
+  }
 }

@@ -43,18 +43,18 @@ class MT103Processor extends SWIFTProcessor {
           if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.MT103) {
             if (!readFile(inPath + fileName, fDocs)) filesError++;
           } else {
-            logger.error("0402: File " + fileName + " is not contains XML prolog.");
+            logger.error("0401: File " + fileName + " is not contains XML prolog.");
             filesError++;
           }
 
-          logger.info("0401: Processing file: " + inPath + fileName);
+          logger.info("0402: Processing file: " + inPath + fileName);
         }
       }
     } catch (IOException e) {
-      logger.error("0401: Error while file system access: " + inPath);
+      logger.error("0403: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("0403: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0404: Files processed: " + filesCount + ", errors: " + filesError);
     logger.info("0404: Documents added: " + fDocs.docs.size());
   }
 
@@ -92,10 +92,10 @@ class MT103Processor extends SWIFTProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("0410: Error while file read: " + fileName);
+      logger.error("0405: Error while file read: " + fileName);
       return false;
     }
-    logger.info("0410: Messages read: " + msgCount);
+    logger.info("0406: Messages read: " + msgCount);
     return true;
   }
 
@@ -107,7 +107,7 @@ class MT103Processor extends SWIFTProcessor {
    */
   void createAll(String outPath, FDocumentArray fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0410: Error access output directory " + outPath);
+      logger.error("0407: Error access output directory " + outPath);
       return;
     }
 
@@ -141,7 +141,7 @@ class MT103Processor extends SWIFTProcessor {
       writer.close();
     }
     catch (IOException e) {
-      logger.error("0411: Error write output file " + outFile);
+      logger.error("0408: Error write output file " + outFile);
     }
   }
 

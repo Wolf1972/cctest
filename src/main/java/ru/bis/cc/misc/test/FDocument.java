@@ -98,14 +98,14 @@ public class FDocument {
         if (posAltChar < 0 || posSepChar > posAltChar) sepChar = '\\';
       }
       taxStr.append(sepChar); taxStr.append(sepChar); taxStr.append(payerCPP); // 102
-      taxStr.append(sepChar); taxStr.append(taxStatus); // 101
-      taxStr.append(sepChar); taxStr.append(CBC); // 104
-      taxStr.append(sepChar); taxStr.append(OCATO);
-      taxStr.append(sepChar); taxStr.append(taxPaytReason);
-      taxStr.append(sepChar); taxStr.append(taxPeriod);
-      taxStr.append(sepChar); taxStr.append(taxDocNum);
-      taxStr.append(sepChar); taxStr.append(taxDocDate); // 109
-      if (taxPaytKind != null) { // 110
+      taxStr.append(sepChar); if (taxStatus != null) taxStr.append(taxStatus); // 101
+      taxStr.append(sepChar); if (CBC != null) taxStr.append(CBC); // 104
+      taxStr.append(sepChar); if (OCATO != null) taxStr.append(OCATO);
+      taxStr.append(sepChar); if (taxPaytReason != null) taxStr.append(taxPaytReason);
+      taxStr.append(sepChar); if (taxPeriod != null) taxStr.append(taxPeriod);
+      taxStr.append(sepChar); if (taxDocNum != null) taxStr.append(taxDocNum);
+      taxStr.append(sepChar); if (taxDocDate != null) taxStr.append(taxDocDate); // 109
+      if (taxPaytKind != null) { // 110 - may be miss
         taxStr.append(sepChar); taxStr.append(taxPaytKind);
       }
       taxStr.append(sepChar);

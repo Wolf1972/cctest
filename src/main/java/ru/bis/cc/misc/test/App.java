@@ -16,9 +16,9 @@ public class App {
 
   // TODO: MT940 import and compare
   // TODO: MT940 export
-  // TODO: FT14 import
   // TODO: process split operations in FT14 import
-  // TODO: import static information = clients, accounts
+  // TODO: import static information - clients, accounts
+  // TODO: FT14 import
 
   private static FDocumentArray sampleDocs = new FDocumentArray(); // Checked documents array
   private static FDocumentArray patternDocs = new FDocumentArray(); // Pattern documents array (for compare)
@@ -26,7 +26,7 @@ public class App {
 
   public static void main(String[] args) {
 
-    System.out.println("UFEBS CC test helper (c) BIS 2020.");
+    System.out.println("CC test suite (c) BIS 2020.");
 
     Options options = new Options();
     options.addRequiredOption("a", "action", true, "Type of action: \"transform\", \"compare\", \"check\".");
@@ -103,15 +103,15 @@ public class App {
               }
             }
             else {
-              logger.error("0012: Pattern path doesn't specified. Use -p option.");
+              logger.error("0013: Pattern path doesn't specified. Use -p option.");
             }
           }
           else {
-            logger.error("0012: Unknown input files format.");
+            logger.error("0014: Unknown input files format.");
           }
         }
         else {
-          logger.error("0012: Input path doesn't specified. Use -i option.");
+          logger.error("0015: Input path doesn't specified. Use -i option.");
         }
       }
 
@@ -131,7 +131,7 @@ public class App {
               if (procOut != null) {
                 if (outPath != null) {
                   if (cmdDate != null) {
-                    logger.info("0012: New date assigned to output documents: " + cmdDate);
+                    logger.info("0016: New date assigned to output documents: " + cmdDate);
                     sampleDocs.setDate(cmdDate); // Change date
                   }
                   procOut.createAll(outPath, sampleDocs); // Create target documents
@@ -149,20 +149,20 @@ public class App {
                   }
                 }
                 else {
-                  logger.error("0012: Output path doesn't specified. Use -o option.");
+                  logger.error("0017: Output path doesn't specified. Use -o option.");
                 }
               }
             }
             else {
-              logger.error("0012: Output file type doesn't specified. Use -t option.");
+              logger.error("0018: Output file type doesn't specified. Use -t option.");
             }
           }
           catch(IllegalArgumentException e){
-            logger.error("0010: Unknown format type specified: " + cmdOutputType);
+            logger.error("0019: Unknown format type specified: " + cmdOutputType);
           }
         }
         else {
-          logger.error("0012: Input path doesn't specified. Use -i option.");
+          logger.error("0020: Input path doesn't specified. Use -i option.");
         }
       }
 
@@ -173,11 +173,11 @@ public class App {
             procIn.checkAll(inPath, xsdPath);
           }
           else {
-            logger.error("0012: XSD check available for UFEBS input/output files.");
+            logger.error("0021: XSD check available for UFEBS input/output files.");
           }
         }
         else {
-          logger.error("0012: Input path doesn't specified. Use -i option.");
+          logger.error("0022: Input path doesn't specified. Use -i option.");
         }
       }
     }

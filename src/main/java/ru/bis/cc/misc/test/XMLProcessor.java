@@ -53,11 +53,11 @@ class XMLProcessor extends AProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("0501: Error while file system access: " + inPath);
+      logger.error("0901: Error while file system access: " + inPath);
       filesError++;
     }
-    logger.info("0502: XML files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("0503: Documents added: " + fDocs.docs.size());
+    logger.info("0902: XML files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0903: Documents added: " + fDocs.docs.size());
   }
 
   /** Function reads one XML with one single message or several messages in packet
@@ -107,7 +107,7 @@ class XMLProcessor extends AProcessor {
   boolean isXMLValid(String fileName, String xsdPath) {
 
     if (!Files.isDirectory(Paths.get(xsdPath))) {
-      logger.error("0101: Error XSD path " + xsdPath);
+      logger.error("0904: Error XSD path " + xsdPath);
       return false;
     }
     try {
@@ -135,19 +135,19 @@ class XMLProcessor extends AProcessor {
       Schema schema = factory.newSchema(new StreamSource(xsdFile));
       Validator validator = schema.newValidator();
       validator.validate(new StreamSource(fileName));
-      logger.trace("0110: XSD check completed for file " + fileName);
+      logger.trace("0905: XSD check completed for file " + fileName);
       return true;
     }
     catch (IOException e) {
-      logger.error("0111: Error access file " + fileName + " while XML scheme check.", e);
+      logger.error("0906: Error access file " + fileName + " while XML scheme check.", e);
       return false;
     }
     catch (ParserConfigurationException e) {
-      logger.error("0112: Parser configuration exception for file " + fileName + " while XML scheme check.", e);
+      logger.error("0907: Parser configuration exception for file " + fileName + " while XML scheme check.", e);
       return false;
     }
     catch (SAXException e) {
-      logger.error("0113: XML file " + fileName + " doesn't corresponds to XML scheme.", e);
+      logger.error("0908: XML file " + fileName + " doesn't corresponds to XML scheme.", e);
       return false;
     }
   }
@@ -164,10 +164,10 @@ class XMLProcessor extends AProcessor {
           if (!isXMLValid(path.toString(), xsdPath)) filesError++;
         }
       }
-      logger.info("0502: Check files for XSD: " + filesCount + ", errors: " + filesError);
+      logger.info("0909: Check files for XSD: " + filesCount + ", errors: " + filesError);
     }
     catch (IOException e) {
-      logger.error("0106: Error while file system access: " + inqPath);
+      logger.error("0910: Error while file system access: " + inqPath);
     }
   }
 

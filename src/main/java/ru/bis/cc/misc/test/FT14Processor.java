@@ -20,7 +20,7 @@ class FT14Processor extends AProcessor {
 
   @Override
   void readAll(String inPath, FDocumentArray fDocs) {
-    logger.error("0310: There is no method for FT14 create.");
+    logger.error("0201: There is no method for FT14 create.");
   }
 
   @Override
@@ -37,7 +37,7 @@ class FT14Processor extends AProcessor {
   @Override
   void createAll(String outPath, FDocumentArray fDocs) {
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0301: Error access output directory " + outPath);
+      logger.error("0202: Error access output directory " + outPath);
       return;
     }
     String outFile = outPath + "ft14test.txt";
@@ -54,13 +54,13 @@ class FT14Processor extends AProcessor {
       }
       writer.close();
     } catch (IOException e) {
-      logger.error("0302: Error write output file " + outFile);
+      logger.error("0203: Error write output file " + outFile);
     }
   }
 
   @Override
   void checkAll(String inqPath, String xsdPath) {
-    logger.error("0310: There is no method for FT14 check.");
+    logger.error("0204: There is no method for FT14 check.");
   }
 
 }

@@ -23,7 +23,6 @@ import static org.junit.Assert.*;
 /**
  * Unit test for simple App.
  */
-// TODO: swap actual and expected in all asserts
 public class AppTest
 {
 
@@ -61,43 +60,43 @@ public class AppTest
       Node root = xmlDoc.getDocumentElement();
       FDocument doc = UFEBSParser.fromXML(root);
       if (doc != null) {
-        assertEquals(doc.edNo, "1000000");
-        assertEquals(doc.edDate, "2020-01-10");
+        assertEquals("1000000", doc.edNo);
+        assertEquals("2020-01-10", doc.edDate);
         assertTrue(doc.isUrgent);
 
-        assertEquals(doc.docNum, "1");
-        assertEquals(doc.docDate, "2020-01-09");
-        assertEquals((long) doc.amount, 100L);
-        assertEquals(doc.purpose, "Payment purpose");
-        assertEquals(doc.UIN, "111");
-        assertEquals(doc.priority, "5");
-        assertEquals(doc.chargeOffDate, "2020-01-11");
-        assertEquals(doc.receiptDate, "2020-01-12");
-        assertEquals(doc.transKind, "01");
+        assertEquals("1", doc.docNum);
+        assertEquals("2020-01-09", doc.docDate);
+        assertEquals(100L, (long) doc.amount);
+        assertEquals("Payment purpose", doc.purpose);
+        assertEquals("111", doc.UIN);
+        assertEquals("5", doc.priority);
+        assertEquals("2020-01-11", doc.chargeOffDate);
+        assertEquals("2020-01-12", doc.receiptDate);
+        assertEquals("01", doc.transKind);
 
-        assertEquals(doc.payerName, "Payer name");
-        assertEquals(doc.payerAccount, "40702810500000000014");
-        assertEquals(doc.payerINN, "123456789012");
-        assertEquals(doc.payerCPP, "111111111");
-        assertEquals(doc.payerBankBIC, "044525101");
-        assertEquals(doc.payerBankAccount, "30101810100000000101");
+        assertEquals("Payer name", doc.payerName);
+        assertEquals("40702810500000000014", doc.payerAccount);
+        assertEquals("123456789012", doc.payerINN);
+        assertEquals("111111111", doc.payerCPP);
+        assertEquals("044525101", doc.payerBankBIC);
+        assertEquals("30101810100000000101", doc.payerBankAccount);
 
-        assertEquals(doc.payeeName, "Payee name");
-        assertEquals(doc.payeeAccount, "40702810100000000389");
-        assertEquals(doc.payeeINN, "1234567890");
-        assertEquals(doc.payeeCPP, "222222222");
-        assertEquals(doc.payeeBankBIC, "044525111");
-        assertEquals(doc.payeeBankAccount, "30101810200000000111");
+        assertEquals("Payee name", doc.payeeName);
+        assertEquals("40702810100000000389", doc.payeeAccount);
+        assertEquals("1234567890", doc.payeeINN);
+        assertEquals("222222222", doc.payeeCPP);
+        assertEquals("044525111", doc.payeeBankBIC);
+        assertEquals("30101810200000000111", doc.payeeBankAccount);
 
         assertTrue(doc.isTax);
-        assertEquals(doc.taxStatus, "01"); // 101
-        assertEquals(doc.CBC, "18210101011011000110"); // 104
-        assertEquals(doc.OCATO, "45286560"); // 105
-        assertEquals(doc.taxPaytReason, "TP"); // 106
-        assertEquals(doc.taxPeriod, "МС.02.2020"); // 107
-        assertEquals(doc.taxDocNum, "20"); // 108
-        assertEquals(doc.taxDocDate, "01.02.2020"); // 109
-        assertEquals(doc.taxPaytKind, "1"); // 110
+        assertEquals("01", doc.taxStatus); // 101
+        assertEquals("18210101011011000110", doc.CBC); // 104
+        assertEquals("45286560", doc.OCATO); // 105
+        assertEquals("TP", doc.taxPaytReason); // 106
+        assertEquals("МС.02.2020", doc.taxPeriod); // 107
+        assertEquals("20", doc.taxDocNum); // 108
+        assertEquals("01.02.2020", doc.taxDocDate); // 109
+        assertEquals("1", doc.taxPaytKind); // 110
       }
       else
         fail("UFEBS ED parse failed.");
@@ -135,40 +134,43 @@ public class AppTest
     FDocument doc = mt103parser.fromString(str);
     if (doc != null) {
       assertFalse(doc.isUrgent);
-      assertEquals(doc.docNum, "101");
-      assertEquals(doc.docDate, "2020-05-14");
-      assertEquals((long) doc.amount, 10020L);
-      assertEquals(doc.purpose, "Payment purpose");
-      assertEquals(doc.UIN, "111");
+      assertEquals("101", doc.docNum);
+      assertEquals("2020-05-14", doc.docDate);
+      assertEquals(10020L, (long) doc.amount);
+      assertEquals("Payment purpose", doc.purpose);
+      assertEquals("111", doc.UIN);
 
-      assertEquals(doc.payerName, "Payer name");
-      assertEquals(doc.payerINN, "776521543603");
-      assertEquals(doc.payerCPP, "771201325");
-      assertEquals(doc.payerAccount, "42301810900000000002");
-      assertEquals(doc.payerBankBIC, "044525101");
-      assertEquals(doc.payerBankAccount, "30101810100000000101");
+      assertEquals("Payer name", doc.payerName);
+      assertEquals("776521543603", doc.payerINN);
+      assertEquals("771201325", doc.payerCPP);
+      assertEquals("42301810900000000002", doc.payerAccount);
+      assertEquals("044525101", doc.payerBankBIC);
+      assertEquals("30101810100000000101", doc.payerBankAccount);
 
-      assertEquals(doc.payeeName, "Payee name");
-      assertEquals(doc.payeeINN, "7703363868");
-      assertEquals(doc.payeeCPP, "770102011");
-      assertEquals(doc.payeeAccount, "40101810800000010041");
-      assertEquals(doc.payeeBankBIC, "044583001");
-      assertEquals(doc.payeeBankAccount, "30101810000000000001");
+      assertEquals("Payee name", doc.payeeName);
+      assertEquals("7703363868", doc.payeeINN);
+      assertEquals("770102011", doc.payeeCPP);
+      assertEquals("40101810800000010041", doc.payeeAccount);
+      assertEquals("044583001", doc.payeeBankBIC);
+      assertEquals("30101810000000000001", doc.payeeBankAccount);
 
       assertTrue(doc.isTax);
-      assertEquals(doc.taxStatus, "01"); // 101
-      assertEquals(doc.CBC, "18210101011011000110"); // 104
-      assertEquals(doc.OCATO, "45286560"); // 105
-      assertEquals(doc.taxPaytReason, "ТП"); // 106
-      assertEquals(doc.taxPeriod, "МС.04.2020"); // 107
-      assertEquals(doc.taxDocNum, "20"); // 108
-      assertEquals(doc.taxDocDate, "07.05.2020"); // 109
-      assertEquals(doc.taxPaytKind, "1"); // 110
+      assertEquals("01", doc.taxStatus); // 101
+      assertEquals("18210101011011000110", doc.CBC); // 104
+      assertEquals("45286560", doc.OCATO); // 105
+      assertEquals("ТП", doc.taxPaytReason); // 106
+      assertEquals("МС.04.2020", doc.taxPeriod); // 107
+      assertEquals("20", doc.taxDocNum); // 108
+      assertEquals("07.05.2020", doc.taxDocDate); // 109
+      assertEquals("1", doc.taxPaytKind); // 110
     }
     else
       fail("MT103 parse failed.");
   }
 
+  /** Test for MT100 parsing
+   *
+   */
   @Test
   public void testMT100Parse() {
     String str =
@@ -190,26 +192,28 @@ public class AppTest
     FDocument doc = mt100parser.fromString(str);
     if (doc != null) {
       assertFalse(doc.isUrgent);
-      assertEquals(doc.docNum, "101");
-      assertEquals(doc.docDate, "2020-05-14");
-      assertEquals((long) doc.amount, 10020L);
-      assertEquals(doc.purpose, "Payment purpose");
+      assertEquals("101", doc.docNum);
+      assertEquals("2020-05-14", doc.docDate);
+      assertEquals(10020L, (long) doc.amount);
+      assertEquals("Payment purpose", doc.purpose);
 
-      assertEquals(doc.payerName, "Payer name");
-      assertEquals(doc.payerINN, "7750003904");
-      assertEquals(doc.payerAccount, "30110810800000000004");
-      assertEquals(doc.payerBankBIC, "044525225");
+      assertEquals("Payer name", doc.payerName);
+      assertEquals("7750003904", doc.payerINN);
+      assertEquals("30110810800000000004", doc.payerAccount);
+      assertEquals("044525225", doc.payerBankBIC);
 
-      assertEquals(doc.payeeName, "Payee name");
-      assertEquals(doc.payeeINN, "7707099460");
-      assertEquals(doc.payeeAccount, "40702810200000000772");
+      assertEquals("Payee name", doc.payeeName);
+      assertEquals("7707099460", doc.payeeINN);
+      assertEquals("40702810200000000772", doc.payeeAccount);
 
     }
     else
       fail("MT100 parse failed.");
   }
 
-
+  /** Test for SWIFT tag extracting
+   *
+   */
   @Test
   public void testGetTag() {
     String[] message = new String[] { "{1:F01DEUTRUMMXXXX0000000101}{2:O1031007200514DBEBRUMMAXXX00000001011107200514N}{4:",
@@ -250,6 +254,83 @@ public class AppTest
     assertEquals(tag72, mt103parser.getTag(message, "72")); // Missing expected tag
     assertEquals(tag72, mt103parser.getTag(message, "??")); // Unexpected tag
 
+  }
+
+  /** Test for counterparty parsing win INN/KPP
+   *
+   */
+  @Test
+  public void testReadCounterparty() {
+    FDocument doc = new FDocument();
+    MT100Parser parser = new MT100Parser();
+
+    String aTag0[] = new String[]{":50:INN1234567890"};
+    parser.readCounterparty(aTag0, doc, "50");
+    assertEquals("50/0","1234567890", doc.payerINN);
+    assertEquals("50/0", "", doc.payerName);
+
+    String aTag1[] = new String[]{":50:/12345678901234567890"};
+    parser.readCounterparty(aTag1, doc, "50");
+    assertEquals("50/1","12345678901234567890", doc.payerAccount);
+
+    String aTag2[] = new String[]{":50:Payer name"};
+    parser.readCounterparty(aTag2, doc, "50");
+    assertEquals("50/2","Payer name", doc.payerName);
+
+    String aTag3[] = new String[]{":50:/12345678901234567890","Payer name"};
+    parser.readCounterparty(aTag3, doc, "50");
+    assertEquals("50/3","12345678901234567890", doc.payerAccount);
+    assertEquals("50/3","Payer name", doc.payerName);
+
+    String aTag4[] = new String[]{":50:/12345678901234567890","Payer nameINN1234567890"};
+    parser.readCounterparty(aTag4, doc, "50");
+    assertEquals("50/4","12345678901234567890", doc.payerAccount);
+    assertEquals("50/4","Payer name", doc.payerName);
+    assertEquals("50/4","1234567890", doc.payerINN);
+
+    String aTag5[] = new String[]{":50:Payer nameINN1234567890continue"};
+    parser.readCounterparty(aTag5, doc, "50");
+    assertEquals("50/5","Payer namecontinue", doc.payerName);
+    assertEquals("50/5","1234567890", doc.payerINN);
+
+    String aTag6[] = new String[]{":50:Payer nameINN1234567890 continue"};
+    parser.readCounterparty(aTag6, doc, "50");
+    assertEquals("50/6","Payer namecontinue", doc.payerName); // eats inner space
+    assertEquals("50/6","1234567890", doc.payerINN);
+
+    String aTag7[] = new String[]{":50:INN1234567890 Payer name"};
+    parser.readCounterparty(aTag7, doc, "50");
+    assertEquals("50/7","Payer name", doc.payerName);
+    assertEquals("50/7","1234567890", doc.payerINN);
+
+    String aTag8[] = new String[]{":50:INN1234567890Payer name"};
+    parser.readCounterparty(aTag8, doc, "50");
+    assertEquals("50/8","Payer name", doc.payerName);
+    assertEquals("50/8","1234567890", doc.payerINN);
+
+    String aTag9[] = new String[]{":50:Payer nameINN1234567890/KPP123456789continue"};
+    parser.readCounterparty(aTag9, doc, "50");
+    assertEquals("50/9","Payer namecontinue", doc.payerName);
+    assertEquals("50/9","1234567890", doc.payerINN);
+    assertEquals("50/9","123456789", doc.payerCPP);
+
+    String aTag10[] = new String[]{":50:Payer nameINN1234567890/KPP123456789 continue"}; // eats inner space
+    parser.readCounterparty(aTag10, doc, "50");
+    assertEquals("50/10","Payer namecontinue", doc.payerName);
+    assertEquals("50/10","1234567890", doc.payerINN);
+    assertEquals("50/10","123456789", doc.payerCPP);
+
+    String aTag11[] = new String[]{":50:INN1234567890/KPP123456789 Payer name"};
+    parser.readCounterparty(aTag11, doc, "50");
+    assertEquals("50/11","Payer name", doc.payerName);
+    assertEquals("50/11","1234567890", doc.payerINN);
+    assertEquals("50/11","123456789", doc.payerCPP);
+
+    String aTag12[] = new String[]{":50:INN1234567890/KPP123456789Payer name"};
+    parser.readCounterparty(aTag12, doc, "50");
+    assertEquals("50/12","Payer name", doc.payerName);
+    assertEquals("50/12","1234567890", doc.payerINN);
+    assertEquals("50/11","123456789", doc.payerCPP);
   }
 
   /** Test one XML node parsing with ED1xx
@@ -299,38 +380,38 @@ public class AppTest
           if (doc != null) {
             assertFalse(doc.isUrgent);
 
-            assertEquals(doc.docNum, "111");
-            assertEquals(doc.docDate, "2020-05-15");
-            assertEquals((long) doc.amount, 5270L);
-            assertEquals(doc.purpose, "Payment purpose");
-            assertEquals(doc.priority, "3");
-            assertEquals(doc.chargeOffDate, "2020-05-14");
-            assertEquals(doc.receiptDate, "2020-05-13");
-            assertEquals(doc.transKind, "01");
+            assertEquals("111", doc.docNum);
+            assertEquals("2020-05-15", doc.docDate);
+            assertEquals(5270L, (long) doc.amount);
+            assertEquals("Payment purpose", doc.purpose);
+            assertEquals("3", doc.priority);
+            assertEquals("2020-05-14", doc.chargeOffDate);
+            assertEquals("2020-05-13", doc.receiptDate);
+            assertEquals("01", doc.transKind);
 
-            assertEquals(doc.payerName, "Payer name");
-            assertEquals(doc.payerAccount, "40702810300000000300");
-            assertEquals(doc.payerINN, "2342018036");
-            assertEquals(doc.payerCPP, "234201001");
-            assertEquals(doc.payerBankBIC, "044525101");
-            assertEquals(doc.payerBankAccount, "30101810100000000101");
+            assertEquals("Payer name", doc.payerName);
+            assertEquals("40702810300000000300", doc.payerAccount);
+            assertEquals("2342018036", doc.payerINN);
+            assertEquals("234201001", doc.payerCPP);
+            assertEquals("044525101", doc.payerBankBIC);
+            assertEquals("30101810100000000101", doc.payerBankAccount);
 
-            assertEquals(doc.payeeName, "Payee name");
-            assertEquals(doc.payeeAccount, "40101810300000010013");
-            assertEquals(doc.payeeINN, "2308014320");
-            assertEquals(doc.payeeCPP, "231001001");
-            assertEquals(doc.payeeBankBIC, "040349001");
-            assertEquals(doc.payeeBankAccount, "30101810200000000001");
+            assertEquals("Payee name", doc.payeeName);
+            assertEquals("40101810300000010013", doc.payeeAccount);
+            assertEquals("2308014320", doc.payeeINN);
+            assertEquals("231001001", doc.payeeCPP);
+            assertEquals("040349001", doc.payeeBankBIC);
+            assertEquals("30101810200000000001", doc.payeeBankAccount);
 
             assertTrue(doc.isTax);
-            assertEquals(doc.taxStatus, "14"); // 101
-            assertEquals(doc.CBC, "39210202020062000160"); // 104
-            assertEquals(doc.OCATO, "03233556000"); // 105
-            assertEquals(doc.taxPaytReason, "ТП"); // 106
-            assertEquals(doc.taxPeriod, "МС.12.2011"); // 107
-            assertEquals(doc.taxDocNum, "20"); // 108
-            assertEquals(doc.taxDocDate, "01.02.2020"); // 109
-            assertEquals(doc.taxPaytKind, "1"); // 110
+            assertEquals("14", doc.taxStatus); // 101
+            assertEquals("39210202020062000160", doc.CBC); // 104
+            assertEquals("03233556000", doc.OCATO); // 105
+            assertEquals("ТП", doc.taxPaytReason); // 106
+            assertEquals("МС.12.2011", doc.taxPeriod); // 107
+            assertEquals("20", doc.taxDocNum); // 108
+            assertEquals("01.02.2020", doc.taxDocDate); // 109
+            assertEquals("1", doc.taxPaytKind); // 110
           } else
             fail("BQ XML parse failed.");
         }
@@ -371,7 +452,7 @@ public class AppTest
 
     FDocumentArray patternDocs = new FDocumentArray();
     FDocumentArray sampleDocs = new FDocumentArray();
-    FDocumentArray reverseDocs = new FDocumentArray();
+    FDocumentArray reverseDocs;
     FDocumentArray packet = new FDocumentArray();
 
     // UFEBS processor test
@@ -431,6 +512,7 @@ public class AppTest
     compareTwoFiles(patternPath + "bqtest.xml", outPath + "bqtest.xml");
 
     // BQ parser test
+    sampleDocs.docs.clear();
     procBQ.readFile(outPath + "bqtest.xml", sampleDocs);
     assertTrue("Comparator error found when testing UFEBS and BQ documents.", comparator.compare(patternDocs, sampleDocs));
 
