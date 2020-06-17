@@ -103,9 +103,9 @@ class UFEBSProcessor extends XMLProcessor {
       StringBuilder str = new StringBuilder(getProlog());
       str.append(System.lineSeparator());
       str.append("<"); str.append(rootName);
-      String edAuthor = "4525101000";
-      String edReceiver = "4525225000";
-      if (docs.isReversePacket) { edAuthor = "4525225000"; edReceiver = "4525101000"; }
+      String edAuthor = Constants.ourBankUIS;
+      String edReceiver = Constants.otherBankUIS;
+      if (docs.isReversePacket) { edAuthor = Constants.otherBankUIS; edReceiver = Constants.ourBankUIS; }
 
       str.append(" EDAuthor=\""); str.append(edAuthor); str.append("\"");
       str.append(" EDReceiver=\""); str.append(edReceiver); str.append("\"");
@@ -149,7 +149,7 @@ class UFEBSProcessor extends XMLProcessor {
       for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
         FDocument doc = item.getValue();
         if (doc.isUrgent) {
-          String outFile = outPath + (doc.payerBankBIC.equals("044525101")? "out" : "inc") + String.format("%07d", doc.getId()) + ".xml";
+          String outFile = outPath + (doc.payerBankBIC.equals(Constants.ourBankBIC)? "out" : "inc") + String.format("%07d", doc.getId()) + ".xml";
           OutputStream oss = new FileOutputStream(outFile);
           BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, getCodePage()));
           singleWriter.write(getProlog() + System.lineSeparator());
@@ -195,7 +195,7 @@ class UFEBSProcessor extends XMLProcessor {
       for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
         FDocument doc = item.getValue();
         if (doc.isUrgent) {
-          String outFile = outPath + (doc.payerBankBIC.equals("044525101")? "pco" : "pci") + String.format("%07d", doc.getId()) + ".xml";
+          String outFile = outPath + (doc.payerBankBIC.equals(Constants.ourBankBIC)? "pco" : "pci") + String.format("%07d", doc.getId()) + ".xml";
           OutputStream oss = new FileOutputStream(outFile);
           BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, getCodePage()));
           singleWriter.write(getProlog() + System.lineSeparator());
@@ -236,8 +236,8 @@ class UFEBSProcessor extends XMLProcessor {
       BufferedWriter packetWriter = new BufferedWriter(new OutputStreamWriter(osp, getCodePage()));
 
       String date = docs.getDate();
-      String edAuthor = "4525225000";
-      String edReceiver = "4525101000";
+      String edAuthor = Constants.otherBankUIS;
+      String edReceiver = Constants.ourBankUIS;
 
       StringBuilder str = new StringBuilder();
       str.append(getProlog()); str.append(System.lineSeparator());
@@ -258,8 +258,8 @@ class UFEBSProcessor extends XMLProcessor {
       str.append(" AbstractDate=\""); str.append(date); str.append("\"");
       str.append(" BeginTime=\"01:00:00\"");
       str.append(" EndTime=\"23:59:59\"");
-      str.append(" BIC=\"044500001\"");
-      str.append(" Acc=\"30101810100000000101\"");
+      str.append(" BIC=\""); str.append(Constants.ourBankBIC); str.append("\"");
+      str.append(" Acc=\""); str.append(Constants.ourBankAccPass); str.append("\"");
 
       long debet = docs.getSum();
       long credit = revs != null? revs.getSum(): 0L;

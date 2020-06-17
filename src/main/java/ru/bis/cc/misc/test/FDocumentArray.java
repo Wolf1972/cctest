@@ -23,7 +23,7 @@ class FDocumentArray {
       else {
         docs.put(doc.getId(), doc);
         if (!isReversePacket && !doc.isUrgent) {
-          isReversePacket = !doc.payerBankBIC.equals("044525101"); // Packet type defines by first document in packet
+          isReversePacket = !doc.payerBankBIC.equals(Constants.ourBankBIC); // Packet type defines by first document in packet
         }
         logger.trace("0513: Document added: " + doc.toString());
       }
@@ -79,7 +79,7 @@ class FDocumentArray {
     int count = 0;
     for (Map.Entry<Long, FDocument> item : docs.entrySet()) {
       FDocument doc = item.getValue();
-      if (!doc.payeeBankBIC.equals("044525101")) { // Outgoing document
+      if (!doc.payeeBankBIC.equals(Constants.ourBankBIC)) { // Outgoing document
         FDocument rev = doc.reverse();
         revs.add(rev, logger);
         count ++;

@@ -7,6 +7,7 @@ public class FDocument {
   String edDate; // YYYY-MM-DD
   String referenceBq;
   String referenceMT103;
+  String referenceFT14;
   boolean isUrgent;
 
   String docNum;
@@ -62,7 +63,7 @@ public class FDocument {
   public String toString() {
     String str = "EDNo: " + edNo + ", EDDate: " + edDate +
                  ", DocNo: " + docNum + ", Date: " + docDate +
-                 ", Amount: " + amount / 100 + "." + amount % 100 + System.lineSeparator() +
+                 ", Amount: " + (amount != null? amount / 100 + "." + amount % 100 : "null") + System.lineSeparator() +
                  " Payer Bank: " + payerBankName + ", BIC: " + payerBankBIC + ", Account: " + payerBankAccount + System.lineSeparator() +
                  " Payer Name: " + payerName + ", Account: " + payerAccount +
                  ", INN: " + payerINN + ", CPP: " + payerCPP + System.lineSeparator() +

@@ -158,8 +158,14 @@ class UFEBSParser extends XMLParser {
     str.append("<");
     str.append(rootNodeName);
 
-    if (doc.payerBankBIC.equals("044525101")) str.append(" EDAuthor=\"4525101000\" EDReceiver=\"4525225000\"");
-    else str.append(" EDAuthor=\"4525225000\" EDReceiver=\"4525101000\"");
+    if (doc.payerBankBIC.equals(Constants.ourBankBIC)) {
+      str.append(" EDAuthor=\""); str.append(Constants.ourBankUIS);
+      str.append("\" EDReceiver=\""); str.append(Constants.otherBankUIS); str.append("\"");
+    }
+    else {
+      str.append(" EDAuthor=\""); str.append(Constants.otherBankUIS);
+      str.append("\" EDReceiver=\""); str.append(Constants.ourBankUIS); str.append("\"");
+    }
 
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
     str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
@@ -230,24 +236,24 @@ class UFEBSParser extends XMLParser {
    */
   static String toConfirmation(FDocument doc) {
     StringBuilder str = new StringBuilder();
-    boolean isReverse = !doc.payerBankBIC.equals("044525101");
+    boolean isReverse = !doc.payerBankBIC.equals(Constants.ourBankBIC);
 
     str.append("<ED206");
     str.append(" EDNo=\""); str.append(doc.generateEDNo(doc.edNo, "2")); str.append("\"");
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
     if (!isReverse) {
-      str.append(" EDAuthor=\""); str.append("4525101000"); str.append("\"");
-      str.append(" EDReceiver=\""); str.append("4525225000"); str.append("\"");
+      str.append(" EDAuthor=\""); str.append(Constants.ourBankUIS); str.append("\"");
+      str.append(" EDReceiver=\""); str.append(Constants.otherBankUIS); str.append("\"");
       str.append(" BICCorr=\""); str.append(doc.payeeBankBIC); str.append("\"");
       str.append(" DC=\"2\"");
     }
     else {
-      str.append(" EDAuthor=\""); str.append("4525225000"); str.append("\"");
-      str.append(" EDReceiver=\""); str.append("4525101000"); str.append("\"");
+      str.append(" EDAuthor=\""); str.append(Constants.otherBankUIS); str.append("\"");
+      str.append(" EDReceiver=\""); str.append(Constants.ourBankUIS); str.append("\"");
       str.append(" BICCorr=\""); str.append(doc.payerBankBIC); str.append("\"");
       str.append(" DC=\"1\"");
     }
-    str.append(" Acc=\"30101810100000000101\"");
+    str.append(" Acc=\""); str.append(Constants.ourBankAccPass); str.append("\"");
     str.append(" Sum=\""); str.append(doc.amount.toString()); str.append("\"");
     str.append(" TransDate=\""); str.append(doc.docDate); str.append("\"");
     str.append(" TransTime=\"10:00:01\"");
@@ -263,10 +269,10 @@ class UFEBSParser extends XMLParser {
     str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
     if (!isReverse) {
-      str.append(" EDAuthor=\"4525101000\"");
+      str.append(" EDAuthor=\""); str.append(Constants.ourBankUIS); str.append("\"");
     }
     else {
-      str.append(" EDAuthor=\"4525225000\"");
+      str.append(" EDAuthor=\""); str.append(Constants.otherBankUIS); str.append("\"");
     }
     str.append(" />");
 
@@ -281,7 +287,7 @@ class UFEBSParser extends XMLParser {
    */
   static String toStatement(FDocument doc) {
     StringBuilder str = new StringBuilder();
-    boolean isReverse = !doc.payerBankBIC.equals("044525101");
+    boolean isReverse = !doc.payerBankBIC.equals(Constants.ourBankBIC);
 
     str.append("<TransInfo");
     str.append(" AccDocNo=\""); str.append(doc.docNum); str.append("\"");
@@ -296,7 +302,7 @@ class UFEBSParser extends XMLParser {
     str.append("<EDRefID");
     str.append(" EDNo=\""); str.append(doc.edNo); str.append("\"");
     str.append(" EDDate=\""); str.append(doc.edDate); str.append("\"");
-    str.append(" EDAuthor=\""); str.append(isReverse? "4525225000": "4525101000"); str.append("\"");
+    str.append(" EDAuthor=\""); str.append(isReverse? Constants.otherBankUIS: Constants.ourBankUIS); str.append("\"");
     str.append(" />");
     str.append("</TransInfo>");
 

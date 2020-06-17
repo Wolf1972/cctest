@@ -25,114 +25,146 @@ class BQParser extends XMLParser {
       for (int i = 0; i < edOne.getLength(); i++) {
 
         Node edChildNode = edOne.item(i);
-        String nodeName = edChildNode.getNodeName();
+        if (edChildNode.getNodeType() != Node.TEXT_NODE) {
 
-        if (nodeName.equals("reg")) {
-          attr = edChildNode.getAttributes();
-          nestedNode = attr.getNamedItem("doc-type");
-          if (nestedNode != null) doc.transKind = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("doc-num");
-          if (nestedNode != null) doc.docNum = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("doc-date");
-          if (nestedNode != null) doc.docDate = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("order-pay");
-          if (nestedNode != null) doc.priority = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("chgoff-date");
-          if (nestedNode != null) doc.chargeOffDate = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("payee-received");
-          if (nestedNode != null) doc.receiptDate = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("delivery");
-          if (nestedNode != null) doc.isUrgent = nestedNode.getNodeValue().equals("Э");
-        }
+          String nodeName = edChildNode.getNodeName();
 
-        else if (nodeName.equals("payer")) {
-          attr = edChildNode.getAttributes();
-          nestedNode = attr.getNamedItem("name");
-          if (nestedNode != null) doc.payerName = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("inn");
-          if (nestedNode != null) doc.payerINN = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("kpp");
-          if (nestedNode != null) doc.payerCPP = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("acct");
-          if (nestedNode != null) doc.payerAccount = nestedNode.getNodeValue();
-        }
+          if (nodeName.equals("reg")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("doc-type");
+            if (nestedNode != null) doc.transKind = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("doc-num");
+            if (nestedNode != null) doc.docNum = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("doc-date");
+            if (nestedNode != null) doc.docDate = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("order-pay");
+            if (nestedNode != null) doc.priority = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("chgoff-date");
+            if (nestedNode != null) doc.chargeOffDate = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("payee-received");
+            if (nestedNode != null) doc.receiptDate = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("delivery");
+            if (nestedNode != null) doc.isUrgent = nestedNode.getNodeValue().equals("Э");
+          }
 
-        else if (nodeName.equals("payer-bank")) {
-          attr = edChildNode.getAttributes();
-          nestedNode = attr.getNamedItem("name");
-          if (nestedNode != null) doc.payerBankName = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("ident-code");
-          if (nestedNode != null) doc.payerBankBIC = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("acct");
-          if (nestedNode != null) doc.payerBankAccount = nestedNode.getNodeValue();
-        }
+          else if (nodeName.equals("payer")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("name");
+            if (nestedNode != null) doc.payerName = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("inn");
+            if (nestedNode != null) doc.payerINN = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("kpp");
+            if (nestedNode != null) doc.payerCPP = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("acct");
+            if (nestedNode != null) doc.payerAccount = nestedNode.getNodeValue();
+          }
 
-        else if (nodeName.equals("payee")) {
-          attr = edChildNode.getAttributes();
-          nestedNode = attr.getNamedItem("name");
-          if (nestedNode != null) doc.payeeName = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("inn");
-          if (nestedNode != null) doc.payeeINN = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("kpp");
-          if (nestedNode != null) doc.payeeCPP = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("acct");
-          if (nestedNode != null) doc.payeeAccount = nestedNode.getNodeValue();
-        }
+          else if (nodeName.equals("payer-bank")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("name");
+            if (nestedNode != null) doc.payerBankName = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("ident-code");
+            if (nestedNode != null) doc.payerBankBIC = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("acct");
+            if (nestedNode != null) doc.payerBankAccount = nestedNode.getNodeValue();
+          }
 
-        else if (nodeName.equals("payee-bank")) {
-          attr = edChildNode.getAttributes();
-          nestedNode = attr.getNamedItem("name");
-          if (nestedNode != null) doc.payeeBankName = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("ident-code");
-          if (nestedNode != null) doc.payeeBankBIC = nestedNode.getNodeValue();
-          nestedNode = attr.getNamedItem("acct");
-          if (nestedNode != null) doc.payeeBankAccount = nestedNode.getNodeValue();
-        }
+          else if (nodeName.equals("payee")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("name");
+            if (nestedNode != null) doc.payeeName = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("inn");
+            if (nestedNode != null) doc.payeeINN = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("kpp");
+            if (nestedNode != null) doc.payeeCPP = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("acct");
+            if (nestedNode != null) doc.payeeAccount = nestedNode.getNodeValue();
+          }
 
-        else if (nodeName.equals("details")) {
-          doc.purpose = edChildNode.getTextContent();
-        }
+          else if (nodeName.equals("payee-bank")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("name");
+            if (nestedNode != null) doc.payeeBankName = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("ident-code");
+            if (nestedNode != null) doc.payeeBankBIC = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("acct");
+            if (nestedNode != null) doc.payeeBankAccount = nestedNode.getNodeValue();
+          }
 
-        else if (nodeName.equals("entries")) {
-          NodeList edEntries = edChildNode.getChildNodes(); // List of child nodes for <doc>
-          for (int j = 0; j < edEntries.getLength(); j++) {
-            Node edEntry = edEntries.item(j);
-            if (edEntry.getNodeName().equals("entry")) {
-              attr = edEntry.getAttributes();
-              nestedNode = attr.getNamedItem("amt-rub");
-              if (nestedNode != null) {
-                String amtFloat = nestedNode.getNodeValue();
-                if (amtFloat.indexOf(".") == 0) amtFloat += "00";
-                else if (amtFloat.substring(amtFloat.indexOf(".") + 1).length() == 1) amtFloat += "0"; // 123.5 = 123.50
-                doc.amount = Long.parseLong(amtFloat.replace(".", ""));
+          else if (nodeName.equals("details")) {
+            doc.purpose = edChildNode.getTextContent();
+          }
+
+          else if (nodeName.equals("entries")) {
+            NodeList edEntries = edChildNode.getChildNodes(); // List of child nodes for <entries>
+            for (int j = 0; j < edEntries.getLength(); j++) {
+              Node edEntry = edEntries.item(j);
+              if (edEntry.getNodeType() != Node.TEXT_NODE) {
+                if (edEntry.getNodeName().equals("entry")) {
+                  attr = edEntry.getAttributes();
+                  nestedNode = attr.getNamedItem("amt-rub");
+                  if (nestedNode != null) {
+                    String amtFloat = nestedNode.getNodeValue();
+                    if (amtFloat.indexOf(".") == 0) amtFloat += "00";
+                    else if (amtFloat.substring(amtFloat.indexOf(".") + 1).length() == 1)
+                      amtFloat += "0"; // 123.5 = 123.50
+                    doc.amount = Long.parseLong(amtFloat.replace(".", ""));
+                  }
+                  nestedNode = attr.getNamedItem("op-date");
+                  if (nestedNode != null) doc.edDate = nestedNode.getNodeValue();
+                  break; // Takes only one entry
+                }
               }
-              nestedNode = attr.getNamedItem("op-date");
-              if (nestedNode != null) doc.edDate = nestedNode.getNodeValue();
-              break; // Takes only one entry
             }
           }
-        }
 
-        else if (nodeName.equals("tax-index")) {
-          attr = edChildNode.getAttributes();
-          if (attr.getLength() > 0) {
-            doc.isTax = true;
-            nestedNode = attr.getNamedItem("status-index");
-            if (nestedNode != null) doc.taxStatus = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("cbc");
-            if (nestedNode != null) doc.CBC = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("ocato");
-            if (nestedNode != null) doc.OCATO = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("purpose-index");
-            if (nestedNode != null) doc.taxPaytReason = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("period-index");
-            if (nestedNode != null) doc.taxPeriod = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("num-index");
-            if (nestedNode != null) doc.taxDocNum = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("date-index");
-            if (nestedNode != null) doc.taxDocDate = nestedNode.getNodeValue();
-            nestedNode = attr.getNamedItem("type-index");
-            if (nestedNode != null) doc.taxPaytKind = nestedNode.getNodeValue();
+          else if (nodeName.equals("references")) {
+            NodeList edEntries = edChildNode.getChildNodes(); // List of child nodes for <references>
+            for (int j = 0; j < edEntries.getLength(); j++) {
+              Node edRef = edEntries.item(j);
+              if (edRef.getNodeType() != Node.TEXT_NODE) {
+                String reference = null;
+                String type = null;
+                if (edRef.getNodeName().equals("reference")) {
+                  attr = edRef.getAttributes();
+                  nestedNode = attr.getNamedItem("reference");
+                  if (nestedNode != null) reference = nestedNode.getNodeValue();
+                  nestedNode = attr.getNamedItem("type");
+                  if (nestedNode != null) type = nestedNode.getNodeValue();
+                }
+                if (type != null) {
+                  if (type.equals("DBI")) doc.referenceFT14 = reference;
+                  else { // UFEBS reference
+                    if (reference != null) {
+                      if (reference.contains(",")) doc.edNo = reference.substring(reference.indexOf(",") + 1);
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          else if (nodeName.equals("tax-index")) {
+            attr = edChildNode.getAttributes();
+            if (attr.getLength() > 0) {
+              doc.isTax = true;
+              nestedNode = attr.getNamedItem("status-index");
+              if (nestedNode != null) doc.taxStatus = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("cbc");
+              if (nestedNode != null) doc.CBC = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("ocato");
+              if (nestedNode != null) doc.OCATO = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("purpose-index");
+              if (nestedNode != null) doc.taxPaytReason = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("period-index");
+              if (nestedNode != null) doc.taxPeriod = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("num-index");
+              if (nestedNode != null) doc.taxDocNum = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("date-index");
+              if (nestedNode != null) doc.taxDocDate = nestedNode.getNodeValue();
+              nestedNode = attr.getNamedItem("type-index");
+              if (nestedNode != null) doc.taxPaytKind = nestedNode.getNodeValue();
+            }
           }
         }
       }
@@ -208,6 +240,45 @@ class BQParser extends XMLParser {
     str.append(" ident-code=\""); str.append(doc.payeeBankBIC); str.append("\"");
     str.append(" ident-type=\"МФО-9\"");
     str.append(" />");
+
+    str.append("<entries>");
+    str.append("<entry");
+    str.append(" op-entry=\"0\"");
+    str.append(" acct-db=\"");
+    if (doc.payerBankBIC.equals(Constants.ourBankBIC)) str.append(doc.payerAccount); else str.append(Constants.ourBankAcc);
+    str.append("\"");
+    str.append(" acct-cr=\"");
+    if (doc.payeeBankBIC.equals(Constants.ourBankBIC)) str.append(doc.payeeAccount); else str.append(Constants.ourBankAcc);
+    str.append("\"");
+    str.append(" amt-cur=\"0\"");
+    str.append(" amt-rub=\""); str.append((doc.amount != null? doc.amount / 100 + "." + doc.amount % 100 : "null")); str.append("\"");
+    str.append(" currency=\"810\"");
+    if (doc.edDate != null) { str.append(" op-date=\""); str.append(doc.edDate); str.append("\""); }
+    str.append(" eard=\"N\" >");
+    str.append("</entry>");
+    str.append("</entries>");
+
+    if (doc.referenceFT14 != null || doc.edNo != null) {
+      str.append("<references>");
+      if (doc.referenceFT14 != null) {
+        str.append("<reference");
+        str.append(" direction=\"I\"");
+        str.append(" trip=\"1\"");
+        str.append(" reference=\""); str.append(doc.referenceFT14); str.append("\"");
+        str.append(" type=\"DBI\" />");
+      }
+      if (doc.edNo != null) {
+        str.append("<reference");
+        str.append(" direction=\""); str.append(doc.payerBankBIC.equals(Constants.ourBankBIC)? "O": "I"); str.append("\"");
+        str.append(" trip=\"1\"");
+        str.append(" reference=\"");
+        str.append(doc.payerBankBIC.equals(Constants.ourBankBIC)? Constants.ourBankUIS: Constants.otherBankUIS); str.append(",");
+        str.append(doc.edNo);
+        str.append("\"");
+        str.append(" type=\"РКЦ\" />");
+      }
+      str.append("</references>");
+    }
 
     str.append("</doc>");
 

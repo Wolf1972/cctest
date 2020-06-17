@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 
 public class App {
 
+  // TODO: corr. account, BIC and other business constants move into separated class
   // TODO: MT940 import and compare
   // TODO: MT940 export
   // TODO: process split operations in FT14 import

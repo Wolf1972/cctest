@@ -506,17 +506,16 @@ public class AppTest
     Comparator comparator = new Comparator(logger);
     assertTrue("Comparator error found when testing UFEBS and MT103 documents.", comparator.compare(patternDocs, sampleDocs));
 
-    // BQ assembler test
+    // BQ parser & assembler test
+    patternDocs.docs.clear(); sampleDocs.docs.clear();
     BQProcessor procBQ = new BQProcessor(logger);
+    procBQ.readFile(patternPath + "bqtest.xml", patternDocs);
     procBQ.createAll(outPath, patternDocs);
-    compareTwoFiles(patternPath + "bqtest.xml", outPath + "bqtest.xml");
-
-    // BQ parser test
-    sampleDocs.docs.clear();
     procBQ.readFile(outPath + "bqtest.xml", sampleDocs);
-    assertTrue("Comparator error found when testing UFEBS and BQ documents.", comparator.compare(patternDocs, sampleDocs));
+    assertTrue("Comparator error found when testing BQ documents.", comparator.compare(patternDocs, sampleDocs));
 
     // MT100 parser test
+    patternDocs.docs.clear();
     MT100Processor procMT100 = new MT100Processor(logger);
     procMT100.readFile(patternPath + "mt100test.dat", patternDocs);
 
