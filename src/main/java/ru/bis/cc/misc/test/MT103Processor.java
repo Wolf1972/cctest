@@ -17,45 +17,8 @@ import static java.nio.file.Files.newDirectoryStream;
  */
 class MT103Processor extends SWIFTProcessor {
 
-  private Logger logger;
-
   MT103Processor(Logger logger) {
-    this.logger = logger;
-  }
-
-  /**
-   * Process one MT103 input directory and loads all MT103s into specified documents array
-   * MT103 - text file, UTF-8 encoding
-   *
-   * @param inPath   = input path
-   * @param fDocs    - reference to documents array
-   */
-  void readAll(String inPath, FDocumentArray fDocs) {
-
-    int filesCount = 0;
-    int filesError = 0;
-
-    try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
-      for (Path path : directoryStream) {
-        filesCount++;
-        if (isRegularFile(path)) {
-          String fileName = path.getFileName().toString();
-          if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.MT103) {
-            if (!readFile(inPath + fileName, fDocs)) filesError++;
-          } else {
-            logger.error("0401: File " + fileName + " is not contains XML prolog.");
-            filesError++;
-          }
-
-          logger.info("0402: Processing file: " + inPath + fileName);
-        }
-      }
-    } catch (IOException e) {
-      logger.error("0403: Error while file system access: " + inPath);
-      filesError++;
-    }
-    logger.info("0404: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("0404: Documents added: " + fDocs.docs.size());
+    super(logger);
   }
 
   /**

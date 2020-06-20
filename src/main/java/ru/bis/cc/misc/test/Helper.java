@@ -51,4 +51,19 @@ class Helper {
     return "20" + SWIFTDate.substring(0, 2) + "-" + SWIFTDate.substring(2, 4) + "-" + SWIFTDate.substring(4, 6);
   }
 
+  /** Function returns long from float string (with any separator = ",", "."
+   *
+   * @param amtFloat - string with decimal amount with any separator (",", ".")
+   * @return - Long amount
+   */
+  static Long getLongFromDecimal(String amtFloat) {
+    int pos = amtFloat.indexOf(".");
+    if (pos == -1) pos = amtFloat.indexOf(",");
+    if (pos < 0) amtFloat += "00";
+    else if (amtFloat.substring(pos + 1).length() == 1)
+      amtFloat += "0"; // 123.5 = 123.50
+    Long ret = Long.parseLong(amtFloat.replace(".", "").replace(",", ""));
+    return ret;
+  }
+
 }

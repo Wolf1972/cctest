@@ -12,7 +12,7 @@ import static java.nio.file.Files.isRegularFile;
 import static java.nio.file.Files.newDirectoryStream;
 
 enum FileType {
-  UNKNOWN, UFEBS, MT103, FT14, BQ, MT100
+  UNKNOWN, UFEBS, MT103, FT14, BQ, MT100, MT940
 }
 
 class ProcessorFabric {
@@ -34,7 +34,8 @@ class ProcessorFabric {
       return new FT14Processor(logger);
     else if (fileType == FileType.BQ)
       return new BQProcessor(logger);
-
+    else if (fileType == FileType.MT940)
+      return new MT940Processor(logger);
     return null;
   }
 
@@ -107,8 +108,12 @@ class ProcessorFabric {
               String msgType = firstStr.substring(pos + 4, pos + 7);
               if (msgType.equals("100")) {
                 retType = FileType.MT100;
-              } else if (msgType.equals("103")) {
+              }
+              else if (msgType.equals("103")) {
                 retType = FileType.MT103;
+              }
+              else if (msgType.equals("940")) {
+                retType = FileType.MT940;
               }
             }
           }

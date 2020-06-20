@@ -25,7 +25,7 @@ class SWIFTParser {
     }
   }
 
-  /** Function splits block {4:} of message for separated strings array
+  /** Function splits block {4:} of message for separated strings array or splits any message for separated strings
    *
    * @param str - string with all message
    * @return - strings array or empty array (if block {4:} has not found)
@@ -34,16 +34,22 @@ class SWIFTParser {
 
     String blockHeader = "{4:";
     String blockTrailer = "-}";
+    String altBlockTrailer = "}$";
     int startOfMessage = str.indexOf(blockHeader);
     int endOfMessage = str.indexOf(blockTrailer, startOfMessage);
+    if (endOfMessage < 0) endOfMessage = str.indexOf(altBlockTrailer, startOfMessage);
     String[] empty = new String[]{};
 
     StringBuilder tagContent = new StringBuilder();
 
     if (startOfMessage >= 0 && endOfMessage > startOfMessage) {
-      return str.replace("\r", "").split("\n"); // Do not use System.lineSeparator, may be file UNIX-style
+      return str.substring(startOfMessage + 3, endOfMessage).replace("\r", "")
+              .split("\n"); // Do not use System.lineSeparator, may be file UNIX-style
     }
-    return empty;
+    else {
+      return str.replace("\r", "")
+              .split("\n"); // Do not use System.lineSeparator, may be file UNIX-style
+    }
   }
 
   /** Function returns array of strings with one tag content (:20, :32A etc)
@@ -384,5 +390,48 @@ class SWIFTParser {
     if (tag.size() > 0) {
       doc.referenceMT103 = tag.get(0);
     }
+  }
+
+  /** Function process tag 61 in statement operation (MT940)
+   *  :61:0102080208D75,80NTRF00110//044525225
+   * @param message - string array with message
+   * @param doc - document
+   */
+  void read61(String[] message, FDocument doc) {
+    ArrayList<String> tag;
+    tag = getTag(message, "61");
+    if (tag.size() > 0) {
+      String oper = tag.get(0);
+      doc.edDate = Helper.getXMLDate(oper.substring(0, 7));
+      doc.docDate = doc.edDate;
+      char opType = oper.charAt(9);
+      int end = oper.indexOf("NTRF", 10);
+      if (end >= 0) {
+        String amoStr = oper.substring(11, end);
+        doc.amount = Helper.getLongFromDecimal(amoStr);
+        int pos = oper.indexOf("//", end);
+        if (pos >= 0) {
+          doc.docNum = oper.substring(end + "NTRF".length(), pos);
+          String bic = oper.substring(pos + 2);
+          if (opType == 'C') doc.payerBankBIC = bic;
+          else doc.payeeBankBIC = bic;
+        }
+      }
+    }
+  }
+
+  /** Function process tag 86 in statement operation (MT940)
+   *  :61:0102080208D75,80NTRF00110//044525225
+   * @param message - string array with message
+   * @param doc - document
+   */
+  void read86(String[] message, FDocument doc) {
+    ArrayList<String> tag;
+    tag = getTag(message, "86");
+    StringBuilder str = new StringBuilder("");
+    for (int i = 0; i < tag.size(); i++) {
+      str.append(tag.get(i));
+    }
+    if (str.length() > 0) doc.referenceSBP = str.toString();
   }
 }

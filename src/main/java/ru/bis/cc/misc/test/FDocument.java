@@ -5,9 +5,12 @@ public class FDocument {
   // Financial document attributes, access from another classes is free - I don't want to create too many getters/setters
   String edNo;
   String edDate; // YYYY-MM-DD
+
   String referenceBq;
   String referenceMT103;
   String referenceFT14;
+  String referenceSBP;
+
   boolean isUrgent;
 
   String docNum;

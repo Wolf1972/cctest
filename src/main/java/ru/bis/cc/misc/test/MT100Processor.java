@@ -17,45 +17,8 @@ import static java.nio.file.Files.newDirectoryStream;
  */
 class MT100Processor extends SWIFTProcessor {
 
-  private Logger logger;
-
   MT100Processor(Logger logger) {
-    this.logger = logger;
-  }
-
-  /**
-   * Process one MT100 input directory and loads all MT100s into specified documents array
-   * MT100 - binary file with one or several messages (length = 3200 bytes), ISO-8859-5 encoding
-   *
-   * @param inPath   = input path
-   * @param fDocs    - reference to documents array
-   */
-  void readAll(String inPath, FDocumentArray fDocs) {
-
-    int filesCount = 0;
-    int filesError = 0;
-
-    try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
-      for (Path path : directoryStream) {
-        filesCount++;
-        if (isRegularFile(path)) {
-          String fileName = path.getFileName().toString();
-          if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.MT103) {
-            if (!readFile(inPath + fileName, fDocs)) filesError++;
-          } else {
-            logger.error("0301: File " + fileName + " is not contains XML prolog.");
-            filesError++;
-          }
-
-          logger.info("0302: Processing file: " + inPath + fileName);
-        }
-      }
-    } catch (IOException e) {
-      logger.error("0304: Error while file system access: " + inPath);
-      filesError++;
-    }
-    logger.info("0305: Files processed: " + filesCount + ", errors: " + filesError);
-    logger.info("0306: Documents added: " + fDocs.docs.size());
+    super(logger);
   }
 
   /**

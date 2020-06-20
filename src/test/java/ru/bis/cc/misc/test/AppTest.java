@@ -20,6 +20,8 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+// TODO: divide big integration test to several small tests
+
 /**
  * Unit test for simple App.
  */
@@ -209,6 +211,28 @@ public class AppTest
     }
     else
       fail("MT100 parse failed.");
+  }
+
+
+  /** Test for MT940 parsing
+   *
+   */
+  @Test
+  public void testMT940Parse() {
+    String str =
+            ":61:1606030603C12,45NTRF000443//044525225" + System.lineSeparator() +
+            ":86:REF0001";
+    MT940Parser parser = new MT940Parser();
+    FDocument doc = parser.fromString(str);
+    if (doc != null) {
+      assertEquals("Date", "2016-06-03", doc.edDate);
+      assertEquals("Amount", 1245L, (long) doc.amount);
+      assertEquals("DocNum", "000443", doc.docNum);
+      assertEquals("BIC", "044525225", doc.payeeBankBIC);
+      assertEquals("SBP ref", "REF0001", doc.referenceSBP);
+    }
+    else
+      fail("MT940 parse failed.");
   }
 
   /** Test for SWIFT tag extracting
@@ -420,6 +444,18 @@ public class AppTest
     catch (ParserConfigurationException | SAXException | IOException e) {
       fail("Preliminary XML parsing failed.");
     }
+  }
+
+  /** Test for decimal string to long conversion
+   *
+   */
+  @Test
+  public void getLongFromDecimalTest() {
+    assertEquals(0L, (long) Helper.getLongFromDecimal("0.00"));
+    assertEquals(0L, (long) Helper.getLongFromDecimal("0,00"));
+    assertEquals(0L, (long) Helper.getLongFromDecimal("0,0"));
+    assertEquals(50L, (long) Helper.getLongFromDecimal("0.5"));
+    assertEquals(50L, (long) Helper.getLongFromDecimal("0.50"));
   }
 
   /** Test for file type automatic determine function
