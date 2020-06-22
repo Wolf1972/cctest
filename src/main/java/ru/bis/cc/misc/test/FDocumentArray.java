@@ -23,7 +23,8 @@ class FDocumentArray {
       else {
         docs.put(doc.getId(), doc);
         if (!isReversePacket && !doc.isUrgent) {
-          isReversePacket = !doc.payerBankBIC.equals(Constants.ourBankBIC); // Packet type defines by first document in packet
+          if (doc.payerBankBIC != null)
+            isReversePacket = !doc.payerBankBIC.equals(Constants.ourBankBIC); // Packet type defines by first document in packet
         }
         logger.trace("0513: Document added: " + doc.toString());
       }

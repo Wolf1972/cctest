@@ -555,6 +555,11 @@ public class AppTest
     MT100Processor procMT100 = new MT100Processor(logger);
     procMT100.readFile(patternPath + "mt100test.dat", patternDocs);
 
+    // MT940 parser test
+    patternDocs.docs.clear();
+    MT940Processor procMT940 = new MT940Processor(logger);
+    procMT940.readFile(patternPath + "mt940test.txt", patternDocs);
+
   }
 
   /** Function deletes one output file if it exists
