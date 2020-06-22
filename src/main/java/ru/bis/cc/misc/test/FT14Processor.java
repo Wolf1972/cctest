@@ -1,5 +1,6 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
@@ -14,8 +15,8 @@ import java.util.Map;
 class FT14Processor extends AProcessor {
   private Logger logger;
 
-  FT14Processor(Logger logger) {
-    this.logger = logger;
+  FT14Processor() {
+    logger = LogManager.getLogger(FT14Processor.class);
   }
 
   @Override

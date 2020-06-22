@@ -464,15 +464,16 @@ public class AppTest
   @Test
   public void getFileTypeTest() {
     String patternPath = ".\\src\\test\\resources\\pattern\\";
-    assertEquals("FT14", FileType.FT14, ProcessorFabric.fileType(patternPath + "ft14test.txt", logger));
-    assertEquals("MT103", FileType.MT103, ProcessorFabric.fileType(patternPath + "mt103test.txt", logger));
-    assertEquals("MT100", FileType.MT100, ProcessorFabric.fileType(patternPath + "mt100test.dat", logger));
-    assertEquals("UFEBS single", FileType.UFEBS, ProcessorFabric.fileType(patternPath + "single.xml", logger));
-    assertEquals("UFEBS packet", FileType.UFEBS, ProcessorFabric.fileType(patternPath + "packet.xml", logger));
-    assertEquals("BQ", FileType.BQ, ProcessorFabric.fileType(patternPath + "bqtest.xml", logger));
-    assertEquals("?", FileType.UNKNOWN, ProcessorFabric.fileType(patternPath + "nofile.xml", logger));
-    assertEquals("?txt", FileType.UNKNOWN, ProcessorFabric.fileType(patternPath + "unknown.txt", logger));
-    assertEquals("?xml", FileType.UNKNOWN, ProcessorFabric.fileType(patternPath + "unknown.xml", logger));
+    ProcessorFabric fab = new ProcessorFabric();
+    assertEquals("FT14", FileType.FT14, fab.fileType(patternPath + "ft14test.txt"));
+    assertEquals("MT103", FileType.MT103, fab.fileType(patternPath + "mt103test.txt"));
+    assertEquals("MT100", FileType.MT100, fab.fileType(patternPath + "mt100test.dat"));
+    assertEquals("UFEBS single", FileType.UFEBS, fab.fileType(patternPath + "single.xml"));
+    assertEquals("UFEBS packet", FileType.UFEBS, fab.fileType(patternPath + "packet.xml"));
+    assertEquals("BQ", FileType.BQ, fab.fileType(patternPath + "bqtest.xml"));
+    assertEquals("?", FileType.UNKNOWN, fab.fileType(patternPath + "nofile.xml"));
+    assertEquals("?txt", FileType.UNKNOWN, fab.fileType(patternPath + "unknown.txt"));
+    assertEquals("?xml", FileType.UNKNOWN, fab.fileType(patternPath + "unknown.xml"));
   }
 
   /** Integrity test - test functionality at all
@@ -492,21 +493,21 @@ public class AppTest
     FDocumentArray packet = new FDocumentArray();
 
     // UFEBS processor test
-    UFEBSProcessor procUFEBS = new UFEBSProcessor(logger);
+    UFEBSProcessor procUFEBS = new UFEBSProcessor();
     assertTrue("UFEBS single file parse error.", procUFEBS.readFile(patternPath + "single.xml", patternDocs));
     assertTrue("UFEBS packet file parse error.", procUFEBS.readFile(patternPath + "packet.xml", patternDocs));
 
     // UFEBS assembler test
     for (Map.Entry<Long, FDocument> item : patternDocs.docs.entrySet()) { // Build array with non-urgent documents only (to create one packet)
       FDocument doc = item.getValue();
-      if (!doc.isUrgent) packet.add(doc, logger);
+      if (!doc.isUrgent) packet.add(doc);
     }
     procUFEBS.createAll(outPath, packet);
     assertTrue("UFEBS packet XSD check error.", procUFEBS.isXMLValid(outPath + "pko1000000.xml", xsdPath));
     assertTrue("UFEBS created packet file parse error.", procUFEBS.readFile(outPath + "pko1000000.xml", sampleDocs));
     sampleDocs.docs.clear();
 
-    reverseDocs = patternDocs.createReverse(logger);
+    reverseDocs = patternDocs.createReverse();
     procUFEBS.createAll(outPath, reverseDocs);
     compareTwoFiles(patternPath + "packet-income.xml", outPath + "pki1000000.xml");
     compareTwoFiles(patternPath + "single-income.xml", outPath + "inc0000143.xml");
@@ -521,7 +522,7 @@ public class AppTest
     String outFT14File = outPath + "ft14test.txt"; // First of all - delete previous test results
     if (!deleteOutFile(outFT14File)) fail("FT14 file delete error: " + outFT14File);
 
-    FT14Processor procFT14 = new FT14Processor(logger);
+    FT14Processor procFT14 = new FT14Processor();
     procFT14.createAll(outPath, patternDocs);
     assertTrue("Output file FT14 not found" + outFT14File, Files.isRegularFile(Paths.get(outFT14File)));
     compareTwoFiles(patternPath + "ft14test.txt", outFT14File);
@@ -530,7 +531,7 @@ public class AppTest
     String outMT103File = outPath + "mt103test.txt";
     if (!deleteOutFile(outMT103File)) fail("MT103 file delete error: " + outFT14File);
 
-    MT103Processor procMT103 = new MT103Processor(logger);
+    MT103Processor procMT103 = new MT103Processor();
     procMT103.createAll(outPath, patternDocs);
     assertTrue("Output file MT103 not found" + outMT103File, Files.isRegularFile(Paths.get(outMT103File)));
     compareTwoFiles(patternPath + "mt103test.txt", outPath + "mt103test.txt");
@@ -539,12 +540,12 @@ public class AppTest
     assertTrue("MT103 file parse error.", procMT103.readFile(outMT103File, sampleDocs));
 
     // Comparator test - compare pattern documents was loaded from UFEBS, sample documents was loaded from MT103
-    Comparator comparator = new Comparator(logger);
+    Comparator comparator = new Comparator();
     assertTrue("Comparator error found when testing UFEBS and MT103 documents.", comparator.compare(patternDocs, sampleDocs));
 
     // BQ parser & assembler test
     patternDocs.docs.clear(); sampleDocs.docs.clear();
-    BQProcessor procBQ = new BQProcessor(logger);
+    BQProcessor procBQ = new BQProcessor();
     procBQ.readFile(patternPath + "bqtest.xml", patternDocs);
     procBQ.createAll(outPath, patternDocs);
     procBQ.readFile(outPath + "bqtest.xml", sampleDocs);
@@ -552,12 +553,12 @@ public class AppTest
 
     // MT100 parser test
     patternDocs.docs.clear();
-    MT100Processor procMT100 = new MT100Processor(logger);
+    MT100Processor procMT100 = new MT100Processor();
     procMT100.readFile(patternPath + "mt100test.dat", patternDocs);
 
     // MT940 parser test
     patternDocs.docs.clear();
-    MT940Processor procMT940 = new MT940Processor(logger);
+    MT940Processor procMT940 = new MT940Processor();
     procMT940.readFile(patternPath + "mt940test.txt", patternDocs);
 
   }

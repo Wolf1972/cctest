@@ -1,24 +1,19 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
-
-import static java.nio.file.Files.isRegularFile;
-import static java.nio.file.Files.newDirectoryStream;
 
 /** Class for SWIFT MT100 proceessing
  *
  */
 class MT100Processor extends SWIFTProcessor {
 
-  MT100Processor(Logger logger) {
-    super(logger);
+  MT100Processor() {
+    logger = LogManager.getLogger(MT100Processor.class);
   }
 
   /**
@@ -51,7 +46,7 @@ class MT100Processor extends SWIFTProcessor {
         else {
           str = str.substring(0, end + 2);
           FDocument doc = parser.fromString(str);
-          if (doc != null) fDocs.add(doc, logger);
+          if (doc != null) fDocs.add(doc);
           msgCount++;
         }
       }

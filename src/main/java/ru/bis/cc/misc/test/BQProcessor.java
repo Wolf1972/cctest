@@ -1,6 +1,6 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -16,8 +16,8 @@ import java.util.Map;
 
 class BQProcessor extends XMLProcessor {
 
-  BQProcessor(Logger logger) {
-    super(logger);
+  BQProcessor() {
+    logger = LogManager.getLogger(BQProcessor.class);
   }
 
   /**
@@ -45,7 +45,7 @@ class BQProcessor extends XMLProcessor {
             String nodeName = ed.getNodeName();
             if (nodeName.equals("doc")) {
               FDocument doc = BQParser.fromXML(ed);
-              docs.add(doc, logger);
+              docs.add(doc);
             }
             else {
               logger.error("0101: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);

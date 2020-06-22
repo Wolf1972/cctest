@@ -1,6 +1,6 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -8,12 +8,12 @@ import java.io.IOException;
 
 public class MT940Processor extends SWIFTProcessor {
 
-  MT940Processor(Logger logger) {
-    super(logger);
+  MT940Processor() {
+    logger = LogManager.getLogger(MT940Processor.class);
   }
 
   /**
-   * Process one MT100 file, fills fDocs array
+   * Process one MT940 file, fills fDocs array
    *
    * @param fileName - file name to parse (full path)
    * @param fDocs    - documents array reference
@@ -33,8 +33,9 @@ public class MT940Processor extends SWIFTProcessor {
         if (line.startsWith(":61:") || line.startsWith(":62F:")) {
           // parse previous operation
           FDocument doc = parser.fromString(oneOperation.toString());
-          if (doc != null) fDocs.add(doc, logger);
+          if (doc != null) fDocs.add(doc);
           msgCount++;
+          oneOperation.delete(0, oneOperation.length());
           if (line.startsWith(":62F:")) break;
         }
         if (line.startsWith(":61:")) {

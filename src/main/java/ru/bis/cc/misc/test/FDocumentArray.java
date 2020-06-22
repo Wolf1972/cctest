@@ -1,5 +1,6 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
@@ -9,13 +10,17 @@ class FDocumentArray {
 
   HashMap<Long, FDocument> docs = new HashMap<>(); // Financial documents array
   boolean isReversePacket = false;
+  Logger logger;
+
+  FDocumentArray() {
+    logger = LogManager.getLogger(FT14Processor.class);
+  }
 
   /** Puts one document into array with key control
    *
    * @param doc - document to add
-   * @param logger - current logger
    */
-  void add(FDocument doc, Logger logger) {
+  void add(FDocument doc) {
     if (doc != null) {
       if (docs.containsKey(doc.getId())) {
         logger.error("0516: Document with ID " + doc.getId() + " has already exist in array.");
@@ -72,17 +77,16 @@ class FDocumentArray {
 
   /** Creates new document array with incoming (reverse) documents, assembled by outgoing (internal documents are not included)
    *
-   * @param logger - current logger
    * @return - incoming (reverse) document array
    */
-  FDocumentArray createReverse(Logger logger) {
+  FDocumentArray createReverse() {
     FDocumentArray revs = new FDocumentArray();
     int count = 0;
     for (Map.Entry<Long, FDocument> item : docs.entrySet()) {
       FDocument doc = item.getValue();
       if (!doc.payeeBankBIC.equals(Constants.ourBankBIC)) { // Outgoing document
         FDocument rev = doc.reverse();
-        revs.add(rev, logger);
+        revs.add(rev);
         count ++;
       }
     }

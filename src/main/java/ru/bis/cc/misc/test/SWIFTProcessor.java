@@ -1,6 +1,6 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -12,10 +12,8 @@ import static java.nio.file.Files.newDirectoryStream;
 
 class SWIFTProcessor extends AProcessor {
 
-  Logger logger;
-
-  SWIFTProcessor(Logger logger) {
-    this.logger = logger;
+  SWIFTProcessor() {
+    logger = LogManager.getLogger(SWIFTProcessor.class);
   }
 
   @Override
@@ -28,7 +26,8 @@ class SWIFTProcessor extends AProcessor {
         filesCount++;
         if (isRegularFile(path)) {
           String fileName = path.getFileName().toString();
-          if (ProcessorFabric.fileType(inPath + fileName, logger) == FileType.MT103) {
+          ProcessorFabric fab = new ProcessorFabric();
+          if (fab.fileType(inPath + fileName) == FileType.MT103) {
             if (!readFile(inPath + fileName, fDocs)) filesError++;
           } else {
             logger.error("0401: File " + fileName + " is not a SWIFT file.");
