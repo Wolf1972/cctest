@@ -25,6 +25,9 @@ public class App {
   private static FDocumentArray patternDocs = new FDocumentArray(); // Pattern documents array (for compare)
   private static FDocumentArray reverseDocs = new FDocumentArray(); // Incoming documents array
 
+  static ClientArray clients = new ClientArray(); // Static clients information
+  static AccountArray accounts = new AccountArray(); // Static account information
+
   public static void main(String[] args) {
 
     System.out.println("CC test suite (c) BIS 2020.");
@@ -39,6 +42,7 @@ public class App {
     options.addOption("d", "date", true, "Change date in transformed documents [YYYY-MM-DD] (for \"transform\" action only).");
     options.addOption("c", "codepage", true, "Code page for output XML files [\"windows-1251\" or \"utf-8\"] (for \"transform\" action only).");
     options.addOption("r", "reverse", false, "Output incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
+    options.addOption("s", "static", false, "Load static data (clients, accounts) from specified directory.");
 
     // Command line options
     String cmdAction = null;
@@ -49,6 +53,7 @@ public class App {
     String xsdPath = null;
     String cmdDate = null;
     String cmdCodePage = null;
+    String staticPath = null;
     boolean cmdReverse; // Prepare incoming documents, confirmations, statement by outgoing documents
 
     CommandLineParser parser = new DefaultParser();
@@ -63,6 +68,7 @@ public class App {
       if (command.hasOption('t')) cmdOutputType = command.getOptionValue('t');
       if (command.hasOption('d')) cmdDate = command.getOptionValue('d');
       if (command.hasOption('c')) cmdCodePage = command.getOptionValue('c');
+      if (command.hasOption('s')) staticPath = command.getOptionValue('s');
       cmdReverse = command.hasOption('r');
 
     }

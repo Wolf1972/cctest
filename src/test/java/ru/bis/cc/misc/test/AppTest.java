@@ -1,7 +1,5 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -27,8 +25,6 @@ import static org.junit.Assert.*;
  */
 public class AppTest
 {
-
-  private static Logger logger = LogManager.getLogger(AppTest.class);
 
   /** Test one XML node parsing with ED1xx
    *
@@ -288,69 +284,69 @@ public class AppTest
     FDocument doc = new FDocument();
     MT100Parser parser = new MT100Parser();
 
-    String aTag0[] = new String[]{":50:INN1234567890"};
+    String[] aTag0 = new String[]{":50:INN1234567890"};
     parser.readCounterparty(aTag0, doc, "50");
     assertEquals("50/0","1234567890", doc.payerINN);
     assertEquals("50/0", "", doc.payerName);
 
-    String aTag1[] = new String[]{":50:/12345678901234567890"};
+    String[] aTag1 = new String[]{":50:/12345678901234567890"};
     parser.readCounterparty(aTag1, doc, "50");
     assertEquals("50/1","12345678901234567890", doc.payerAccount);
 
-    String aTag2[] = new String[]{":50:Payer name"};
+    String[] aTag2 = new String[]{":50:Payer name"};
     parser.readCounterparty(aTag2, doc, "50");
     assertEquals("50/2","Payer name", doc.payerName);
 
-    String aTag3[] = new String[]{":50:/12345678901234567890","Payer name"};
+    String[] aTag3 = new String[]{":50:/12345678901234567890","Payer name"};
     parser.readCounterparty(aTag3, doc, "50");
     assertEquals("50/3","12345678901234567890", doc.payerAccount);
     assertEquals("50/3","Payer name", doc.payerName);
 
-    String aTag4[] = new String[]{":50:/12345678901234567890","Payer nameINN1234567890"};
+    String[] aTag4 = new String[]{":50:/12345678901234567890","Payer nameINN1234567890"};
     parser.readCounterparty(aTag4, doc, "50");
     assertEquals("50/4","12345678901234567890", doc.payerAccount);
     assertEquals("50/4","Payer name", doc.payerName);
     assertEquals("50/4","1234567890", doc.payerINN);
 
-    String aTag5[] = new String[]{":50:Payer nameINN1234567890continue"};
+    String[] aTag5 = new String[]{":50:Payer nameINN1234567890continue"};
     parser.readCounterparty(aTag5, doc, "50");
     assertEquals("50/5","Payer namecontinue", doc.payerName);
     assertEquals("50/5","1234567890", doc.payerINN);
 
-    String aTag6[] = new String[]{":50:Payer nameINN1234567890 continue"};
+    String[] aTag6 = new String[]{":50:Payer nameINN1234567890 continue"};
     parser.readCounterparty(aTag6, doc, "50");
     assertEquals("50/6","Payer namecontinue", doc.payerName); // eats inner space
     assertEquals("50/6","1234567890", doc.payerINN);
 
-    String aTag7[] = new String[]{":50:INN1234567890 Payer name"};
+    String[] aTag7 = new String[]{":50:INN1234567890 Payer name"};
     parser.readCounterparty(aTag7, doc, "50");
     assertEquals("50/7","Payer name", doc.payerName);
     assertEquals("50/7","1234567890", doc.payerINN);
 
-    String aTag8[] = new String[]{":50:INN1234567890Payer name"};
+    String[] aTag8 = new String[]{":50:INN1234567890Payer name"};
     parser.readCounterparty(aTag8, doc, "50");
     assertEquals("50/8","Payer name", doc.payerName);
     assertEquals("50/8","1234567890", doc.payerINN);
 
-    String aTag9[] = new String[]{":50:Payer nameINN1234567890/KPP123456789continue"};
+    String[] aTag9 = new String[]{":50:Payer nameINN1234567890/KPP123456789continue"};
     parser.readCounterparty(aTag9, doc, "50");
     assertEquals("50/9","Payer namecontinue", doc.payerName);
     assertEquals("50/9","1234567890", doc.payerINN);
     assertEquals("50/9","123456789", doc.payerCPP);
 
-    String aTag10[] = new String[]{":50:Payer nameINN1234567890/KPP123456789 continue"}; // eats inner space
+    String[] aTag10 = new String[]{":50:Payer nameINN1234567890/KPP123456789 continue"}; // eats inner space
     parser.readCounterparty(aTag10, doc, "50");
     assertEquals("50/10","Payer namecontinue", doc.payerName);
     assertEquals("50/10","1234567890", doc.payerINN);
     assertEquals("50/10","123456789", doc.payerCPP);
 
-    String aTag11[] = new String[]{":50:INN1234567890/KPP123456789 Payer name"};
+    String[] aTag11 = new String[]{":50:INN1234567890/KPP123456789 Payer name"};
     parser.readCounterparty(aTag11, doc, "50");
     assertEquals("50/11","Payer name", doc.payerName);
     assertEquals("50/11","1234567890", doc.payerINN);
     assertEquals("50/11","123456789", doc.payerCPP);
 
-    String aTag12[] = new String[]{":50:INN1234567890/KPP123456789Payer name"};
+    String[] aTag12 = new String[]{":50:INN1234567890/KPP123456789Payer name"};
     parser.readCounterparty(aTag12, doc, "50");
     assertEquals("50/12","Payer name", doc.payerName);
     assertEquals("50/12","1234567890", doc.payerINN);
@@ -442,6 +438,147 @@ public class AppTest
       }
     }
     catch (ParserConfigurationException | SAXException | IOException e) {
+      fail("Preliminary XML parsing failed.");
+    }
+  }
+
+  /** Function parses any client static information in BQ format
+   *
+   */
+  @Test
+  public void testBQClientParse() {
+    String xmlPerson = "<?xml version=\"1.0\" encoding=\"windows-1251\" ?>" + System.lineSeparator() +
+            "<person action=\"update\" id=\"4260\" last-date=\"2020-01-29\">" + System.lineSeparator() +
+            "<reg client=\"Y\" name-first=\"Ivan\" name-last=\"Dorohoff\" name-mid=\"Petrovitch\" resident=\"Y\"/>" + System.lineSeparator() +
+            "<misc birthday=\"1983-06-18\" gender=\"M\" relation=\"0\"/>" + System.lineSeparator() +
+            "<idents>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"776521543603\" type=\"ИНН\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"32000837\" type=\"УНК\"/>" + System.lineSeparator() +
+            "</idents>" + System.lineSeparator() +
+            "</person>";
+    String xmlSelfEmp = "<?xml version=\"1.0\" encoding=\"windows-1251\" ?>" + System.lineSeparator() +
+            "<cust-priv action=\"update\" id=\"4268\" last-date=\"2020-01-29\">" + System.lineSeparator() +
+            "<reg client=\"Y\" name=\"\" name-first=\"Jane\" name-last=\"Curve\" name-mid=\"Arcady\" resident=\"Y\"/>" + System.lineSeparator() +
+            "<misc birthday=\"1985-12-25\" gender=\"F\" relation=\"0\"/>" + System.lineSeparator() +
+            "<idents>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"770565351400\" type=\"ИНН\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"32000847\" type=\"УНК\"/>" + System.lineSeparator() +
+            "</idents>" + System.lineSeparator() +
+            "</cust-priv>";
+    String xmlCompany = "<?xml version=\"1.0\" encoding=\"windows-1251\" ?>" + System.lineSeparator() +
+            "<cust-corp action=\"update\" id=\"9464\" last-date=\"2020-01-30\">" + System.lineSeparator() +
+            "<reg client=\"Y\" name=\"Lirus ltd\" name-short=\"Lirus\" resident=\"Y\"/>" + System.lineSeparator() +
+            "<misc financial=\"N\" issuer=\"N\" mat-company=\"N\" relation=\"0\" state-ctl=\"N\"/>" + System.lineSeparator() +
+            "<idents>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"7705625484\" type=\"ИНН\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"1157705235467\" type=\"ОГРН\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"770522235\" type=\"КПП\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"32000852\" type=\"УНК\"/>" + System.lineSeparator() +
+            "</idents>" + System.lineSeparator() +
+            "</cust-corp>";
+    String xmlBank = "<?xml version=\"1.0\" encoding=\"windows-1251\" ?>" + System.lineSeparator() +
+            "<bank action=\"update\" id=\"43786\" last-date=\"2020-04-29\">" + System.lineSeparator() +
+            "<reg client=\"Y\" engl-name=\"CREDIT SUISSE ZURICH\" name=\"CREDIT SUISSE ZURICH\" name-short=\"CREDIT SUISSE\" resident=\"N\"/>" + System.lineSeparator() +
+            "<misc is-rkc=\"N\" issuer=\"N\" mat-company=\"N\" relation=\"0\" state-ctl=\"N\" town=\"ZURICH\" town-type=\"\"/>" + System.lineSeparator() +
+            "<idents>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"12345\" type=\"ИНН\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"\" type=\"ОГРН\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"\" type=\"КПП\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"BSUIFRPPXXX\" type=\"BIC\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"044525225\" type=\"МФО-9\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"30101810100000000225\" type=\"РКЦ_СЧЕТ\"/>" + System.lineSeparator() +
+            "<ident action=\"update\" class=\"Код\" number=\"0005002415\" type=\"УНК\"/>" + System.lineSeparator() +
+            "</idents>" + System.lineSeparator() +
+            "</bank>";
+
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      InputSource is = new InputSource(new StringReader(xmlPerson));
+      Document xmlDoc = builder.parse(is);
+      Node root = xmlDoc.getDocumentElement();
+      Client clt = BQParser.clientFromXML(root);
+      if (clt != null) {
+        assertEquals(ClientType.PERSON, clt.type);
+        assertEquals((long) 42601, (long) clt.id);
+        assertEquals("Dorohoff", clt.lastName);
+        assertEquals("Ivan Petrovitch", clt.firstNames);
+        assertEquals("776521543603", clt.INN);
+      }
+
+      is = new InputSource(new StringReader(xmlSelfEmp));
+      xmlDoc = builder.parse(is);
+      root = xmlDoc.getDocumentElement();
+      clt = BQParser.clientFromXML(root);
+      if (clt != null) {
+        assertEquals(ClientType.SELF_EMPLOYED, clt.type);
+        assertEquals((long) 42682, (long) clt.id);
+        assertEquals("Curve", clt.lastName);
+        assertEquals("Jane Arcady", clt.firstNames);
+        assertEquals("770565351400", clt.INN);
+      }
+
+      is = new InputSource(new StringReader(xmlCompany));
+      xmlDoc = builder.parse(is);
+      root = xmlDoc.getDocumentElement();
+      clt = BQParser.clientFromXML(root);
+      if (clt != null) {
+        assertEquals(ClientType.COMPANY, clt.type);
+        assertEquals((long) 94643, (long) clt.id);
+        assertEquals("Lirus ltd", clt.officialName);
+        assertEquals("7705625484", clt.INN);
+      }
+
+      is = new InputSource(new StringReader(xmlBank));
+      xmlDoc = builder.parse(is);
+      root = xmlDoc.getDocumentElement();
+      clt = BQParser.clientFromXML(root);
+      if (clt != null) {
+        assertEquals(ClientType.BANK, clt.type);
+        assertEquals((long) 437864, (long) clt.id);
+        assertEquals("CREDIT SUISSE ZURICH", clt.officialName);
+        assertEquals("12345", clt.INN);
+        assertEquals("044525225", clt.bankBIC);
+        assertEquals("30101810100000000225", clt.bankCorrAccount);
+      }
+
+    }
+    catch(ParserConfigurationException | SAXException | IOException e) {
+      fail("Preliminary XML parsing failed.");
+    }
+  }
+
+  /** Function parses account static information in BQ format
+   *
+   */
+  @Test
+  public void testBQAccountParse() {
+
+    String xmlAccount= "<?xml version=\"1.0\" encoding=\"windows-1251\" ?>" + System.lineSeparator() +
+            "<acct action=\"update\" id=\"40817810800000000009,\" last-date=\"2020-01-29\">" + System.lineSeparator() +
+            "<reg acct=\"40817810800000000009\" bal-acct=\"40817\" branch-id=\"0001\" category=\"А\" currency=\"810\" open-date=\"2020-01-01\" close-date=\"2120-01-01\" side=\"П\"/>" + System.lineSeparator() +
+            "<business details=\"Dorohoff Ivan Petrovitch\" is_except=\"N\" nonreduct-saldo=\"0.00\"/>" + System.lineSeparator() +
+            "<client cust-cat=\"Ч\" cust-id=\"4260\" internal=\"N\"/>" + System.lineSeparator() +
+            "</acct>";
+
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      InputSource is = new InputSource(new StringReader(xmlAccount));
+      Document xmlDoc = builder.parse(is);
+      Node root = xmlDoc.getDocumentElement();
+      Account acc = BQParser.accountFromXML(root);
+      if (acc != null) {
+        assertEquals("40817810800000000009", acc.account);
+        assertEquals("Dorohoff Ivan Petrovitch", acc.details);
+        assertEquals((long) 42601L, (long) acc.clientId);
+        assertEquals(ClientType.PERSON, acc.clientType);
+        assertEquals("2020-01-01", acc.openDate);
+        assertEquals("2120-01-01", acc.closeDate);
+        assertFalse(acc.isInternal);
+      }
+    }
+    catch(ParserConfigurationException | SAXException | IOException e) {
       fail("Preliminary XML parsing failed.");
     }
   }

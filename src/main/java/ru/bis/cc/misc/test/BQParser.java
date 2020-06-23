@@ -285,4 +285,156 @@ class BQParser extends XMLParser {
     return str.toString();
   }
 
+  /** Loads one client from XML node
+   *
+   * @param node - XML node with one client (person, cust-corp or bank)
+   * @return  Client object
+   */
+  static Client clientFromXML(Node node) {
+
+    if (node.getNodeType() != Node.TEXT_NODE) {
+
+      Client client = new Client();
+
+      String clientNodeName = node.getNodeName();
+      if (clientNodeName.equals("person")) client.type = ClientType.PERSON;
+      else if (clientNodeName.equals("cust-priv")) client.type = ClientType.SELF_EMPLOYED;
+      else if (clientNodeName.equals("cust-corp")) client.type = ClientType.COMPANY;
+      else if (clientNodeName.equals("bank")) client.type = ClientType.BANK;
+
+      NamedNodeMap attr = node.getAttributes();
+      Node nestedNode = attr.getNamedItem("id");
+      if (nestedNode != null) client.id = getClientIdForType(Long.parseLong(nestedNode.getNodeValue()), client.type);
+
+      NodeList edOne = node.getChildNodes(); // List of child nodes for client node (<person>, <cust-corp>, etc)
+
+      for (int i = 0; i < edOne.getLength(); i++) {
+
+        Node edChildNode = edOne.item(i);
+
+        if (edChildNode.getNodeType() != Node.TEXT_NODE) {
+
+          String nodeName = edChildNode.getNodeName();
+
+          if (nodeName.equals("reg")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("name-last");
+            if (nestedNode != null) client.lastName = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("name-first");
+            if (nestedNode != null) client.firstNames = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("name-mid");
+            if (nestedNode != null) client.firstNames = (client.firstNames != null? client.firstNames + " " + nestedNode.getNodeValue(): nestedNode.getNodeValue());
+            nestedNode = attr.getNamedItem("name");
+            if (nestedNode != null) client.officialName = nestedNode.getNodeValue();
+          }
+
+          else if (nodeName.equals("idents")) {
+            NodeList edIdents = edChildNode.getChildNodes(); // List of child nodes for <idents>
+            for (int j = 0; j < edIdents.getLength(); j++) {
+              Node edIdent = edIdents.item(j);
+              if (edIdent.getNodeType() != Node.TEXT_NODE) {
+                String type = "";
+                String number = "";
+                if (edIdent.getNodeName().equals("ident")) {
+                  attr = edIdent.getAttributes();
+                  nestedNode = attr.getNamedItem("type");
+                  if (nestedNode != null) type = nestedNode.getNodeValue();
+                  nestedNode = attr.getNamedItem("number");
+                  if (nestedNode != null) number = nestedNode.getNodeValue();
+                  if (type.equals("ИНН")) {
+                    client.INN = number;
+                  }
+                  else if (type.equals("МФО-9")) {
+                    client.bankBIC = number;
+                  }
+                  else if (type.equals("РКЦ_СЧЕТ")) {
+                    client.bankCorrAccount = number;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return client;
+    }
+    return null;
+  }
+
+  /** Loads one account from XML node
+   *
+   * @param node - XML node with one account (acct)
+   * @return  Account object
+   */
+  static Account accountFromXML(Node node) {
+
+    if (node.getNodeType() != Node.TEXT_NODE) {
+
+      Account account = new Account();
+
+      NamedNodeMap attr = node.getAttributes();
+      Node nestedNode = attr.getNamedItem("id");
+
+      NodeList edOne = node.getChildNodes(); // List of child nodes for <acct>
+
+      for (int i = 0; i < edOne.getLength(); i++) {
+
+        Node edChildNode = edOne.item(i);
+
+        if (edChildNode.getNodeType() != Node.TEXT_NODE) {
+
+          String nodeName = edChildNode.getNodeName();
+
+          if (nodeName.equals("reg")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("acct");
+            if (nestedNode != null) account.account = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("open-date");
+            if (nestedNode != null) account.openDate = nestedNode.getNodeValue();
+            nestedNode = attr.getNamedItem("close-date");
+            if (nestedNode != null) account.closeDate = nestedNode.getNodeValue();
+          }
+          else if (nodeName.equals("business")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("details");
+            if (nestedNode != null) account.details = nestedNode.getNodeValue();
+          }
+          else if (nodeName.equals("client")) {
+            attr = edChildNode.getAttributes();
+            nestedNode = attr.getNamedItem("cust-cat");
+            if (nestedNode != null) {
+              String type = nestedNode.getNodeValue();
+              if (type.equals("Ч")) account.clientType = ClientType.PERSON;
+              else if (type.equals("П")) account.clientType = ClientType.SELF_EMPLOYED;
+              else if (type.equals("Ю")) account.clientType = ClientType.COMPANY;
+              else if (type.equals("Б")) account.clientType = ClientType.BANK;
+            }
+            nestedNode = attr.getNamedItem("cust-id");
+            if (nestedNode != null) account.clientId = getClientIdForType(Long.parseLong(nestedNode.getNodeValue()), account.clientType);
+            nestedNode = attr.getNamedItem("internal");
+            if (nestedNode != null) account.isInternal = nestedNode.getNodeValue().equals("Y");
+          }
+        }
+      }
+      return account;
+    }
+    return null;
+  }
+
+  /** Function returns id corrected with client type:
+   *  multiplies by 10 and adds 1 for PERSON, 2 for SELF_EMPLOYED, 3 for COMPANY and 4 for BANK
+   *
+   * @param sourceId - source id (reads from BQ static file import)
+   * @param type - client type
+   * @return - unique identifier
+   */
+  private static Long getClientIdForType(Long sourceId, ClientType type) {
+    Long id = sourceId * 10;
+    if (type == ClientType.PERSON) id += 1;
+    else if (type == ClientType.SELF_EMPLOYED) id += 2;
+    else if (type == ClientType.COMPANY) id += 3;
+    else if (type == ClientType.BANK) id += 4;
+    return id;
+  }
+
 }

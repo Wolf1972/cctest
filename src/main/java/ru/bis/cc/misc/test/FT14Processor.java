@@ -21,7 +21,7 @@ class FT14Processor extends AProcessor {
 
   @Override
   void readAll(String inPath, FDocumentArray fDocs) {
-    logger.error("0201: There is no method for FT14 create.");
+    logger.error("0201: There is no method for FT14 read.");
   }
 
   @Override

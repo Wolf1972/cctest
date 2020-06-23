@@ -13,7 +13,7 @@ class FDocumentArray {
   Logger logger;
 
   FDocumentArray() {
-    logger = LogManager.getLogger(FT14Processor.class);
+    logger = LogManager.getLogger(FDocumentArray.class);
   }
 
   /** Puts one document into array with key control

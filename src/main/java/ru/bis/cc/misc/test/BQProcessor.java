@@ -14,6 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import static ru.bis.cc.misc.test.App.accounts;
+import static ru.bis.cc.misc.test.App.clients;
+
 class BQProcessor extends XMLProcessor {
 
   BQProcessor() {
@@ -113,4 +116,65 @@ class BQProcessor extends XMLProcessor {
     }
     logger.info("0112: Output BQ files created.");
   }
+
+  boolean readStaticFile(String fileName) {
+    try {
+
+      DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+      Document document = documentBuilder.parse(fileName);
+
+      // Try to obtain root element
+      Node root = document.getDocumentElement();
+      String rootNodeName = root.getNodeName();
+      if ("persons,cust-privs,cust-corps,banks".contains(rootNodeName)) {
+        NodeList clientsNode = root.getChildNodes();
+        for (int i = 0; i < clientsNode.getLength(); i++) {
+          Node clientNode = clientsNode.item(i);
+          if (clientNode.getNodeType() != Node.TEXT_NODE) {
+            String nodeName = clientNode.getNodeName();
+            if ("person,cust-priv,cust-corp,bank".contains(nodeName)) {
+              Client clt = BQParser.clientFromXML(clientNode);
+              if (clt != null) clients.items.put(clt.id, clt);
+            }
+            else {
+              logger.error("0101: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+      else if (rootNodeName.equals("accts")) {
+        NodeList accountsNode = root.getChildNodes();
+        for (int i = 0; i < accountsNode.getLength(); i++) {
+          Node accountNode = accountsNode.item(i);
+          if (accountNode.getNodeType() != Node.TEXT_NODE) {
+            String nodeName = accountNode.getNodeName();
+            if (nodeName.equals("acct")) {
+              Account acc = BQParser.accountFromXML(accountNode);
+              if (acc != null) accounts.items.put(acc.account, acc);
+            }
+            else {
+              logger.error("0101: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+              return false;
+            }
+          }
+        }
+        return true;
+
+      }
+      else {
+        logger.error("0102: File " + fileName + " contains unknown root element: " + rootNodeName);
+      }
+      return false;
+    }
+    catch (ParserConfigurationException | SAXException e) {
+      logger.error("0103: Error parsing file " + fileName, e);
+    }
+    catch (IOException e) {
+      logger.error("0104. Error while file access: " + fileName);
+    }
+    return false;
+  }
+
 }
