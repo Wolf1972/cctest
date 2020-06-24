@@ -101,7 +101,8 @@ public class FDocument {
         int posAltChar = purpose.indexOf('\\');
         if (posAltChar < 0 || posSepChar > posAltChar) sepChar = '\\';
       }
-      taxStr.append(sepChar); taxStr.append(sepChar); taxStr.append(payerCPP); // 102
+      taxStr.append(sepChar); taxStr.append(sepChar);
+      if (payerCPP != null) taxStr.append(payerCPP); // 102
       taxStr.append(sepChar); if (taxStatus != null) taxStr.append(taxStatus); // 101
       taxStr.append(sepChar); if (CBC != null) taxStr.append(CBC); // 104
       taxStr.append(sepChar); if (OCATO != null) taxStr.append(OCATO);

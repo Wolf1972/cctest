@@ -25,6 +25,9 @@ public class App {
   private static FDocumentArray patternDocs = new FDocumentArray(); // Pattern documents array (for compare)
   private static FDocumentArray reverseDocs = new FDocumentArray(); // Incoming documents array
 
+  static ClientArray clients = new ClientArray(); // Static clients information
+  static AccountArray accounts = new AccountArray(); // Static account information
+
   public static void main(String[] args) {
 
     System.out.println("CC test suite (c) BIS 2020.");
@@ -39,6 +42,7 @@ public class App {
     options.addOption("d", "date", true, "Change date in transformed documents [YYYY-MM-DD] (for \"transform\" action only).");
     options.addOption("c", "codepage", true, "Code page for output XML files [\"windows-1251\" or \"utf-8\"] (for \"transform\" action only).");
     options.addOption("r", "reverse", false, "Output incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
+    options.addOption("s", "static", false, "Load static data (clients, accounts) from specified directory.");
 
     // Command line options
     String cmdAction = null;
@@ -49,6 +53,7 @@ public class App {
     String xsdPath = null;
     String cmdDate = null;
     String cmdCodePage = null;
+    String staticPath = null;
     boolean cmdReverse; // Prepare incoming documents, confirmations, statement by outgoing documents
 
     CommandLineParser parser = new DefaultParser();
@@ -63,6 +68,7 @@ public class App {
       if (command.hasOption('t')) cmdOutputType = command.getOptionValue('t');
       if (command.hasOption('d')) cmdDate = command.getOptionValue('d');
       if (command.hasOption('c')) cmdCodePage = command.getOptionValue('c');
+      if (command.hasOption('s')) staticPath = command.getOptionValue('s');
       cmdReverse = command.hasOption('r');
 
     }
@@ -82,21 +88,23 @@ public class App {
     Logger logger = LogManager.getLogger(App.class);
     logger.trace("0001: Current directory: " + System.getProperty("user.dir"));
 
+    ProcessorFabric fab = new ProcessorFabric();
+
     if (cmdAction != null) {
 
       if (cmdAction.equalsIgnoreCase("compare")) {
         if (inPath != null) {
-          AProcessor procSample = ProcessorFabric.getProcessor(inPath, logger);
+          AProcessor procSample = fab.getProcessor(inPath);
           if (procSample != null) {
             procSample.readAll(inPath, sampleDocs);
             if (xsdPath != null && procSample.getClass() == UFEBSProcessor.class) {
               procSample.checkAll(inPath, xsdPath);
             }
             if (patternPath != null) {
-              AProcessor procPattern = ProcessorFabric.getProcessor(patternPath, logger);
+              AProcessor procPattern = fab.getProcessor(patternPath);
               if (procPattern != null) {
                 procPattern.readAll(patternPath, patternDocs);
-                Comparator comparator = new Comparator(logger);
+                Comparator comparator = new Comparator();
                 comparator.compare(patternDocs, sampleDocs);
               }
               else {
@@ -118,7 +126,7 @@ public class App {
 
       else if (cmdAction.equalsIgnoreCase("transform")) {
         if (inPath != null) {
-          AProcessor procIn = ProcessorFabric.getProcessor(inPath, logger);
+          AProcessor procIn = fab.getProcessor(inPath);
           if (procIn != null) {
             if (xsdPath != null && procIn.getClass() == UFEBSProcessor.class) {
               procIn.checkAll(inPath, xsdPath);
@@ -128,7 +136,7 @@ public class App {
           try {
             if (cmdOutputType != null) {
               FileType fileType = FileType.valueOf(cmdOutputType);
-              AProcessor procOut = ProcessorFabric.getProcessor(fileType, logger);
+              AProcessor procOut = fab.getProcessor(fileType);
               if (procOut != null) {
                 if (outPath != null) {
                   if (cmdDate != null) {
@@ -138,7 +146,7 @@ public class App {
                   procOut.createAll(outPath, sampleDocs); // Create target documents
                   if (procOut.getClass() == UFEBSProcessor.class) {
                     if (cmdReverse) { // Create reverse documents if UFEBS and -r option
-                      reverseDocs = sampleDocs.createReverse(logger);
+                      reverseDocs = sampleDocs.createReverse();
                       procOut.createAll(outPath, reverseDocs);
                       UFEBSProcessor procUFEBS = (UFEBSProcessor) procOut; // Downcast with no doubts
                       if (cmdCodePage != null) procUFEBS.setCodePage(cmdCodePage);
@@ -168,7 +176,7 @@ public class App {
       }
 
       else if (cmdAction.equalsIgnoreCase("check")) {
-        AProcessor procIn = ProcessorFabric.getProcessor(inPath, logger);
+        AProcessor procIn = fab.getProcessor(inPath);
         if (procIn != null) {
           if (procIn.getClass() == UFEBSProcessor.class) {
             procIn.checkAll(inPath, xsdPath);

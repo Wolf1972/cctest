@@ -1,6 +1,6 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -25,10 +25,9 @@ import static java.nio.file.Files.newDirectoryStream;
 class XMLProcessor extends AProcessor {
 
   private String codePage = "utf-8";
-  Logger logger;
 
-  XMLProcessor(Logger logger) {
-    this.logger = logger;
+  XMLProcessor() {
+    logger = LogManager.getLogger(XMLProcessor.class);
   }
 
   /**

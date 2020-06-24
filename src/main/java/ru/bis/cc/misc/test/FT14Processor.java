@@ -1,5 +1,6 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
@@ -14,13 +15,13 @@ import java.util.Map;
 class FT14Processor extends AProcessor {
   private Logger logger;
 
-  FT14Processor(Logger logger) {
-    this.logger = logger;
+  FT14Processor() {
+    logger = LogManager.getLogger(FT14Processor.class);
   }
 
   @Override
   void readAll(String inPath, FDocumentArray fDocs) {
-    logger.error("0201: There is no method for FT14 create.");
+    logger.error("0201: There is no method for FT14 read.");
   }
 
   @Override

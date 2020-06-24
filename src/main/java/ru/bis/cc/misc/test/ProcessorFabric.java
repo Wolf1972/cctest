@@ -1,5 +1,6 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -17,42 +18,46 @@ enum FileType {
 
 class ProcessorFabric {
 
+  Logger logger;
+
+  ProcessorFabric() {
+    logger = LogManager.getLogger(ProcessorFabric.class);
+  }
+
   /** Function returns specified processor
    *
    * @param fileType - file type for processor
-   * @param logger - application logger
-   * @return processor for
+   * @return processor for fileType
    */
-  static AProcessor getProcessor(FileType fileType, Logger logger) {
+  AProcessor getProcessor(FileType fileType) {
     if (fileType == FileType.UFEBS)
-      return new UFEBSProcessor(logger);
+      return new UFEBSProcessor();
     else if (fileType == FileType.MT103)
-      return new MT103Processor(logger);
+      return new MT103Processor();
     else if (fileType == FileType.MT100)
-      return new MT100Processor(logger);
+      return new MT100Processor();
     else if (fileType == FileType.FT14)
-      return new FT14Processor(logger);
+      return new FT14Processor();
     else if (fileType == FileType.BQ)
-      return new BQProcessor(logger);
+      return new BQProcessor();
     else if (fileType == FileType.MT940)
-      return new MT940Processor(logger);
+      return new MT940Processor();
     return null;
   }
 
   /** Function returns processor that suits for parsing input files in specified directory
    *
    * @param inqPath - path with input files
-   * @param logger - application logger
    * @return sutable processor for input file parsing or null
    */
-  static AProcessor getProcessor(String inqPath, Logger logger) {
-    FileType fileType = fileTypeInDirectory(inqPath, logger);
+  AProcessor getProcessor(String inqPath) {
+    FileType fileType = fileTypeInDirectory(inqPath);
     if (fileType == FileType.UNKNOWN) {
       logger.error("0701: Directory is empty or contains unknown files: " + inqPath);
       return null;
     }
     else
-      return getProcessor(fileType, logger);
+      return getProcessor(fileType);
   }
 
   /** Defines file type by first string
@@ -60,7 +65,7 @@ class ProcessorFabric {
    * @param fileName - check file, full path
    * @return enum with file type from FileType
    */
-  static FileType fileType(String fileName, Logger logger) {
+  FileType fileType(String fileName) {
 
     FileType retType = FileType.UNKNOWN;
 
@@ -136,11 +141,11 @@ class ProcessorFabric {
    * @param inqPath - path for check files, full path
    * @return enum with file type from FileType
    */
-  private static FileType fileTypeInDirectory(String inqPath, Logger logger) {
+  private FileType fileTypeInDirectory(String inqPath) {
     try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inqPath))) {
       for (Path path : directoryStream) {
         if (isRegularFile(path)) {
-          return fileType(path.toString(), logger);
+          return fileType(path.toString());
         }
       }
     }

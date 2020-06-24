@@ -1,6 +1,6 @@
 package ru.bis.cc.misc.test;
 
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -19,8 +19,8 @@ import java.util.Map;
  */
 class UFEBSProcessor extends XMLProcessor {
 
-  UFEBSProcessor(Logger logger) {
-    super(logger);
+  UFEBSProcessor() {
+    logger = LogManager.getLogger(UFEBSProcessor.class);
   }
 
   /**
@@ -48,7 +48,7 @@ class UFEBSProcessor extends XMLProcessor {
             String nodeName = ed.getNodeName();
             if (nodeName.matches("ED10[134]")) {
               FDocument doc = UFEBSParser.fromXML(ed);
-              docs.add(doc, logger);
+              docs.add(doc);
             }
             else {
               logger.error("0801: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
@@ -60,7 +60,7 @@ class UFEBSProcessor extends XMLProcessor {
       }
       else if (rootNodeName.matches("ED10[134]")) { // For single EPD
         FDocument doc = UFEBSParser.fromXML(root);
-        docs.add(doc, logger);
+        docs.add(doc);
         return true;
       }
       else {

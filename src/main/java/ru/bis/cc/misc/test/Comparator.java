@@ -1,5 +1,6 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
@@ -10,19 +11,19 @@ class Comparator {
   private int strictLevel;
 
   /** Constructor
-   * @param logger - logger reference
    * @param strictLevel:
    *   0 - base compare, suits for compare all documents (compares only common fields)
    *   1 - strict compare, suits for compare documents loads from FT14 (common fields and priority, transaction kind)
    *   2 - more strict compare with all fields, suits for documents loads from UFEBS only
    */
-  Comparator(int strictLevel, Logger logger) {
+  Comparator(int strictLevel) {
     this.strictLevel = strictLevel;
-    this.logger = logger;
+    logger = LogManager.getLogger(Comparator.class);
   }
-  Comparator(Logger logger) {
+
+  Comparator() {
     this.strictLevel = 0;
-    this.logger = logger;
+    logger = LogManager.getLogger(Comparator.class);
   }
 
   /**
