@@ -12,8 +12,22 @@ import java.util.Map;
  */
 class MT100Processor extends SWIFTProcessor {
 
+  MT100Parser parser = new MT100Parser();
+
   MT100Processor() {
     logger = LogManager.getLogger(MT100Processor.class);
+  }
+
+  @Override
+  void readAll(String inPath, FDocumentArray fDocs) {
+    logger.info("0301: MT100 files reading.");
+    super.readAll(inPath, fDocs);
+  }
+
+  @Override
+  void checkAll(String inqPath, String xsdPath) {
+    logger.info("0303: MT100 files checking.");
+    logger.error("0304: There is no MT100 checking procedure.");
   }
 
   /**
@@ -26,13 +40,10 @@ class MT100Processor extends SWIFTProcessor {
   boolean readFile(String fileName, FDocumentArray fDocs) {
     int msgCount = 0;
     byte[] message = new byte[3200]; // Each message in MT100 binary container aligns for 3200 bytes length
-
-    MT100Parser parser = new MT100Parser();
-
+    logger.trace("0306: MT100 file reading: " + fileName);
     try {
       RandomAccessFile raf = new RandomAccessFile(fileName, "r");
-      int count;
-      while ((count = raf.read(message)) == message.length) {
+      while (raf.read(message) == message.length) {
         String str = new String(message, "ISO-8859-5");
         str = str.substring(2); // Skip first 2 bytes
         int end = str.indexOf("-}");
@@ -66,13 +77,14 @@ class MT100Processor extends SWIFTProcessor {
    * @param fDocs   - documents array reference
    */
   void createAll(String outPath, FDocumentArray fDocs) {
-    if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0310: Error access output directory " + outPath);
-      return;
-    }
-    MT100Parser parser = new MT100Parser();
 
     String outFile = outPath + "mt100test.txt";
+    logger.info("0310: MT100 file creating: " + outFile);
+    if (!Files.isDirectory(Paths.get(outPath))) {
+      logger.error("0311: Error access output directory " + outPath);
+      return;
+    }
+
     try {
       OutputStream os = new FileOutputStream(outFile);
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
@@ -100,7 +112,7 @@ class MT100Processor extends SWIFTProcessor {
       writer.close();
     }
     catch (IOException e) {
-      logger.error("0311: Error write output file " + outFile);
+      logger.error("0312: Error write output file " + outFile);
     }
   }
 

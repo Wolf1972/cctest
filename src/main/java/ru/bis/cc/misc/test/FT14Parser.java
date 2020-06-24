@@ -1,12 +1,12 @@
 package ru.bis.cc.misc.test;
 
-class FT14Parser {
+class FT14Parser extends Parser {
   /** Creates FT14 string from object
    *
    * @param doc - financial document
    * @return FT14 string (unicode), returns null if error or filter
    */
-  static String toString(FDocument doc) {
+  String toString(FDocument doc) {
 
     StringBuilder str = new StringBuilder();
 

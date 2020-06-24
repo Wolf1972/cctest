@@ -12,8 +12,22 @@ import java.util.Map;
  */
 class MT103Processor extends SWIFTProcessor {
 
+  MT103Parser parser = new MT103Parser();
+
   MT103Processor() {
     logger = LogManager.getLogger(MT103Processor.class);
+  }
+
+  @Override
+  void readAll(String inPath, FDocumentArray fDocs) {
+    logger.info("0400: MT103 files reading.");
+    super.readAll(inPath, fDocs);
+  }
+
+  @Override
+  void checkAll(String inqPath, String xsdPath) {
+    logger.info("0403: MT103 files checking.");
+    logger.error("0404: There is no MT103 checking procedure.");
   }
 
   /**
@@ -26,7 +40,7 @@ class MT103Processor extends SWIFTProcessor {
   boolean readFile(String fileName, FDocumentArray fDocs) {
     int msgCount = 0;
 
-    MT103Parser parser = new MT103Parser();
+    logger.trace("0405: MT103 file read: " + fileName);
 
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
@@ -50,10 +64,10 @@ class MT103Processor extends SWIFTProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("0405: Error while file read: " + fileName);
+      logger.error("0406: Error while file read: " + fileName);
       return false;
     }
-    logger.info("0406: Messages read: " + msgCount);
+    logger.info("0407: Messages read: " + msgCount);
     return true;
   }
 
@@ -64,14 +78,15 @@ class MT103Processor extends SWIFTProcessor {
    * @param fDocs   - documents array reference
    */
   void createAll(String outPath, FDocumentArray fDocs) {
+
+    logger.info("0410: MT103 files creating.");
+    String outFile = outPath + "mt103test.txt";
+    logger.trace("0411: MT103 file creating: " + outFile);
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0407: Error access output directory " + outPath);
+      logger.error("0412: Error access output directory " + outPath);
       return;
     }
 
-    MT103Parser parser = new MT103Parser();
-
-    String outFile = outPath + "mt103test.txt";
     try {
       OutputStream os = new FileOutputStream(outFile);
       BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
@@ -99,7 +114,7 @@ class MT103Processor extends SWIFTProcessor {
       writer.close();
     }
     catch (IOException e) {
-      logger.error("0408: Error write output file " + outFile);
+      logger.error("0413: Error write output file " + outFile);
     }
   }
 

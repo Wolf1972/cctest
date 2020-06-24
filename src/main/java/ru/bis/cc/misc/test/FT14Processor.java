@@ -13,7 +13,8 @@ import java.util.Map;
  *
  */
 class FT14Processor extends AProcessor {
-  private Logger logger;
+
+  FT14Parser parser = new FT14Parser();
 
   FT14Processor() {
     logger = LogManager.getLogger(FT14Processor.class);
@@ -21,6 +22,7 @@ class FT14Processor extends AProcessor {
 
   @Override
   void readAll(String inPath, FDocumentArray fDocs) {
+    logger.info("0200: FT14 files reading.");
     logger.error("0201: There is no method for FT14 read.");
   }
 
@@ -37,11 +39,15 @@ class FT14Processor extends AProcessor {
    */
   @Override
   void createAll(String outPath, FDocumentArray fDocs) {
+
+    logger.info("0210: FT14 files creating.");
+
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0202: Error access output directory " + outPath);
+      logger.error("0211: Error access output directory " + outPath);
       return;
     }
     String outFile = outPath + "ft14test.txt";
+    int count = 0;
     try {
       Charset chs = Charset.forName("ISO-8859-5");
       OutputStream os = new FileOutputStream(outFile);
@@ -49,19 +55,23 @@ class FT14Processor extends AProcessor {
       if (fDocs.docs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.docs.entrySet()) {
           FDocument value = item.getValue();
-          writer.write(FT14Parser.toString(value));
+          writer.write(parser.toString(value));
           writer.write(System.lineSeparator());
+          count++;
         }
       }
       writer.close();
     } catch (IOException e) {
-      logger.error("0203: Error write output file " + outFile);
+      logger.error("0213: Error write output file " + outFile);
     }
+    logger.info("0214: FT14 strings wrote: " + count);
+    logger.info("0215: FT14 file created: " + outFile);
   }
 
   @Override
   void checkAll(String inqPath, String xsdPath) {
-    logger.error("0204: There is no method for FT14 check.");
+    logger.info("0220: FT14 files checking.");
+    logger.error("0221: There is no method for FT14 check.");
   }
 
 }

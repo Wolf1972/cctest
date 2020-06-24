@@ -56,7 +56,8 @@ public class AppTest
       InputSource is = new InputSource(new StringReader(xmlString));
       Document xmlDoc = builder.parse(is);
       Node root = xmlDoc.getDocumentElement();
-      FDocument doc = UFEBSParser.fromXML(root);
+      UFEBSParser parser = new UFEBSParser();
+      FDocument doc = parser.fromXML(root);
       if (doc != null) {
         assertEquals("1000000", doc.edNo);
         assertEquals("2020-01-10", doc.edDate);
@@ -396,7 +397,8 @@ public class AppTest
 
         Node edChildNode = docOne.item(i);
         if (edChildNode.getNodeName().equals("doc")) {
-          FDocument doc = BQParser.fromXML(edChildNode);
+          BQParser parser = new BQParser();
+          FDocument doc = parser.fromXML(edChildNode);
           if (doc != null) {
             assertFalse(doc.isUrgent);
 
@@ -497,7 +499,8 @@ public class AppTest
       InputSource is = new InputSource(new StringReader(xmlPerson));
       Document xmlDoc = builder.parse(is);
       Node root = xmlDoc.getDocumentElement();
-      Client clt = BQParser.clientFromXML(root);
+      BQParser parser = new BQParser();
+      Client clt = parser.clientFromXML(root);
       if (clt != null) {
         assertEquals(ClientType.PERSON, clt.type);
         assertEquals((long) 42601, (long) clt.id);
@@ -509,7 +512,7 @@ public class AppTest
       is = new InputSource(new StringReader(xmlSelfEmp));
       xmlDoc = builder.parse(is);
       root = xmlDoc.getDocumentElement();
-      clt = BQParser.clientFromXML(root);
+      clt = parser.clientFromXML(root);
       if (clt != null) {
         assertEquals(ClientType.SELF_EMPLOYED, clt.type);
         assertEquals((long) 42682, (long) clt.id);
@@ -521,7 +524,7 @@ public class AppTest
       is = new InputSource(new StringReader(xmlCompany));
       xmlDoc = builder.parse(is);
       root = xmlDoc.getDocumentElement();
-      clt = BQParser.clientFromXML(root);
+      clt = parser.clientFromXML(root);
       if (clt != null) {
         assertEquals(ClientType.COMPANY, clt.type);
         assertEquals((long) 94643, (long) clt.id);
@@ -532,7 +535,7 @@ public class AppTest
       is = new InputSource(new StringReader(xmlBank));
       xmlDoc = builder.parse(is);
       root = xmlDoc.getDocumentElement();
-      clt = BQParser.clientFromXML(root);
+      clt = parser.clientFromXML(root);
       if (clt != null) {
         assertEquals(ClientType.BANK, clt.type);
         assertEquals((long) 437864, (long) clt.id);
@@ -567,11 +570,12 @@ public class AppTest
       InputSource is = new InputSource(new StringReader(xmlAccount));
       Document xmlDoc = builder.parse(is);
       Node root = xmlDoc.getDocumentElement();
-      Account acc = BQParser.accountFromXML(root);
+      BQParser parser = new BQParser();
+      Account acc = parser.accountFromXML(root);
       if (acc != null) {
         assertEquals("40817810800000000009", acc.account);
         assertEquals("Dorohoff Ivan Petrovitch", acc.details);
-        assertEquals((long) 42601L, (long) acc.clientId);
+        assertEquals(42601L, (long) acc.clientId);
         assertEquals(ClientType.PERSON, acc.clientType);
         assertEquals("2020-01-01", acc.openDate);
         assertEquals("2120-01-01", acc.closeDate);

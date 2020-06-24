@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class SWIFTParser {
+class SWIFTParser extends Parser {
 
   String[] expectedFields; // List of expected SWIFT fields {"20", "32A" etc}, fills in inherit constructor
 

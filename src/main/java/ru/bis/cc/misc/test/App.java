@@ -42,7 +42,7 @@ public class App {
     options.addOption("d", "date", true, "Change date in transformed documents [YYYY-MM-DD] (for \"transform\" action only).");
     options.addOption("c", "codepage", true, "Code page for output XML files [\"windows-1251\" or \"utf-8\"] (for \"transform\" action only).");
     options.addOption("r", "reverse", false, "Output incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
-    options.addOption("s", "static", false, "Load static data (clients, accounts) from specified directory.");
+    options.addOption("s", "static", true, "Load static data (clients, accounts) from specified directory.");
 
     // Command line options
     String cmdAction = null;
@@ -91,6 +91,13 @@ public class App {
     ProcessorFabric fab = new ProcessorFabric();
 
     if (cmdAction != null) {
+
+      if (staticPath != null) {
+        BQProcessor bqProc = (BQProcessor) fab.getProcessor(FileType.BQ);
+        if (bqProc != null) {
+          bqProc.readAllStatic(staticPath);
+        }
+      }
 
       if (cmdAction.equalsIgnoreCase("compare")) {
         if (inPath != null) {

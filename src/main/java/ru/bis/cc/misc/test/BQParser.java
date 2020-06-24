@@ -10,7 +10,7 @@ class BQParser extends XMLParser {
    * @param node - XML node with one document doc
    * @return  FDocument - financial document
    */
-  static FDocument fromXML(Node node) {
+  FDocument fromXML(Node node) {
 
     FDocument doc = new FDocument();
 
@@ -180,7 +180,7 @@ class BQParser extends XMLParser {
    * @param doc - document
    * @return string with XML node <doc>
    */
-  static String toString(FDocument doc) {
+  String toString(FDocument doc) {
 
     StringBuilder str = new StringBuilder();
 
@@ -290,7 +290,7 @@ class BQParser extends XMLParser {
    * @param node - XML node with one client (person, cust-corp or bank)
    * @return  Client object
    */
-  static Client clientFromXML(Node node) {
+  Client clientFromXML(Node node) {
 
     if (node.getNodeType() != Node.TEXT_NODE) {
 
@@ -366,7 +366,7 @@ class BQParser extends XMLParser {
    * @param node - XML node with one account (acct)
    * @return  Account object
    */
-  static Account accountFromXML(Node node) {
+  Account accountFromXML(Node node) {
 
     if (node.getNodeType() != Node.TEXT_NODE) {
 
@@ -428,7 +428,7 @@ class BQParser extends XMLParser {
    * @param type - client type
    * @return - unique identifier
    */
-  private static Long getClientIdForType(Long sourceId, ClientType type) {
+  private Long getClientIdForType(Long sourceId, ClientType type) {
     Long id = sourceId * 10;
     if (type == ClientType.PERSON) id += 1;
     else if (type == ClientType.SELF_EMPLOYED) id += 2;

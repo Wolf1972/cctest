@@ -6,10 +6,30 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class MT940Processor extends SWIFTProcessor {
+class MT940Processor extends SWIFTProcessor {
+
+  MT940Parser parser = new MT940Parser();
 
   MT940Processor() {
     logger = LogManager.getLogger(MT940Processor.class);
+  }
+
+  @Override
+  void readAll(String inPath, FDocumentArray fDocs) {
+    logger.info("1001: MT940 files reading.");
+    super.readAll(inPath, fDocs);
+  }
+
+  @Override
+  void createAll(String outPath, FDocumentArray fDocs) {
+    logger.info("1005: MT940 files creating.");
+    logger.error("1006: There is no MT940 file creating procedure.");
+  }
+
+  @Override
+  void checkAll(String inqPath, String xsdPath) {
+    logger.info("1010: MT940 files checking.");
+    logger.error("1011: There is no MT940 file checking procedure.");
   }
 
   /**
@@ -21,9 +41,7 @@ public class MT940Processor extends SWIFTProcessor {
    */
   boolean readFile(String fileName, FDocumentArray fDocs) {
     int msgCount = 0;
-
-    MT940Parser parser = new MT940Parser();
-
+    logger.trace("1015: MT940 file read: " + fileName);
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));
       String line;
@@ -52,10 +70,10 @@ public class MT940Processor extends SWIFTProcessor {
       }
     }
     catch (IOException e) {
-      logger.error("1005: Error while file read: " + fileName);
+      logger.error("1016: Error while file read: " + fileName);
       return false;
     }
-    logger.info("1006: Opearions read: " + msgCount);
+    logger.info("1017: Operations read: " + msgCount);
     return true;
   }
 

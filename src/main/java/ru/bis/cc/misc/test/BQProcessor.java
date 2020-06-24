@@ -10,14 +10,20 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import static java.nio.file.Files.isRegularFile;
+import static java.nio.file.Files.newDirectoryStream;
 import static ru.bis.cc.misc.test.App.accounts;
 import static ru.bis.cc.misc.test.App.clients;
 
 class BQProcessor extends XMLProcessor {
+
+  BQParser parser = new BQParser();
 
   BQProcessor() {
     logger = LogManager.getLogger(BQProcessor.class);
@@ -34,6 +40,7 @@ class BQProcessor extends XMLProcessor {
   boolean readFile(String fileName, FDocumentArray docs) {
     try {
 
+      logger.trace("0100: BQ documents file reading: " + fileName);
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
       Document document = documentBuilder.parse(fileName);
 
@@ -47,7 +54,7 @@ class BQProcessor extends XMLProcessor {
           if (ed.getNodeType() != Node.TEXT_NODE) {
             String nodeName = ed.getNodeName();
             if (nodeName.equals("doc")) {
-              FDocument doc = BQParser.fromXML(ed);
+              FDocument doc = parser.fromXML(ed);
               docs.add(doc);
             }
             else {
@@ -74,19 +81,23 @@ class BQProcessor extends XMLProcessor {
 
   @Override
   void checkAll(String inqPath, String xsdPath) {
-    logger.error("0105: There is no XSD scheme for BQ format.");
+    logger.info("0105: BQ files checking.");
+    logger.error("0106: There is no XSD scheme for BQ format.");
   }
 
-  @Override
+
   /**
    * Creates BQ files for all specified documents array
    *
    * @param outPath = path for create BQ files
    * @param docs   - documents array reference
    */
+  @Override
   void createAll(String outPath, FDocumentArray docs) {
+
+    logger.info("0110: BQ files creating.");
     if (!Files.isDirectory(Paths.get(outPath))) {
-      logger.error("0110: Error access output directory " + outPath);
+      logger.error("0111: Error access output directory " + outPath);
       return;
     }
     try {
@@ -95,31 +106,57 @@ class BQProcessor extends XMLProcessor {
       OutputStream osp = new FileOutputStream(outFile);
       BufferedWriter bqWriter = new BufferedWriter(new OutputStreamWriter(osp, getCodePage()));
 
-      StringBuilder str = new StringBuilder();
-      str.append(getProlog()); str.append(System.lineSeparator());
-      str.append("<docs ");
-      str.append(" filial-id=\"0001\"");
-      str.append(" eod=\""); str.append(docs.getDate()); str.append("\"");
-      str.append(" ver-format=\"1.0.0\"");
-      str.append(" xmlns=\"http://www.bis.ru/XCNG/BQ\">");
-      bqWriter.write(str.toString() + System.lineSeparator());
+      String str = getProlog() + System.lineSeparator() +
+              "<docs filial-id=\"0001\" eod=\"" + docs.getDate() + "\"" +
+              " ver-format=\"1.0.0\"" +
+              " xmlns=\"http://www.bis.ru/XCNG/BQ\">" + System.lineSeparator();
+      bqWriter.write(str);
       for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
         FDocument doc = item.getValue();
-        String one = BQParser.toString(doc) + System.lineSeparator();
+        String one = parser.toString(doc) + System.lineSeparator();
         bqWriter.write(one);
       }
       bqWriter.write("</docs>" + System.lineSeparator());
       bqWriter.close();
     }
     catch (IOException e) {
-      logger.error("0111: Error write output file with BQ.");
+      logger.error("0112: Error write output file with BQ.");
     }
-    logger.info("0112: Output BQ files created.");
+    logger.info("0113: Output BQ files created.");
   }
 
-  boolean readStaticFile(String fileName) {
+  /** Function reads all files with static data from BQ
+   *
+   * @param inPath - directory with static data
+   */
+  void readAllStatic(String inPath) {
+
+    int filesCount = 0;
+    int filesError = 0;
+
+    logger.info("0130: BQ static files reading.");
+    try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
+      for (Path path : directoryStream) {
+        if (isRegularFile(path)) {
+          filesCount++;
+          String fileName = path.getFileName().toString();
+          if (!readStaticFile(inPath + fileName)) filesError++;
+        }
+      }
+    }
+    catch (IOException e) {
+      logger.error("0131: Error while file system access: " + inPath);
+      filesError++;
+    }
+    logger.info("0132: XML files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0133: Clients added: " + clients.items.size());
+    logger.info("0134: Accounts added: " + accounts.items.size());
+  }
+
+  private boolean readStaticFile(String fileName) {
     try {
 
+      logger.trace("0120: Static file reading: " + fileName);
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
       Document document = documentBuilder.parse(fileName);
 
@@ -133,29 +170,29 @@ class BQProcessor extends XMLProcessor {
           if (clientNode.getNodeType() != Node.TEXT_NODE) {
             String nodeName = clientNode.getNodeName();
             if ("person,cust-priv,cust-corp,bank".contains(nodeName)) {
-              Client clt = BQParser.clientFromXML(clientNode);
+              Client clt = parser.clientFromXML(clientNode);
               if (clt != null) clients.items.put(clt.id, clt);
             }
             else {
-              logger.error("0101: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+              logger.error("0125: Clients static file " + fileName + ", element no " + i + " contains unknown element: " + nodeName);
               return false;
             }
           }
         }
         return true;
       }
-      else if (rootNodeName.equals("accts")) {
+      else if (rootNodeName.equals("accounts")) {
         NodeList accountsNode = root.getChildNodes();
         for (int i = 0; i < accountsNode.getLength(); i++) {
           Node accountNode = accountsNode.item(i);
           if (accountNode.getNodeType() != Node.TEXT_NODE) {
             String nodeName = accountNode.getNodeName();
             if (nodeName.equals("acct")) {
-              Account acc = BQParser.accountFromXML(accountNode);
+              Account acc = parser.accountFromXML(accountNode);
               if (acc != null) accounts.items.put(acc.account, acc);
             }
             else {
-              logger.error("0101: File " + fileName + ", element " + i + " contains unknown element: " + nodeName);
+              logger.error("0126: Accounts static file " + fileName + ", element no " + i + " contains unknown element: " + nodeName);
               return false;
             }
           }
@@ -164,15 +201,15 @@ class BQProcessor extends XMLProcessor {
 
       }
       else {
-        logger.error("0102: File " + fileName + " contains unknown root element: " + rootNodeName);
+        logger.error("0127: Static file " + fileName + " contains unknown root element: " + rootNodeName);
       }
       return false;
     }
     catch (ParserConfigurationException | SAXException e) {
-      logger.error("0103: Error parsing file " + fileName, e);
+      logger.error("0128: Error parsing static file " + fileName, e);
     }
     catch (IOException e) {
-      logger.error("0104. Error while file access: " + fileName);
+      logger.error("0129. Error while static file access: " + fileName);
     }
     return false;
   }

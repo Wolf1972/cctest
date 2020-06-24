@@ -10,7 +10,7 @@ class UFEBSParser extends XMLParser {
    * @param node - XML node with one document (ED1xx) or packet (PacketED)
    * @return  FDocument - financial document
    */
-  static FDocument fromXML(Node node) {
+  FDocument fromXML(Node node) {
 
     FDocument doc = new FDocument();
 
@@ -147,7 +147,7 @@ class UFEBSParser extends XMLParser {
    * @param doc - document
    * @return string with XML node ED1xx
    */
-  static String toString(FDocument doc) {
+  String toString(FDocument doc) {
     StringBuilder str = new StringBuilder();
 
     String rootNodeName; // UFEBS message type
@@ -234,7 +234,8 @@ class UFEBSParser extends XMLParser {
    * @param doc - document
    * @return string with XML node ED206
    */
-  static String toConfirmation(FDocument doc) {
+  String toConfirmation(FDocument doc) {
+
     StringBuilder str = new StringBuilder();
     boolean isReverse = !doc.payerBankBIC.equals(Constants.ourBankBIC);
 
@@ -285,7 +286,7 @@ class UFEBSParser extends XMLParser {
    * @param doc - document
    * @return string with XML node ED211/TransInfo
    */
-  static String toStatement(FDocument doc) {
+  String toStatement(FDocument doc) {
     StringBuilder str = new StringBuilder();
     boolean isReverse = !doc.payerBankBIC.equals(Constants.ourBankBIC);
 
