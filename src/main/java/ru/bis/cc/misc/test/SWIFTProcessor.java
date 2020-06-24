@@ -33,8 +33,6 @@ class SWIFTProcessor extends AProcessor {
             logger.error("0401: File " + fileName + " is not a SWIFT file.");
             filesError++;
           }
-
-          logger.info("0402: Processing file: " + inPath + fileName);
         }
       }
     } catch (IOException e) {

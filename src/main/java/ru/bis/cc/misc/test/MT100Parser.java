@@ -1,10 +1,8 @@
 package ru.bis.cc.misc.test;
 
-import java.util.regex.Pattern;
-
 class MT100Parser extends SWIFTParser {
 
-  public MT100Parser() {
+  MT100Parser() {
     super();
     expectedFields = new String[]{"20", "32A", "50", "52D", "59", "70", "72"};
   }
@@ -121,11 +119,8 @@ class MT100Parser extends SWIFTParser {
 
     // Build tax attributes string It has to be add to payment purpose
     StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into MT103 - it difference with document purpose (contains tax attributes)
-    locPurpose.append(doc.getTaxAttrs());
-    locPurpose.append(doc.purpose.replace("{", "((").replace("}", "))")); // Replace "{" and "}" to "((" and "))"
-    if (doc.UIN != null) {
-      locPurpose.append("УИН"); locPurpose.append(doc.UIN); locPurpose.append("///");
-    }
+    locPurpose.append(doc.buildPurpose(true));
+
     // In MT103 payment purpose divides between 70 and 72 fields
     str.append("70:");
     iPos = 0;

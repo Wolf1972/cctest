@@ -1,5 +1,7 @@
 package ru.bis.cc.misc.test;
 
+import java.util.StringTokenizer;
+
 public class FDocument {
 
   // Financial document attributes, access from another classes is free - I don't want to create too many getters/setters
@@ -56,10 +58,12 @@ public class FDocument {
     isTax = false;
     docNum = "0";
     docDate = "1901-01-01";
+    amount = 0L;
+    purpose = "";
   }
 
   Long getId() {
-    return Long.parseLong(docNum); // Document ID, takes from document number
+    return Long.parseLong(docNum.replace(" ", "")); // Document ID, takes from document number
   }
 
   @Override
@@ -87,12 +91,24 @@ public class FDocument {
     return str;
   }
 
-  /** Function assembles tax attfibutes string
-   *
-   * @return string with tax attributes, separated by "/" or "\"
+  /** Function assembles purpose with tax attfibutes string and key words
+   * @param isUINInclude - include UIN to purpose (is not suite for FT14)
+   * @return purpose string with tax attributes, separated by "/" or "\" and key words
    */
-  String getTaxAttrs() {
-    StringBuilder taxStr = new StringBuilder();
+  String buildPurpose(boolean isUINInclude) {
+
+    StringBuilder target = new StringBuilder();
+
+    String source = purpose.replace("{", "((").replace("}", "))"); // Replace "{" and "}" to "((" and "))"
+
+    int posVO = -1;
+    if (source.startsWith("((")) { // Code VO in "(( ))" must be first
+      posVO = source.indexOf("))");
+      if (posVO >= 0) {
+        target.append(source,0, posVO + "))".length());
+      }
+    }
+
     if (isTax) {
       // First of all: we have to determine - which separator we are going to use - "/" or "\"
       char sepChar = '/';
@@ -101,21 +117,91 @@ public class FDocument {
         int posAltChar = purpose.indexOf('\\');
         if (posAltChar < 0 || posSepChar > posAltChar) sepChar = '\\';
       }
-      taxStr.append(sepChar); taxStr.append(sepChar);
-      if (payerCPP != null) taxStr.append(payerCPP); // 102
-      taxStr.append(sepChar); if (taxStatus != null) taxStr.append(taxStatus); // 101
-      taxStr.append(sepChar); if (CBC != null) taxStr.append(CBC); // 104
-      taxStr.append(sepChar); if (OCATO != null) taxStr.append(OCATO);
-      taxStr.append(sepChar); if (taxPaytReason != null) taxStr.append(taxPaytReason);
-      taxStr.append(sepChar); if (taxPeriod != null) taxStr.append(taxPeriod);
-      taxStr.append(sepChar); if (taxDocNum != null) taxStr.append(taxDocNum);
-      taxStr.append(sepChar); if (taxDocDate != null) taxStr.append(taxDocDate); // 109
+      target.append(sepChar); target.append(sepChar);
+      if (payerCPP != null) target.append(payerCPP); // 102
+      target.append(sepChar); if (taxStatus != null) target.append(taxStatus); // 101
+      target.append(sepChar); if (CBC != null) target.append(CBC); // 104
+      target.append(sepChar); if (OCATO != null) target.append(OCATO);
+      target.append(sepChar); if (taxPaytReason != null) target.append(taxPaytReason);
+      target.append(sepChar); if (taxPeriod != null) target.append(taxPeriod);
+      target.append(sepChar); if (taxDocNum != null) target.append(taxDocNum);
+      target.append(sepChar); if (taxDocDate != null) target.append(taxDocDate); // 109
       if (taxPaytKind != null) { // 110 - may be miss
-        taxStr.append(sepChar); taxStr.append(taxPaytKind);
+        target.append(sepChar); target.append(taxPaytKind);
       }
-      taxStr.append(sepChar);
+      target.append(sepChar);
     }
-    return taxStr.toString();
+
+    if (posVO >= 0) {
+      target.append(source.substring(posVO + "))".length()));
+    }
+    else {
+      target.append(source);
+    }
+
+    // UIN has special position in FT14, so do not need to place it into a purpose
+    if (isUINInclude) {
+      if (UIN != null) {
+        if (UIN.length() > 0) { target.append("УИН"); target.append(UIN); target.append("///"); }
+      }
+    }
+
+    return target.toString();
+  }
+
+  /** Function fills tax attributes from purpose and sets clear purpose
+   *
+   * @param source - source purpose (with tax attributes and key words)
+   */
+  void parsePurpose(String source) {
+
+    if (source.length() > 0) {
+      // Try to extract tax attributes
+      int posStart = 0;
+      if (source.substring(0, 2).equals("((")) { // purpose contains VO code - it places before tax attributes
+        posStart = source.indexOf("))");
+        if (posStart >= 0) posStart += 2;
+        else posStart = 0;
+      }
+      String taxAttrBegin = source.substring(posStart, posStart + 2);
+      int taxAttrLen = 0;
+      if (taxAttrBegin.equals("//") || taxAttrBegin.equals("\\\\")) {
+        String taxAttrSeparator = taxAttrBegin.substring(0, 1);
+        StringTokenizer tokenizer = new StringTokenizer(source.substring(posStart + 2), taxAttrSeparator);
+        int i = 0;
+        taxAttrLen = 2;
+        isTax = true;
+        while (tokenizer.hasMoreTokens() && i < 9) {
+          String token = tokenizer.nextToken();
+          if (i == 0) payerCPP = token;
+          if (i == 1) taxStatus = token;
+          if (i == 2) CBC = token;
+          if (i == 3) OCATO = token;
+          if (i == 4) taxPaytReason = token;
+          if (i == 5) taxPeriod = token;
+          if (i == 6) taxDocNum = token;
+          if (i == 7) taxDocDate = token;
+          if (i == 8) if (token.length() <= 1) taxPaytKind = token;
+          else break; // Field 110 may not be specified and final separated may be missed
+          i++;
+          taxAttrLen += token.length() + 1;
+        }
+      }
+      if (taxAttrLen == 0) purpose = source;
+      else
+        purpose = source.substring(0, posStart) + source.substring(posStart + taxAttrLen);
+
+      // Try to extract UIN
+      posStart = purpose.indexOf("УИН");
+      if (posStart < 0) posStart = purpose.indexOf("UIN");
+      if (posStart >= 0) {
+        int posEnd = purpose.indexOf("///", posStart);
+        if (posEnd >= 0) {
+          UIN = purpose.substring(posStart + 3, posEnd);
+          purpose = purpose.substring(0, posStart) + purpose.substring(posEnd + 3);
+        }
+      }
+    }
   }
 
   /** Compares current object with other

@@ -126,11 +126,8 @@ class MT103Parser extends SWIFTParser {
 
     // Build tax attributes string It has to be add to payment purpose
     StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into MT103 - it difference with document purpose (contains tax attributes)
-    locPurpose.append(doc.getTaxAttrs());
-    locPurpose.append(doc.purpose.replace("{", "((").replace("}", "))")); // Replace "{" and "}" to "((" and "))"
-    if (doc.UIN != null) {
-      locPurpose.append("УИН"); locPurpose.append(doc.UIN); locPurpose.append("///");
-    }
+    locPurpose.append(doc.buildPurpose(true));
+
     // In MT103 payment purpose divides between 70 and 72 fields
     str.append(":70:");
     iPos = 0;

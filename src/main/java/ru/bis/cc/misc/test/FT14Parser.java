@@ -14,8 +14,7 @@ class FT14Parser extends Parser {
 
     // Build tax attributes string It has to be add to payment purpose
     StringBuilder locPurpose = new StringBuilder(); // Payment purpose that saves into FT14 - it differences with document purpose (contains tax attributes)
-    locPurpose.append(doc.getTaxAttrs());
-    locPurpose.append(doc.purpose);
+    locPurpose.append(doc.buildPurpose(false));
 
     if (doc.isUrgent) // CLMOS or RTMOS - ordinary or urgent payment
       str.append("RTMOS");
@@ -26,7 +25,7 @@ class FT14Parser extends Parser {
     str.append("PA"); // Type of payment: PA or RE
     str.append("00910280"); // Sequence (constant part of reference)
     str.append("  ");
-    str.append(doc.edDate.replace("-", "")); // EDDate as reference date
+    str.append(doc.edDate.replace("-", "")); // EDDate as reference date (from XML date)
     str.append(" ");
     str.append(String.format("%5s", doc.getId())); // index in documents array as reference variable part
     str.append(String.format("%" + String.format("%d", 111 - str.length() - 1) + "s", " ")); // 111 - absolute pos for amount
@@ -70,5 +69,65 @@ class FT14Parser extends Parser {
     }
 
     return str.toString();
+  }
+
+  /** Loads document from FT14 string
+   *
+   * @param str = FT14 string
+   * @return financial document
+   */
+  FDocument fromString(String str) {
+
+    FDocument doc = new FDocument();
+
+    doc.isUrgent = (str.substring(0, 2).equals("RT")); // RT* - urgent, CL* and others - ordinary payment
+    doc.docNum = str.substring(29, 34).replace(" ", "");
+    doc.docDate = Helper.getXMLDate(str.substring(20, 20 + 8));
+    doc.referenceFT14 = str.substring(8, 19) + String.format("%5s", doc.docNum).replace(" ", "0");
+    doc.amount = Long.parseLong(str.substring(115, 115 + 18)) / 1000;
+
+    StringBuilder locPurpose = new StringBuilder(str.substring(2124, Math.min(2124 + 140, str.length())));
+    if (str.substring(8, 10).equals("RE"))
+      locPurpose.append(str, 1392, 1392 + 70);
+    else
+      locPurpose.append(str, 1365, 1365 + 98);
+    doc.parsePurpose(locPurpose.toString()); // Fills purpose, tax attributes and attributes with key words
+    System.out.println(doc.purpose);
+/*
+    String UIN;
+    String priority;
+    String chargeOffDate; // YYYY-MM-DD
+    String receiptDate;   // YYYY-MM-DD
+    String transKind;
+
+    String payerName;
+    String payerAccount;
+    String payerINN;
+    String payerCPP;
+
+    String payerBankName;
+    String payerBankBIC;
+    String payerBankAccount;
+
+    String payeeName;
+    String payeeAccount;
+    String payeeINN;
+    String payeeCPP;
+
+    String payeeBankName;
+    String payeeBankBIC;
+    String payeeBankAccount;
+
+    boolean isTax;
+    String taxStatus; // 101
+    String CBC; // 104
+    String OCATO; // 105
+    String taxPaytReason; // 106
+    String taxPeriod; // 107
+    String taxDocNum; // 108
+    String taxDocDate; // 109
+    String taxPaytKind; // 110
+*/
+    return doc;
   }
 }

@@ -5,9 +5,14 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+
+import static java.nio.file.Files.isRegularFile;
+import static java.nio.file.Files.newDirectoryStream;
 
 /** Class for FT14 proceessing
  *
@@ -23,12 +28,54 @@ class FT14Processor extends AProcessor {
   @Override
   void readAll(String inPath, FDocumentArray fDocs) {
     logger.info("0200: FT14 files reading.");
-    logger.error("0201: There is no method for FT14 read.");
+    int filesCount = 0;
+    int filesError = 0;
+
+    try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
+      for (Path path : directoryStream) {
+        filesCount++;
+        if (isRegularFile(path)) {
+          String fileName = path.getFileName().toString();
+          ProcessorFabric fab = new ProcessorFabric();
+          if (fab.fileType(inPath + fileName) == FileType.FT14) {
+            if (!readFile(inPath + fileName, fDocs)) filesError++;
+          }
+          else {
+            logger.error("0201: File " + fileName + " is not a FT14 file.");
+            filesError++;
+          }
+        }
+      }
+    }
+    catch (IOException e) {
+      logger.error("0203: Error while file system access: " + inPath);
+      filesError++;
+    }
+    logger.info("0204: Files processed: " + filesCount + ", errors: " + filesError);
+    logger.info("0204: Documents added: " + fDocs.docs.size());
   }
 
   @Override
   boolean readFile(String fileName, FDocumentArray fDocs) {
-    return false;
+    int msgCount = 0;
+    try {
+      FileInputStream input = new FileInputStream(fileName);
+      InputStreamReader reader = new InputStreamReader(input, "ISO-8859-5");
+      BufferedReader handler = new BufferedReader(reader);
+      String line;
+      while ((line = handler.readLine()) != null) {
+        FDocument doc = parser.fromString(line);
+        if (doc != null) fDocs.add(doc);
+        msgCount++;
+      }
+      input.close();
+    }
+    catch (IOException e) {
+      logger.error("0205: Error while file read: " + fileName);
+      return false;
+    }
+    logger.info("0206: Strings read: " + msgCount);
+    return true;
   }
 
   /**

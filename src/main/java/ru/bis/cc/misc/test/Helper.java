@@ -40,7 +40,7 @@ class Helper {
     return XMLDate.substring(2, 4) + XMLDate.substring(5, 7) + XMLDate.substring(8, 10);
   }
 
-  /** Function returns date in UFEBS format (YYYY-MM-DD) from date in SWIFT format (YYMMDD)
+  /** Function returns date in UFEBS format (YYYY-MM-DD) from date in SWIFT format (YYMMDD) or date in FT14 format (YYYYMMDD)
    *
    * @param SWIFTDate = SWIFT date string (YYMMDD)
    * @return string with date in XML format (YYYY-MM-DD)
@@ -48,7 +48,11 @@ class Helper {
   static String getXMLDate(String SWIFTDate) {
     if (SWIFTDate == null) return "";
     if (SWIFTDate.length() < 6) return "";
-    return "20" + SWIFTDate.substring(0, 2) + "-" + SWIFTDate.substring(2, 4) + "-" + SWIFTDate.substring(4, 6);
+    if (SWIFTDate.length() == 8) {
+      return SWIFTDate.substring(0, 4) + "-" + SWIFTDate.substring(4, 6) + "-" + SWIFTDate.substring(6);
+    }
+    else
+      return "20" + SWIFTDate.substring(0, 2) + "-" + SWIFTDate.substring(2, 4) + "-" + SWIFTDate.substring(4, 6);
   }
 
   /** Function returns long from float string (with any separator = ",", "."
@@ -62,8 +66,7 @@ class Helper {
     if (pos < 0) amtFloat += "00";
     else if (amtFloat.substring(pos + 1).length() == 1)
       amtFloat += "0"; // 123.5 = 123.50
-    Long ret = Long.parseLong(amtFloat.replace(".", "").replace(",", ""));
-    return ret;
+    return Long.parseLong(amtFloat.replace(".", "").replace(",", ""));
   }
 
 }

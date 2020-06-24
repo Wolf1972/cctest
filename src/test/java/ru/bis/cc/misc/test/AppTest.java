@@ -617,6 +617,30 @@ public class AppTest
     assertEquals("?xml", FileType.UNKNOWN, fab.fileType(patternPath + "unknown.xml"));
   }
 
+  @Test
+  public void buildPurposeTest() {
+    FDocument doc = new FDocument();
+    doc.purpose = "{VO12345}Purpose";
+    doc.UIN = "1234567890";
+    String target = doc.buildPurpose(true);
+    assertEquals("((VO12345))PurposeУИН1234567890///", target);
+
+    doc.purpose = "Purpose";
+    doc.UIN = "";
+    target = doc.buildPurpose(true);
+    assertEquals("Purpose", target);
+  }
+
+  @Test
+  public void parsePurposeTest() {
+    FDocument doc = new FDocument();
+
+    String source = "((VO12345))PurposeУИН1234567890///";
+    doc.parsePurpose(source);
+    assertEquals("((VO12345))Purpose", doc.purpose);
+    assertEquals("1234567890", doc.UIN);
+  }
+
   /** Integrity test - test functionality at all
    *
    */
