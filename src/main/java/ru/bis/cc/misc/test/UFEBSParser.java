@@ -209,7 +209,7 @@ class UFEBSParser extends XMLParser {
     str.append("/>");
     str.append("</Payee>");
 
-    str.append("<Purpose>"); str.append(replace4Elem(doc.purpose)); str.append("</Purpose>");
+    str.append("<Purpose>"); str.append(replace4Elem(doc.purpose.substring(0, Math.min(doc.purpose.length(),210)))); str.append("</Purpose>");
 
     if (doc.isTax) {
       str.append("<DepartmentalInfo ");
@@ -294,8 +294,19 @@ class UFEBSParser extends XMLParser {
     str.append(" AccDocNo=\""); str.append(doc.docNum); str.append("\"");
     str.append(" TransKind=\""); str.append(doc.transKind); str.append("\"");
     str.append(" BICCorr=\""); str.append(doc.payerBankBIC); str.append("\"");
-    str.append(" PayerPersonalAcc=\""); str.append(doc.payerAccount); str.append("\"");
-    str.append(" PayeePersonalAcc=\""); str.append(doc.payeeAccount); str.append("\"");
+    str.append(" PayerPersonalAcc=\"");
+    if (doc.payerAccount != null) {
+      str.append(doc.payerAccount);
+    }
+    else {
+      str.append("40702810100000000001");
+    }
+    str.append("\"");
+    if (doc.payeeAccount != null) {
+      str.append(" PayeePersonalAcc=\"");
+      str.append(doc.payeeAccount);
+      str.append("\"");
+    }
     str.append(" Sum=\""); str.append(doc.amount); str.append("\"");
     str.append(" DC=\""); str.append(isReverse ? "1": "2"); str.append("\"");
     str.append(" TurnoverKind=\"1\"");
