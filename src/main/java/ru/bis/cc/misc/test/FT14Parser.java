@@ -43,7 +43,7 @@ class FT14Parser extends Parser {
     str.append(String.format("%-140s", doc.payerName));
     str.append(String.format("%" + String.format("%d", 1365 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for PA-payments)
     if (locPurpose.length() > 140) str.append(locPurpose.substring(140, Math.min(locPurpose.length(), 140 + 93)));
-//    str.append(String.format("%" + String.format("%d", 1393 - str.length() - 1) + "s", " ")); // 1365 - absolute pos for purpose (2 nd part for RE-payments)
+//    str.append(String.format("%" + String.format("%d", 1393 - str.length() - 1) + "s", " ")); // 1393 - absolute pos for purpose (2 nd part for RE-payments)
 //    if (locPurpose.length() > 140) str.append(locPurpose.substring(140, Math.min(locPurpose.length(), 140 + 70)));
     str.append(String.format("%" + String.format("%d", 1565 - str.length() - 1) + "s", " ")); // 1565 - absolute pos for payeeBankAccount
     if (doc.payeeBankAccount != null) str.append(String.format("%20s", doc.payeeBankAccount));
@@ -60,11 +60,8 @@ class FT14Parser extends Parser {
     str.append(String.format("%" + String.format("%d", 1828 - str.length() - 1) + "s", " ")); // 1828 - absolute pos for payeeName
     str.append(String.format("%-140s", doc.payeeName));
     str.append(String.format("%" + String.format("%d", 2125 - str.length() - 1) + "s", " ")); // 2125 - absolute pos for purpose (1st part)
-    str.append(locPurpose.substring(0, Math.min(locPurpose.length(), 140)));
+    str.append(String.format("%-140s", locPurpose.substring(0, Math.min(locPurpose.length(), 140))));
     if (doc.UIN != null) {
-      if (2265 - str.length() - 1 > 0) { // this field begins just after previous, so "%s0" - results runtime error
-        str.append(String.format("%" + String.format("%d", 2265 - str.length() - 1) + "s", " ")); // 2265 - absolute pos for UIN
-      }
       str.append("/ROC/"); str.append(doc.UIN);
     }
 
@@ -86,6 +83,7 @@ class FT14Parser extends Parser {
     doc.referenceFT14 = str.substring(8, 19) + String.format("%5s", doc.docNum).replace(" ", "0");
     doc.amount = Long.parseLong(str.substring(115, 115 + 18)) / 1000;
 
+    // Payment purpose depends on "RE" or "PA" string begins
     StringBuilder locPurpose = new StringBuilder(str.substring(2124, Math.min(2124 + 140, str.length())));
     if (str.substring(8, 10).equals("RE"))
       locPurpose.append(str, 1392, 1392 + 70);
