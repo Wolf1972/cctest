@@ -8,7 +8,7 @@ class XMLParser extends Parser {
    * @return - XML string with masked ",', >, < symbols
    */
   String replace4Elem(String input) {
-    return input.replace(">", "&gt;").replace("<", "&lt;");
+    return (input != null? input.replace(">", "&gt;").replace("<", "&lt;"): "");
   }
   /** String returns string with macro &amp; &gt; &lt; &quot; for use in attribute content
    *

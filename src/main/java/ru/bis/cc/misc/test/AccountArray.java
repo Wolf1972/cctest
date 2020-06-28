@@ -13,4 +13,13 @@ class AccountArray {
     logger = LogManager.getLogger(ClientArray.class);
   }
 
+  Account getAccount(String accNo) {
+    for (String acc : items.keySet()) {
+      if (acc.equals(accNo)) {
+        return items.get(acc);
+      }
+    }
+    return null;
+  }
+
 }

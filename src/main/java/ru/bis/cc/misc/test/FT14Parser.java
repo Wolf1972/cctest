@@ -78,41 +78,92 @@ class FT14Parser extends Parser {
     FDocument doc = new FDocument();
 
     doc.isUrgent = (str.substring(0, 2).equals("RT")); // RT* - urgent, CL* and others - ordinary payment
-    doc.docNum = str.substring(29, 34).replace(" ", "");
-    doc.docDate = Helper.getXMLDate(str.substring(20, 20 + 8));
-    doc.referenceFT14 = str.substring(8, 19) + String.format("%5s", doc.docNum).replace(" ", "0");
-    doc.amount = Long.parseLong(str.substring(115, 115 + 18)) / 1000;
+    doc.docNum = str.substring(30 - 1, 30 - 1 + 5).replace(" ", "");
+    doc.docDate = Helper.getXMLDate(str.substring(337 - 1, 337 - 1 + 8));
+    doc.referenceFT14 = str.substring(9 - 1, 9 - 1 + 10) + String.format("%5s", doc.docNum).replace(" ", "0");
+    doc.amount = Long.parseLong(str.substring(116 - 1, 116 - 1 + 18)) / 1000;
 
     // Payment purpose depends on "RE" or "PA" string begins
-    StringBuilder locPurpose = new StringBuilder(str.substring(2124, Math.min(2124 + 140, str.length())));
-    if (str.substring(8, 10).equals("RE"))
-      locPurpose.append(str, 1392, 1392 + 70);
+    StringBuilder locPurpose = new StringBuilder(str.substring(2125 - 1, Math.min(2125 - 1 + 140, str.length())));
+    if (doc.referenceFT14.substring(0, 2).equals("RE"))
+      locPurpose.append(str, 1393 - 1, 1393 - 1 + 70);
     else
-      locPurpose.append(str, 1365, 1365 + 98);
-    doc.parsePurpose(locPurpose.toString()); // Fills purpose, tax attributes and attributes with key words
-    System.out.println(doc.purpose);
+      locPurpose.append(str, 1365 - 1, 1365 - 1 + 98);
+    doc.parsePurpose(locPurpose.toString().trim()); // Fills purpose, tax attributes and attributes with key words
+
+    // UIN may be follow by special key word "/ROC/"
+    String keyWordForUIN = "/ROC/";
+    if (str.length() > 2265 - 1 + keyWordForUIN.length()) {
+      if (str.substring(2265 - 1, 2265 - 1 + keyWordForUIN.length()).equals(keyWordForUIN))
+        doc.UIN = str.substring(2265 - 1 + keyWordForUIN.length());
+    }
+
+    doc.priority = String.format("%d", Long.parseLong(str.substring(485 - 1, 485 - 1 + 2)));
+    doc.chargeOffDate = doc.edDate;
+
+    if (str.length() >= 1663 - 1 + 3) {
+      if (str.substring(1663 - 1, 1663 - 1 + 1).equals("*")) {
+        doc.transKind = String.format("%d", Long.parseLong(str.substring(1663 - 1 + 1, 1663 - 1 + 3)));
+      }
+      else
+        doc.transKind = "1";
+    }
+
+    // Try to substitute payer information
+    boolean isBankPayer = false;
+    doc.payerAccount = str.substring(381 - 1, 381 - 1 + 20);
+    Account acc = App.accounts.getAccount(doc.payerAccount);
+    if (acc != null) {
+      if (acc.isInternal) {
+        isBankPayer = true;
+      }
+      else {
+        Client clt = App.clients.items.get(acc.clientId);
+        if (clt != null) {
+          if (clt.type == ClientType.PERSON || clt.type == ClientType.SELF_EMPLOYED) {
+            doc.payerName = clt.lastName + (clt.firstNames != null? " " + clt.firstNames: "");
+          }
+          else {
+            doc.payerName = clt.officialName;
+          }
+          doc.payerINN = clt.INN;
+        }
+        else
+          isBankPayer = true;
+      }
+    }
+    else {
+      // Unknown account
+      doc.payerAccount = Constants.unclearedSettlementsDb;
+      isBankPayer = true;
+    }
+    if (isBankPayer) {
+      doc.payerName = Constants.ourBankName;
+      doc.payerINN = Constants.ourBankINN;
+    }
+
+    doc.payerBankName = Constants.ourBankName;
+    doc.payerBankBIC = Constants.ourBankBIC;
+    doc.payerBankAccount = Constants.ourBankAccPass;
+
+    doc.payeeName = str.substring(1828 - 1, 1828 - 1 + 140).trim();
+    doc.payeeAccount = str.substring(1765 - 1, 1765 - 1 + 20);
+    if (str.substring(1793 - 1, 1793 - 1 + 3).equals("INN")) {
+      int pos1 = str.indexOf("/", 1793 - 1);
+      int pos2 = str.indexOf(" ", 1793 - 1);
+      int pos = Math.min(pos1, pos2);
+      if (pos >= 0) {
+        doc.payeeINN = str.substring(1793 - 1 + 3, pos);
+        if (str.substring(pos, pos + 4).equals("/KPP")) {
+          int endPos = str.indexOf(" ", pos);
+          if (endPos >= 0) {
+            doc.payeeCPP = str.substring(pos + 4, endPos);
+          }
+        }
+      }
+    }
 /*
-    String UIN;
-    String priority;
-    String chargeOffDate; // YYYY-MM-DD
-    String receiptDate;   // YYYY-MM-DD
-    String transKind;
-
-    String payerName;
-    String payerAccount;
-    String payerINN;
-    String payerCPP;
-
-    String payerBankName;
-    String payerBankBIC;
-    String payerBankAccount;
-
-    String payeeName;
-    String payeeAccount;
-    String payeeINN;
-    String payeeCPP;
-
-    String payeeBankName;
+    String payeeBankName; // From ED807
     String payeeBankBIC;
     String payeeBankAccount;
 

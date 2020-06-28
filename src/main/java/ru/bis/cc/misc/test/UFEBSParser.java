@@ -151,14 +151,18 @@ class UFEBSParser extends XMLParser {
     StringBuilder str = new StringBuilder();
 
     String rootNodeName; // UFEBS message type
-    if (doc.transKind.equals("02")) rootNodeName = "ED103";
-    else if (doc.transKind.equals("06")) rootNodeName = "ED104";
-    else if (doc.transKind.equals("16")) rootNodeName = "ED105";
-    else rootNodeName = "ED101";
+    if (doc.transKind != null) {
+      if (doc.transKind.equals("02")) rootNodeName = "ED103";
+      else if (doc.transKind.equals("06")) rootNodeName = "ED104";
+      else if (doc.transKind.equals("16")) rootNodeName = "ED105";
+      else rootNodeName = "ED101";
+    }
+    else
+      rootNodeName = "ED101";
     str.append("<");
     str.append(rootNodeName);
 
-    if (doc.payerBankBIC.equals(Constants.ourBankBIC)) {
+    if (doc.getDocumentType() == DocumentType.OUTGOING) {
       str.append(" EDAuthor=\""); str.append(Constants.ourBankUIS);
       str.append("\" EDReceiver=\""); str.append(Constants.otherBankUIS); str.append("\"");
     }
@@ -319,6 +323,14 @@ class UFEBSParser extends XMLParser {
     str.append("</TransInfo>");
 
     return str.toString();
+  }
+
+  /** Function fills banks info from ED807
+   *
+   * @param node - ED807 root node
+   */
+  void from807(Node node) {
+
   }
 
 }

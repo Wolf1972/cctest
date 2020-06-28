@@ -79,6 +79,10 @@ class UFEBSProcessor extends XMLProcessor {
         docs.add(doc);
         return true;
       }
+      else if (rootNodeName.equals("ED807")) { // For bank directory ED807
+        parser.from807(root);
+        return true;
+      }
       else {
         logger.error("0805: File " + fileName + " contains unknown root element: " + rootNodeName);
       }
@@ -168,7 +172,7 @@ class UFEBSProcessor extends XMLProcessor {
       for (Map.Entry<Long, FDocument> item : docs.docs.entrySet()) {
         FDocument doc = item.getValue();
         if (doc.isUrgent) {
-          String outFile = outPath + (doc.payerBankBIC.equals(Constants.ourBankBIC)? "out" : "inc") + String.format("%07d", doc.getId()) + ".xml";
+          String outFile = outPath + (doc.getDocumentType() == DocumentType.OUTGOING? "out" : "inc") + String.format("%07d", doc.getId()) + ".xml";
           OutputStream oss = new FileOutputStream(outFile);
           BufferedWriter singleWriter = new BufferedWriter(new OutputStreamWriter(oss, getCodePage()));
           singleWriter.write(getProlog() + System.lineSeparator());

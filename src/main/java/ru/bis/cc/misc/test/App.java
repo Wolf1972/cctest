@@ -25,8 +25,10 @@ public class App {
   private static FDocumentArray patternDocs = new FDocumentArray(); // Pattern documents array (for compare)
   private static FDocumentArray reverseDocs = new FDocumentArray(); // Incoming documents array
 
-  static ClientArray clients = new ClientArray(); // Static clients information
-  static AccountArray accounts = new AccountArray(); // Static account information
+  // Static information
+  static ClientArray clients = new ClientArray(); // Static clients information (from BQ)
+  static AccountArray accounts = new AccountArray(); // Static account information (from BQ)
+  static ClientArray banks = new ClientArray(); // Static bank information (from ED807)
 
   public static void main(String[] args) {
 

@@ -1,6 +1,11 @@
 package ru.bis.cc.misc.test;
 
+import javax.print.Doc;
 import java.util.StringTokenizer;
+
+enum DocumentType {
+  UNKNOWN, INTERNAL, OUTGOING, INCOMING
+}
 
 public class FDocument {
 
@@ -411,6 +416,21 @@ public class FDocument {
     if (newNum.length() < 9) newNum = digit + String.format("%8s", newNum).replace(" ", "0");
     else newNum = digit + newNum.substring(newNum.length() - 8);
     return newNum;
+  }
+
+  DocumentType getDocumentType() {
+    if (payerBankBIC != null && payeeBankBIC != null) {
+      if (payerBankBIC.equals(Constants.ourBankBIC)) {
+        if (payeeBankBIC.equals(Constants.ourBankBIC))
+          return DocumentType.INTERNAL;
+        else
+          return DocumentType.OUTGOING;
+      }
+      else
+        return DocumentType.INCOMING;
+    }
+    else
+      return DocumentType.UNKNOWN;
   }
 
 }
