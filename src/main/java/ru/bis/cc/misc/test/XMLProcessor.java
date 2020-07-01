@@ -59,13 +59,47 @@ class XMLProcessor extends AProcessor {
     logger.info("0903: Documents added: " + fDocs.docs.size());
   }
 
-  /** Function reads one XML with one single message or several messages in packet
+  /**
+   * Process input directory and loads all files with XML
+   *
+   * @param inPath   = input path
+   */
+  void readAll(String inPath) {
+
+    int filesCount = 0;
+    int filesError = 0;
+
+    try (DirectoryStream<Path> directoryStream = newDirectoryStream(Paths.get(inPath))) {
+      for (Path path : directoryStream) {
+        if (isRegularFile(path)) {
+          filesCount++;
+          String fileName = path.getFileName().toString();
+          if (!readFile(inPath + fileName)) filesError++;
+        }
+      }
+    }
+    catch (IOException e) {
+      logger.error("0901: Error while file system access: " + inPath);
+      filesError++;
+    }
+    logger.info("0902: XML files processed: " + filesCount + ", errors: " + filesError);
+  }
+
+  /** Function reads one XML with one single document or several documents in packet
    *
    * @param fileName - XML file name
    * @param fDocs - documents array
    */
   @Override
   boolean readFile(String fileName, FDocumentArray fDocs) {
+    return false;
+  }
+
+  /** Function reads one XML file
+   *
+   * @param fileName - XML file name
+   */
+  boolean readFile(String fileName) {
     return false;
   }
 
@@ -114,7 +148,7 @@ class XMLProcessor extends AProcessor {
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
       Document document = documentBuilder.parse(fileName);
       Node root = document.getDocumentElement(); // Try to obtain root element
-      String rootNodeName = root.getNodeName();
+      String rootNodeName = Helper.getSimpleNodeName(root);
       String xsdFile;
       if (rootNodeName.equals("PacketEPD")) { // For packets EPD
         xsdFile = xsdPath + "\\ed\\cbr_packetepd_v2020.2.0.xsd";
@@ -151,6 +185,11 @@ class XMLProcessor extends AProcessor {
     }
   }
 
+  /** Function checks all XML files in specified directory against XML scheme
+   *  XML scheme selects for UFEBS root elements only
+   * @param inqPath - directory with XML
+   * @param xsdPath - directory with XSD
+   */
   void checkAll(String inqPath, String xsdPath) {
 
     int filesCount = 0;

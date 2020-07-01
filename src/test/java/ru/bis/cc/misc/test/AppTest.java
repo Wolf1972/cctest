@@ -587,6 +587,56 @@ public class AppTest
     }
   }
 
+  /** Test one XML node parsing with ED807
+   *
+   */
+  @Test
+  public void testED807Parse() {
+    String xmlString =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                    "<ed:ED807 xmlns:ed=\"urn:cbr-ru:ed:v2.0\" EDNo=\"700000053\" EDDate=\"2018-07-05\" EDAuthor=\"4583001999\" " +
+                    "    CreationReason=\"SOBD\" CreationDateTime=\"2018-07-04T20:08:51Z\" InfoTypeCode=\"FIRR\">\n" +
+                    "  <ed:BICDirectoryEntry BIC=\"044536002\">" +
+                    "    <ed:ParticipantInfo NameP=\"ФИНАНСОВЫЙ Д-Т БАНКА РОССИИ\" Rgn=\"45\" Ind=\"107016\" Tnp=\"г.\" Nnp=\"Москва 701\" " +
+                    "         Adr=\"ул Неглинная, 12\" PrntBIC=\"044537002\" DateIn=\"1994-01-20\" PtType=\"15\" Srvcs=\"3\" XchType=\"1\" " +
+                    "         UID=\"4536002000\" NPSParticipant=\"1\" ParticipantStatus=\"PSAC\">" +
+                    "    </ed:ParticipantInfo>" +
+                    "  </ed:BICDirectoryEntry>" +
+                    "</ed:ED807>";
+
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      InputSource is = new InputSource(new StringReader(xmlString));
+      Document xmlDoc = builder.parse(is);
+      Node root = xmlDoc.getDocumentElement();
+      ED807Parser parser = new ED807Parser();
+      Bank bank = null;
+      String rootNodeName = Helper.getSimpleNodeName(root);
+      if (rootNodeName.equals("ED807")) {
+        NodeList eds = root.getChildNodes();
+        for (int i = 0; i < eds.getLength(); i++) {
+          Node nodeBank = eds.item(i);
+          if (nodeBank.getNodeType() != Node.TEXT_NODE) {
+            String nodeName = Helper.getSimpleNodeName(nodeBank);
+            if (nodeName.equals("BICDirectoryEntry")) {
+              bank = parser.bankFromXML(nodeBank);
+            }
+          }
+        }
+      }
+      if (bank != null) {
+        assertEquals("ФИНАНСОВЫЙ Д-Т БАНКА РОССИИ", bank.name);
+        assertEquals("г. Москва 701", bank.town);
+      }
+      else
+        fail("Could not parse ED807.");
+    }
+    catch (ParserConfigurationException | SAXException | IOException e) {
+      fail("Preliminary XML parsing failed.");
+    }
+  }
+
   /** Test for decimal string to long conversion
    *
    */

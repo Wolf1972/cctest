@@ -1,5 +1,7 @@
 package ru.bis.cc.misc.test;
 
+import org.w3c.dom.Node;
+
 class Helper {
 
   /** Compares two strings, each may be null - if strings mismatch, returns TRUE
@@ -67,6 +69,19 @@ class Helper {
     else if (amtFloat.substring(pos + 1).length() == 1)
       amtFloat += "0"; // 123.5 = 123.50
     return Long.parseLong(amtFloat.replace(".", "").replace(",", ""));
+  }
+
+  /** Function returns node name without namespace prefix (e.g. node "ed:ED807" returns "ED807" only)
+   *
+   * @param node - XML node
+   * @return - node name without namespace prefix
+   */
+  static String getSimpleNodeName(Node node) {
+    String str = node.getNodeName();
+    if (str.contains(":")) {
+      str = str.substring(str.lastIndexOf(":") + 1);
+    }
+    return str;
   }
 
 }

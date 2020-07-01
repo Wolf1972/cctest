@@ -44,7 +44,7 @@ class UFEBSParser extends XMLParser {
       for (int i = 0; i < edOne.getLength(); i++) {
 
         Node edChildNode = edOne.item(i);
-        String nodeName = edChildNode.getNodeName();
+        String nodeName = Helper.getSimpleNodeName(edChildNode);
 
         if (nodeName.equals("AccDoc")) {
           attr = edChildNode.getAttributes();
@@ -68,7 +68,7 @@ class UFEBSParser extends XMLParser {
           NodeList nestedNodes = edChildNode.getChildNodes();
           for (int j = 0; j < nestedNodes.getLength(); j++) {
             nestedNode = nestedNodes.item(j);
-            String nestedNodeName = nestedNode.getNodeName();
+            String nestedNodeName = Helper.getSimpleNodeName(nestedNode);
             if (nestedNodeName.equals("Name")) {
               doc.payerName = nestedNode.getTextContent();
             }
@@ -94,7 +94,7 @@ class UFEBSParser extends XMLParser {
           NodeList nestedNodes = edChildNode.getChildNodes();
           for (int j = 0; j < nestedNodes.getLength(); j++) {
             nestedNode = nestedNodes.item(j);
-            String nestedNodeName = nestedNode.getNodeName();
+            String nestedNodeName = Helper.getSimpleNodeName(nestedNode);
             if (nestedNodeName.equals("Name")) {
               doc.payeeName = nestedNode.getTextContent();
             }

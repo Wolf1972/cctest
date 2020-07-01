@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<ed:ED807 xmlns:ed="urn:cbr-ru:ed:v2.0" EDNo="700000053" EDDate="2018-07-05" EDAuthor="4583001999" CreationReason="SOBD" CreationDateTime="2018-07-04T20:08:51Z" InfoTypeCode="FIRR">
+  <ed:BICDirectoryEntry BIC="044536002">
+    <ed:ParticipantInfo NameP="ФИНАНСОВЫЙ Д-Т БАНКА РОССИИ" Rgn="45" Ind="107016" Tnp="г." Nnp="Москва 701" Adr="ул Неглинная, 12" PrntBIC="044537002" DateIn="1994-01-20" PtType="15" Srvcs="3" XchType="1" UID="4536002000" NPSParticipant="1" ParticipantStatus="PSAC">
+    </ed:ParticipantInfo>
+  </ed:BICDirectoryEntry>
+</ed:ED807>

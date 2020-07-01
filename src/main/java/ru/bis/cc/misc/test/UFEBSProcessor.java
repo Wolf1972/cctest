@@ -54,14 +54,14 @@ class UFEBSProcessor extends XMLProcessor {
 
       // Try to obtain root element
       Node root = document.getDocumentElement();
-      String rootNodeName = root.getNodeName();
+      String rootNodeName = Helper.getSimpleNodeName(root);
       if (rootNodeName.equals("PacketEPD")) { // For packet EPD
         NodeList eds = root.getChildNodes();
         for (int i = 0; i < eds.getLength(); i++) {
           // Each node: ED, empty text etc
           Node ed = eds.item(i);
           if (ed.getNodeType() != Node.TEXT_NODE) {
-            String nodeName = ed.getNodeName();
+            String nodeName = Helper.getSimpleNodeName(ed);
             if (nodeName.matches("ED10[134]")) {
               FDocument doc = parser.fromXML(ed);
               docs.add(doc);

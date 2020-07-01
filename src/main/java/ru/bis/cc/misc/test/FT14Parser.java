@@ -162,11 +162,14 @@ class FT14Parser extends Parser {
         }
       }
     }
-/*
-    String payeeBankName; // From ED807
-    String payeeBankBIC;
-    String payeeBankAccount;
 
+    doc.payeeBankBIC = str.substring(1596 - 1, 1596 - 1 + 9);
+    doc.payeeBankAccount = str.substring(1565 - 1, 1565 - 1 + 20);
+    Bank bank = App.banks.items.get(doc.payeeBankBIC);
+    if (bank != null) {
+      doc.payeeBankName = bank.name;
+    }
+/*
     boolean isTax;
     String taxStatus; // 101
     String CBC; // 104

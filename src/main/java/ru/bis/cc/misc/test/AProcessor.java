@@ -6,9 +6,9 @@ abstract class AProcessor {
 
   Logger logger;
 
-  abstract void readAll(String inPath, FDocumentArray fDocs); // Reads all files from specified directory
+  abstract void readAll(String inPath, FDocumentArray fDocs); // Reads all files with documents from specified directory
 
-  abstract boolean readFile(String fileName, FDocumentArray fDocs); // Reads one file with one or several messages
+  abstract boolean readFile(String fileName, FDocumentArray fDocs); // Reads one file with one or several documents
 
   abstract void createAll(String outPath, FDocumentArray fDocs);
 

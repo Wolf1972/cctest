@@ -28,7 +28,7 @@ public class App {
   // Static information
   static ClientArray clients = new ClientArray(); // Static clients information (from BQ)
   static AccountArray accounts = new AccountArray(); // Static account information (from BQ)
-  static ClientArray banks = new ClientArray(); // Static bank information (from ED807)
+  static BankArray banks = new BankArray(); // Static bank information (from ED807)
 
   public static void main(String[] args) {
 
@@ -45,6 +45,7 @@ public class App {
     options.addOption("c", "codepage", true, "Code page for output XML files [\"windows-1251\" or \"utf-8\"] (for \"transform\" action only).");
     options.addOption("r", "reverse", false, "Output incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
     options.addOption("s", "static", true, "Load static data (clients, accounts) from specified directory.");
+    options.addOption("b", "banks", true, "Load static data (banks) from ED807 in specified directory.");
 
     // Command line options
     String cmdAction = null;
@@ -56,6 +57,7 @@ public class App {
     String cmdDate = null;
     String cmdCodePage = null;
     String staticPath = null;
+    String banksPath = null;
     boolean cmdReverse; // Prepare incoming documents, confirmations, statement by outgoing documents
 
     CommandLineParser parser = new DefaultParser();
@@ -71,6 +73,7 @@ public class App {
       if (command.hasOption('d')) cmdDate = command.getOptionValue('d');
       if (command.hasOption('c')) cmdCodePage = command.getOptionValue('c');
       if (command.hasOption('s')) staticPath = command.getOptionValue('s');
+      if (command.hasOption('b')) banksPath = command.getOptionValue('b');
       cmdReverse = command.hasOption('r');
 
     }
@@ -98,6 +101,13 @@ public class App {
         BQProcessor bqProc = (BQProcessor) fab.getProcessor(FileType.BQ);
         if (bqProc != null) {
           bqProc.readAllStatic(staticPath);
+        }
+      }
+
+      if (banksPath != null) {
+        ED807Processor ed807Proc = (ED807Processor) fab.getProcessor(FileType.ED807);
+        if (ed807Proc != null) {
+          ed807Proc.readAll(banksPath);
         }
       }
 

@@ -33,7 +33,7 @@ class ProcessorFabric {
     if (fileType == FileType.UFEBS)
       return new UFEBSProcessor();
     else if (fileType == FileType.ED807)
-      return new UFEBSProcessor();
+      return new ED807Processor();
     else if (fileType == FileType.MT103)
       return new MT103Processor();
     else if (fileType == FileType.MT100)
