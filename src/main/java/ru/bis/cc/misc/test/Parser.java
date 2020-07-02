@@ -1,5 +1,7 @@
 package ru.bis.cc.misc.test;
 
-abstract class Parser {
+import org.apache.logging.log4j.Logger;
 
+abstract class Parser {
+  Logger logger;
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="windows-1251" ?>
+<?xml version="1.0" encoding="windows-1251"?>
 <PacketEPD EDAuthor="4525101000" EDDate="2020-05-14" EDNo="321" EDQuantity="2" EDReceiver="4652001000" Sum="30030" SystemCode="02" xmlns="urn:cbr-ru:ed:v2.0">
 <ED101 ChargeOffDate="2020-05-14" EDAuthor="4525101000" EDDate="2020-05-14" EDNo="1" PaymentID="0" PaymentPrecedence="70" Priority="3" ReceiptDate="2020-05-14" Sum="10020" SystemCode="02" TransKind="01" xmlns="urn:cbr-ru:ed:v2.0">
 <AccDoc AccDocDate="2020-05-14" AccDocNo="101"/>

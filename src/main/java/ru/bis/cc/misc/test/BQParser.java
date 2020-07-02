@@ -105,13 +105,18 @@ class BQParser extends XMLParser {
                   nestedNode = attr.getNamedItem("amt-rub");
                   if (nestedNode != null) {
                     String amtFloat = nestedNode.getNodeValue();
-                    if (amtFloat.indexOf(".") == 0) amtFloat += "00";
+                    if (!amtFloat.contains(".")) amtFloat += "00";
                     else if (amtFloat.substring(amtFloat.indexOf(".") + 1).length() == 1)
                       amtFloat += "0"; // 123.5 = 123.50
                     doc.amount = Long.parseLong(amtFloat.replace(".", ""));
                   }
                   nestedNode = attr.getNamedItem("op-date");
                   if (nestedNode != null) doc.edDate = nestedNode.getNodeValue();
+                  nestedNode = attr.getNamedItem("acct-db");
+                  if (nestedNode != null) doc.accountDb = nestedNode.getNodeValue();
+                  nestedNode = attr.getNamedItem("acct-cr");
+                  if (nestedNode != null) doc.accountCr = nestedNode.getNodeValue();
+
                   break; // Takes only one entry
                 }
               }
@@ -136,7 +141,10 @@ class BQParser extends XMLParser {
                   if (type.equals("DBI")) doc.referenceFT14 = reference;
                   else { // UFEBS reference
                     if (reference != null) {
-                      if (reference.contains(",")) doc.edNo = reference.substring(reference.indexOf(",") + 1);
+                      if (reference.contains(",")) {
+                        doc.edNo = reference.substring(reference.indexOf(",") + 1);
+                        doc.authorUIS = reference.substring(0, reference.indexOf(","));
+                      }
                     }
                   }
                 }
@@ -185,8 +193,9 @@ class BQParser extends XMLParser {
     StringBuilder str = new StringBuilder();
 
     str.append("<doc");
-    str.append(" id=\""); str.append(doc.edNo != null? doc.edNo : doc.getId()); str.append("\"");
-    str.append(" action=\"update\" >");
+    str.append(" id=\""); str.append(doc.getId()); str.append("\"");
+    str.append(" action=\"update\">");
+    str.append(System.lineSeparator());
 
     str.append("<reg");
     str.append(" doc-type=\""); str.append(doc.transKind); str.append("\"");
@@ -197,11 +206,13 @@ class BQParser extends XMLParser {
     if (doc.receiptDate != null) { str.append(" payee-received=\""); str.append(doc.receiptDate); str.append("\""); }
     str.append(" delivery=\""); str.append(doc.isUrgent? "Э" : "E"); str.append("\"");
     str.append("/>");
+    str.append(System.lineSeparator());
 
     str.append("<details>"); str.append(replace4Elem(doc.purpose)); str.append("</details>");
+    str.append(System.lineSeparator());
 
     if (doc.isTax) {
-      str.append("<tax-index ");
+      str.append("<tax-index");
       if (doc.taxStatus != null) { str.append(" status-index=\""); str.append(doc.taxStatus); str.append("\""); } // 101
       if (doc.CBC != null) { str.append(" cbc=\""); str.append(doc.CBC); str.append("\""); } // 104
       if (doc.OCATO != null) { str.append(" ocato=\""); str.append(doc.OCATO); str.append("\""); } // 105
@@ -210,7 +221,8 @@ class BQParser extends XMLParser {
       if (doc.taxDocNum != null) { str.append(" num-index=\""); str.append(doc.taxDocNum); str.append("\"");} // 108
       if (doc.taxDocDate != null) { str.append(" date-index=\""); str.append(doc.taxDocDate); str.append("\"");} // 109
       if (doc.taxPaytKind != null) { str.append(" tax-index=\""); str.append(doc.taxPaytKind); str.append("\"");} // 110
-      str.append(" />");
+      str.append("/>");
+      str.append(System.lineSeparator());
     }
 
     str.append("<payer");
@@ -218,66 +230,95 @@ class BQParser extends XMLParser {
     if (doc.payerAccount != null) { str.append(" acct=\""); str.append(doc.payerAccount); str.append("\""); }
     if (doc.payerINN != null) { str.append(" inn=\""); str.append(doc.payerINN); str.append("\""); }
     if (doc.payerCPP != null) { str.append(" kpp=\""); str.append(doc.payerCPP); str.append("\""); }
-    str.append(" />");
+    str.append("/>");
+    str.append(System.lineSeparator());
 
     str.append("<payer-bank");
     if (doc.payerBankName != null) { str.append(" name=\""); str.append(replace4Attr(doc.payerBankName)); str.append("\""); }
     if (doc.payerBankAccount != null) { str.append(" acct=\""); str.append(doc.payerBankAccount); str.append("\""); }
     str.append(" ident-code=\""); str.append(doc.payerBankBIC); str.append("\"");
     str.append(" ident-type=\"МФО-9\"");
-    str.append(" />");
+    str.append("/>");
+    str.append(System.lineSeparator());
 
     str.append("<payee");
     str.append(" name=\""); str.append(replace4Attr(doc.payeeName)); str.append("\"");
     if (doc.payeeAccount != null) { str.append(" acct=\""); str.append(doc.payeeAccount); str.append("\""); }
     if (doc.payeeINN != null) { str.append(" inn=\""); str.append(doc.payeeINN); str.append("\""); }
     if (doc.payeeCPP != null) { str.append(" kpp=\""); str.append(doc.payeeCPP); str.append("\""); }
-    str.append(" />");
+    str.append("/>");
+    str.append(System.lineSeparator());
 
     str.append("<payee-bank");
     if (doc.payeeBankName != null) { str.append(" name=\""); str.append(replace4Attr(doc.payeeBankName)); str.append("\""); }
     if (doc.payeeBankAccount != null) { str.append(" acct=\""); str.append(doc.payeeBankAccount); str.append("\""); }
     str.append(" ident-code=\""); str.append(doc.payeeBankBIC); str.append("\"");
     str.append(" ident-type=\"МФО-9\"");
-    str.append(" />");
+    str.append("/>");
+    str.append(System.lineSeparator());
 
     str.append("<entries>");
+    str.append(System.lineSeparator());
     str.append("<entry");
     str.append(" op-entry=\"0\"");
     str.append(" acct-db=\"");
-    if (doc.payerBankBIC.equals(Constants.ourBankBIC)) str.append(doc.payerAccount); else str.append(Constants.ourBankAcc);
+    if (doc.accountDb != null)
+      str.append(doc.accountDb);
+    else {
+      if (doc.payerBankBIC.equals(Constants.ourBankBIC)) str.append(doc.payerAccount);
+      else str.append(Constants.ourBankAcc);
+    }
     str.append("\"");
     str.append(" acct-cr=\"");
-    if (doc.payeeBankBIC.equals(Constants.ourBankBIC)) str.append(doc.payeeAccount); else str.append(Constants.ourBankAcc);
+    if (doc.accountCr != null)
+      str.append(doc.accountCr);
+    else {
+      if (doc.payeeBankBIC.equals(Constants.ourBankBIC)) str.append(doc.payeeAccount);
+      else str.append(Constants.ourBankAcc);
+    }
     str.append("\"");
     str.append(" amt-cur=\"0\"");
-    str.append(" amt-rub=\""); str.append((doc.amount != null? doc.amount / 100 + "." + doc.amount % 100 : "null")); str.append("\"");
+    if (doc.amount != null) {
+      str.append(" amt-rub=\"");
+      str.append(doc.amount / 100);
+      if (doc.amount % 100 > 0) str.append("." + doc.amount % 100);
+      str.append("\"");
+    }
     str.append(" currency=\"810\"");
     if (doc.edDate != null) { str.append(" op-date=\""); str.append(doc.edDate); str.append("\""); }
-    str.append(" eard=\"N\" >");
-    str.append("</entry>");
+    str.append(" eard=\"N\" qty=\"0\"/>");
+    str.append(System.lineSeparator());
     str.append("</entries>");
+    str.append(System.lineSeparator());
 
     if (doc.referenceFT14 != null || doc.edNo != null) {
       str.append("<references>");
+      str.append(System.lineSeparator());
+      if (doc.edNo != null) {
+        str.append("<reference");
+        str.append(" direction=\"I\""); // There is mistake - all UFEBS references are "INCOMING"
+        str.append(" trip=\"1\"");
+        str.append(" reference=\"");
+        if (doc.authorUIS != null)
+          str.append(doc.authorUIS);
+        else
+          str.append(doc.payerBankBIC.equals(Constants.ourBankBIC)? Constants.ourBankUIS: Constants.otherBankUIS);
+        str.append(",");
+        str.append(doc.edNo);
+        str.append("\"");
+        str.append(" type=\"РКЦ\"/>");
+        str.append(System.lineSeparator());
+      }
       if (doc.referenceFT14 != null) {
         str.append("<reference");
         str.append(" direction=\"I\"");
         str.append(" trip=\"1\"");
         str.append(" reference=\""); str.append(doc.referenceFT14); str.append("\"");
-        str.append(" type=\"DBI\" />");
-      }
-      if (doc.edNo != null) {
-        str.append("<reference");
-        str.append(" direction=\""); str.append(doc.payerBankBIC.equals(Constants.ourBankBIC)? "O": "I"); str.append("\"");
-        str.append(" trip=\"1\"");
-        str.append(" reference=\"");
-        str.append(doc.payerBankBIC.equals(Constants.ourBankBIC)? Constants.ourBankUIS: Constants.otherBankUIS); str.append(",");
-        str.append(doc.edNo);
-        str.append("\"");
-        str.append(" type=\"РКЦ\" />");
+        str.append(" type=\"DBI\"/>");
+        str.append(System.lineSeparator());
       }
       str.append("</references>");
+      str.append(System.lineSeparator());
     }
 
     str.append("</doc>");

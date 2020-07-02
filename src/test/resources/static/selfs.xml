@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<cust-privs action="update" bod="2020-01-29" created="2020-04-28 15:24:27" eod="2020-01-29" filial-id="0001" mode="I" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bis.ru/XCNG SII.xsd">
+<cust-priv action="update" id="4268" last-date="2020-01-29">
+<reg client="Y" name="" name-first="Жанна" name-last="Кривко" name-mid="Аркадьевна" resident="Y"/>
+<misc birthday="1985-12-25" gender="F" relation="0"/>
+<tax tax-insp="7705" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="770565351400" type="ИНН"/>
+<ident action="update" class="Документ" issue="ОВД ЦАО г.Москва" number="77 05 326587" open-date="2015-05-04" type="Паспорт"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000847" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="643" misc="770569,,Москва г,,Ямская 2-я,159,5,36," open-date="2020-01-01" type="АдрПроп"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</cust-priv>
+<cust-priv action="update" id="4269" last-date="2020-01-29">
+<reg client="Y" name="" name-first="Фрунзик" name-last="Балоян" name-mid="Ашотович" resident="Y"/>
+<misc birthday="1980-01-03" gender="M" relation="0"/>
+<tax tax-insp="7701" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="770165258750" type="ИНН"/>
+<ident action="update" class="Документ" issue="ОВД ЦАО г. Москва" number="77 18 652147" open-date="2018-04-06" type="Паспорт"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000848" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="643" misc="000000,,Москва г,,26 Бакинских Комиссаров,25,,367," open-date="2020-01-01" type="АдрПроп"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</cust-priv>
+<cust-priv action="update" id="4270" last-date="2020-01-29">
+<reg client="Y" name="" name-first="Тарас" name-last="Клименко" name-mid="Семенович" resident="N"/>
+<misc birthday="1960-07-05" gender="M" relation="0"/>
+<tax tax-insp="7708" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="770863254530" type="ИНН"/>
+<ident action="update" class="Документ" issue="ОВД по Железнодорожному району г. Киева" number="58963247" open-date="2010-10-01" type="СвВрУб"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000849" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="804" misc="000000,,Москва г,,Хабаровская,15,,63," open-date="2020-01-29" type="АдрПроп"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</cust-priv>
+</cust-privs>

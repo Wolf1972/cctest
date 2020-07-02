@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<banks action="update" bod="2020-04-28" created="2020-04-29 09:40:41" eod="2020-04-29" filial-id="0001" mode="I" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bis.ru/XCNG SBI.xsd">
+<bank action="update" id="42203" last-date="2020-04-29">
+<reg client="Y" engl-name="RUSAGRICULTURE BANK" name="ОАО &quot;РОССЕЛЬХОЗБАНК&quot;" name-short="РОССЕЛЬХОЗБАНК" resident="Y" status="10"/>
+<misc bank-type="Б" is-rkc="N" issuer="Y" mat-company="N" relation="ПР" service-bic="044525000" state-ctl="N" town="МОСКВА" town-type="Г"/>
+<tax tax-insp="-1"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="7725114488" type="ИНН"/>
+<ident action="update" class="Код" number="" type="ОГРН"/>
+<ident action="update" class="Код" number="" type="КПП"/>
+<ident action="update" class="Код" number="" type="ОКВЭД"/>
+<ident action="update" class="Код" number="52750822" type="ОКПО"/>
+<ident action="update" class="Код" number="0" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="3349" open-date="2002-10-22" type="REGN"/>
+<ident action="update" class="Код" number="044525111" type="МФО-9"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="0005001904" type="УНК"/>
+<ident action="update" class="Код" number="30101810200000000111" type="РКЦ_СЧЕТ"/>
+</idents>
+<addresses>
+<address action="update" city="Г МОСКВА" country-id="643" house="3" street="ГАГАРИНСКИЙ ПЕР." type="Р" zip="119034"/>
+</addresses>
+<signs>
+<sign action="update" code="uer" code-value="5"/>
+<sign action="update" code="real"/>
+<sign action="update" code="RTGSDiscMode"/>
+<sign action="update" code="RTGSLimMode"/>
+<sign action="update" code="RTGSSuspMode"/>
+<sign action="update" code="RTGSStopMode"/>
+<sign action="update" code="RTGSRegMode"/>
+<sign action="update" code="RTGSDiscDate"/>
+<sign action="update" code="RTGSExcepDate"/>
+<sign action="update" code="RTGSRegDate"/>
+<sign action="update" code="RTGSConDate"/>
+<sign action="update" code="RTGSReasonAddText"/>
+<sign action="update" code="RTGSMemberType"/>
+<sign action="update" code="RTGSSWIFTMode"/>
+<sign action="update" code="RTGSStoppageReason"/>
+<sign action="update" code="RTGSCross"/>
+<sign action="update" code="RTGSUrgent"/>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="ДатаКонтроля"/>
+</signs>
+</bank>
+<bank action="update" id="44982" last-date="2020-04-29">
+<reg client="Y" name="ОАО БАНК &quot;КУЗНЕЦКИЙ&quot;" name-short="КУЗНЕЦКИЙ" resident="Y" status="10"/>
+<misc bank-type="Б" is-rkc="N" issuer="N" mat-company="N" relation="0" service-bic="045655001" state-ctl="N" town="ПЕНЗА" town-type="Г"/>
+<tax tax-insp="-1"/>
+<idents>
+<ident action="update" class="Код" number="5836900162" type="ИНН"/>
+<ident action="update" class="Код" number="" type="ОГРН"/>
+<ident action="update" class="Код" number="" type="КПП"/>
+<ident action="update" class="Код" number="" type="ОКВЭД"/>
+<ident action="update" class="Код" number="09309839" type="ОКПО"/>
+<ident action="update" class="Код" number="" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="609" type="REGN"/>
+<ident action="update" class="Код" number="045655707" type="МФО-9"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="0032000861" type="УНК"/>
+<ident action="update" class="Код" number="30101810200000000707" type="РКЦ_СЧЕТ"/>
+</idents>
+<addresses>
+<address action="update" city="Г ПЕНЗА" country-id="643" house="104" street="УЛ.КРАСНАЯ" type="Р" zip="440000"/>
+</addresses>
+<signs>
+<sign action="update" code="uer" code-value="5"/>
+<sign action="update" code="real"/>
+<sign action="update" code="RTGSDiscMode"/>
+<sign action="update" code="RTGSLimMode"/>
+<sign action="update" code="RTGSSuspMode"/>
+<sign action="update" code="RTGSStopMode"/>
+<sign action="update" code="RTGSRegMode"/>
+<sign action="update" code="RTGSDiscDate"/>
+<sign action="update" code="RTGSExcepDate"/>
+<sign action="update" code="RTGSRegDate"/>
+<sign action="update" code="RTGSConDate"/>
+<sign action="update" code="RTGSReasonAddText"/>
+<sign action="update" code="RTGSMemberType"/>
+<sign action="update" code="RTGSSWIFTMode"/>
+<sign action="update" code="RTGSStoppageReason"/>
+<sign action="update" code="RTGSCross"/>
+<sign action="update" code="RTGSUrgent"/>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="ДатаКонтроля"/>
+</signs>
+</bank>
+<bank action="update" id="43282" last-date="2020-04-29">
+<reg client="Y" engl-name="DB TRUST COMPANY AMERICAS" name="DB TRUST COMPANY AMERICAS" name-short="DB TRUST CO." resident="N" status="00"/>
+<misc bank-type="11" is-rkc="N" issuer="N" mat-company="N" relation="ПР" state-ctl="N" town="NEW YOURK" town-type="Г"/>
+<tax tax-insp="-1"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="11214" type="ИНН"/>
+<ident action="update" class="Код" number="" type="ОГРН"/>
+<ident action="update" class="Код" number="" type="КПП"/>
+<ident action="update" class="Код" number="" type="ОКВЭД"/>
+<ident action="update" class="Код" number="" type="ОКПО"/>
+<ident action="update" class="Код" number="0" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="V11122224XX" type="BIC"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="0006000111" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" city="Г NEW YOURK" country-id="840" street="NEW YOURK" type="Р" zip="NEW YOURK"/>
+</addresses>
+<signs>
+<sign action="update" code="uer"/>
+<sign action="update" code="real"/>
+<sign action="update" code="RTGSDiscMode"/>
+<sign action="update" code="RTGSLimMode"/>
+<sign action="update" code="RTGSSuspMode"/>
+<sign action="update" code="RTGSStopMode"/>
+<sign action="update" code="RTGSRegMode"/>
+<sign action="update" code="RTGSDiscDate"/>
+<sign action="update" code="RTGSExcepDate"/>
+<sign action="update" code="RTGSRegDate"/>
+<sign action="update" code="RTGSConDate"/>
+<sign action="update" code="RTGSReasonAddText"/>
+<sign action="update" code="RTGSMemberType"/>
+<sign action="update" code="RTGSSWIFTMode"/>
+<sign action="update" code="RTGSStoppageReason"/>
+<sign action="update" code="RTGSCross"/>
+<sign action="update" code="RTGSUrgent"/>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="ДатаКонтроля"/>
+</signs>
+</bank>
+<bank action="update" id="43786" last-date="2020-04-29">
+<reg client="Y" engl-name="CREDIT SUISSE ZURICH" name="CREDIT SUISSE ZURICH" name-short="CREDIT SUISSE" resident="N"/>
+<misc is-rkc="N" issuer="N" mat-company="N" relation="0" state-ctl="N" town="ZURICH" town-type="Г"/>
+<tax tax-insp="-1"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="" type="ИНН"/>
+<ident action="update" class="Код" number="" type="ОГРН"/>
+<ident action="update" class="Код" number="" type="КПП"/>
+<ident action="update" class="Код" number="" type="ОКВЭД"/>
+<ident action="update" class="Код" number="" type="ОКПО"/>
+<ident action="update" class="Код" number="" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="BSUIFRPPXXX" type="BIC"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="0005002415" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" city="Г ZURICH" country-id="756" street="ZURICH" type="Р" zip="ZURICH"/>
+</addresses>
+<signs>
+<sign action="update" code="uer"/>
+<sign action="update" code="real"/>
+<sign action="update" code="RTGSDiscMode"/>
+<sign action="update" code="RTGSLimMode"/>
+<sign action="update" code="RTGSSuspMode"/>
+<sign action="update" code="RTGSStopMode"/>
+<sign action="update" code="RTGSRegMode"/>
+<sign action="update" code="RTGSDiscDate"/>
+<sign action="update" code="RTGSExcepDate"/>
+<sign action="update" code="RTGSRegDate"/>
+<sign action="update" code="RTGSConDate"/>
+<sign action="update" code="RTGSReasonAddText"/>
+<sign action="update" code="RTGSMemberType"/>
+<sign action="update" code="RTGSSWIFTMode"/>
+<sign action="update" code="RTGSStoppageReason"/>
+<sign action="update" code="RTGSCross"/>
+<sign action="update" code="RTGSUrgent"/>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="ДатаКонтроля"/>
+</signs>
+</bank>
+</banks>
+

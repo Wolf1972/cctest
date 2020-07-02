@@ -1,6 +1,13 @@
 package ru.bis.cc.misc.test;
 
+import org.apache.logging.log4j.LogManager;
+
 class FT14Parser extends Parser {
+
+  FT14Parser() {
+    logger = LogManager.getLogger(FT14Processor.class);
+  }
+
   /** Creates FT14 string from object
    *
    * @param doc - financial document
@@ -25,7 +32,10 @@ class FT14Parser extends Parser {
     str.append("PA"); // Type of payment: PA or RE
     str.append("00910280"); // Sequence (constant part of reference)
     str.append("  ");
-    str.append(doc.edDate.replace("-", "")); // EDDate as reference date (from XML date)
+    if (doc.edDate != null)
+      str.append(doc.edDate.replace("-", "")); // EDDate as reference date (from XML date)
+    else
+      str.append(doc.docDate.replace("-", "")); // Document date as reference date (if XML date is null)
     str.append(" ");
     str.append(String.format("%5s", doc.getId())); // index in documents array as reference variable part
     str.append(String.format("%" + String.format("%d", 111 - str.length() - 1) + "s", " ")); // 111 - absolute pos for amount
@@ -81,7 +91,7 @@ class FT14Parser extends Parser {
     doc.docNum = str.substring(30 - 1, 30 - 1 + 5).replace(" ", "");
     doc.docDate = Helper.getXMLDate(str.substring(337 - 1, 337 - 1 + 8));
     doc.referenceFT14 = str.substring(9 - 1, 9 - 1 + 10) + String.format("%5s", doc.docNum).replace(" ", "0");
-    doc.amount = Long.parseLong(str.substring(116 - 1, 116 - 1 + 18)) / 1000;
+    doc.amount = Long.parseLong(str.substring(116 - 1, 116 - 1 + 18)) / 10; // Sum 1.00 RUR outputs in FT14 as 1000
 
     // Payment purpose depends on "RE" or "PA" string begins
     StringBuilder locPurpose = new StringBuilder(str.substring(2125 - 1, Math.min(2125 - 1 + 140, str.length())));
@@ -134,7 +144,8 @@ class FT14Parser extends Parser {
     }
     else {
       // Unknown account
-      doc.payerAccount = Constants.unclearedSettlementsDb;
+      logger.warn("1201: Unknown account: " + doc.payerAccount);
+      // doc.payerAccount = Constants.unclearedSettlementsDb;
       isBankPayer = true;
     }
     if (isBankPayer) {
@@ -169,17 +180,7 @@ class FT14Parser extends Parser {
     if (bank != null) {
       doc.payeeBankName = bank.name;
     }
-/*
-    boolean isTax;
-    String taxStatus; // 101
-    String CBC; // 104
-    String OCATO; // 105
-    String taxPaytReason; // 106
-    String taxPeriod; // 107
-    String taxDocNum; // 108
-    String taxDocDate; // 109
-    String taxPaytKind; // 110
-*/
+
     return doc;
   }
 }

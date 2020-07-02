@@ -1,6 +1,49 @@
-<?xml version="1.0" encoding="windows-1251" ?>
-<docs filial-id="0001" eod="2017-09-04" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ">
-<doc id="101" action="update" ><reg doc-type="01" doc-num="101" doc-date="2020-05-14" order-pay="3" chgoff-date="2020-05-14" payee-received="2020-05-14" delivery="E"/><details>Страховые взносы в Территориальный фонд обязательного медицинского страхования по г. Москва за апрель 2020 года. Плательщик взносов - Дорохов Иван Петрович.</details><tax-index  status-index="01" cbc="18210101011011000110" ocato="45286560" purpose-index="ТП" period-index="МС.04.2020" num-index="0" date-index="07.05.2020" /><payer name="Дорохов Иван Петрович" acct="42301810900000000002" inn="776521543603" kpp="771201325" /><payer-bank acct="30101810100000000101" ident-code="044525101" ident-type="МФО-9" /><payee name="УФК по г.Москве" acct="40101810800000010041" inn="7703363868" kpp="770102011" /><payee-bank ident-code="044583001" ident-type="МФО-9" /><entries><entry op-entry="0" acct-db="42301810900000000002" acct-cr="30102810300000000101" amt-cur="0" amt-rub="0.16" currency="810" op-date="2017-09-04" eard="N" ></entry></entries><references><reference direction="I" trip="1" reference="RE0111205029324" type="DBI" /></references></doc>
-<doc id="765" action="update" ><reg doc-type="01" doc-num="103" doc-date="2020-05-14" order-pay="3" chgoff-date="2020-05-14" payee-received="2020-05-14" delivery="E"/><details>НДФЛ - 13 процентов, без НДС.</details><tax-index  status-index="02" cbc="18210102021011000110" ocato="36401000" purpose-index="ТП" period-index="МС.04.2020" num-index="0" date-index="0" /><payer name="Строганова Алла Васильевна" acct="40817810200000000010" inn="776589845449" kpp="772602658" /><payer-bank acct="30101810100000000101" ident-code="044525101" ident-type="МФО-9" /><payee name="УФК МИНФИНА РОССИИ ПО САМАРСК.ОБЛ (ДЛЯ МРИ ФНС РФ ПО КРУПН НАЛОГОПЛАТЕЛЬЩИКАМ ПО САМАРСКОЙ ОБЛАСТИ)" acct="40101810200000010001" inn="6330982003" kpp="630980001" /><payee-bank ident-code="043601001" ident-type="МФО-9" /><entries><entry op-entry="0" acct-db="40817810200000000010" acct-cr="30102810300000000101" amt-cur="0" amt-rub="0.16" currency="810" op-date="2017-09-04" eard="N" ></entry></entries><references><reference direction="O" trip="1" reference="4525101000,765" type="РКЦ" /></references></doc>
-<doc id="768" action="update" ><reg doc-type="01" doc-num="143" doc-date="2020-05-14" order-pay="3" chgoff-date="2020-05-14" payee-received="2020-05-14" delivery="Э"/><details>Пеня по налогу на имущество за 3 квартал 2020 г.</details><tax-index  status-index="01" cbc="18210602010022000110" ocato="45277583" purpose-index="ЗД" period-index="КВ.03.2020" num-index="0" date-index="0" /><payer name="ООО &quot;ДОЙЧЕ БАНК&quot;" inn="7702216772" kpp="770501001" /><payer-bank acct="30101810100000000101" ident-code="044525101" ident-type="МФО-9" /><payee name="УФК по Пензенской области" acct="40101810100000000101" inn="5834029976" kpp="583487001" /><payee-bank ident-code="045655001" ident-type="МФО-9" /><entries><entry op-entry="0" acct-db="null" acct-cr="30102810300000000101" amt-cur="0" amt-rub="0.16" currency="810" op-date="2017-09-04" eard="N" ></entry></entries><references><reference direction="I" trip="1" reference="RE0111205029325" type="DBI" /><reference direction="O" trip="1" reference="4525101000,768" type="РКЦ" /></references></doc>
+<?xml version="1.0" encoding="windows-1251"?>
+<docs filial-id="0001" eod="2020-05-14" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ">
+<doc id="101" action="update">
+<reg doc-type="01" doc-num="101" doc-date="2020-05-14" order-pay="3" chgoff-date="2020-05-14" payee-received="2020-05-14" delivery="E"/>
+<details>Страховые взносы в Территориальный фонд обязательного медицинского страхования по г. Москва за апрель 2020 года. Плательщик взносов - Дорохов Иван Петрович.</details>
+<tax-index status-index="01" cbc="18210101011011000110" ocato="45286560" purpose-index="ТП" period-index="МС.04.2020" num-index="0" date-index="07.05.2020"/>
+<payer name="Дорохов Иван Петрович" acct="42301810900000000002" inn="776521543603" kpp="771201325"/>
+<payer-bank acct="30101810100000000101" ident-code="044525101" ident-type="МФО-9"/>
+<payee name="УФК по г.Москве" acct="40101810800000010041" inn="7703363868" kpp="770102011"/>
+<payee-bank ident-code="044583001" ident-type="МФО-9"/>
+<entries>
+<entry op-entry="0" acct-db="42301810900000000002" acct-cr="30102810300000000101" amt-cur="0" amt-rub="16" currency="810" op-date="2020-05-14" eard="N" qty="0"/>
+</entries>
+<references>
+<reference direction="I" trip="1" reference="RE0111205029324" type="DBI"/>
+</references>
+</doc>
+<doc id="103" action="update">
+<reg doc-type="01" doc-num="103" doc-date="2020-05-14" order-pay="3" chgoff-date="2020-05-14" payee-received="2020-05-14" delivery="E"/>
+<details>НДФЛ - 13 процентов, без НДС.</details>
+<tax-index status-index="02" cbc="18210102021011000110" ocato="36401000" purpose-index="ТП" period-index="МС.04.2020" num-index="0" date-index="0"/>
+<payer name="Строганова Алла Васильевна" acct="40817810200000000010" inn="776589845449" kpp="772602658"/>
+<payer-bank acct="30101810100000000101" ident-code="044525101" ident-type="МФО-9"/>
+<payee name="УФК МИНФИНА РОССИИ ПО САМАРСК.ОБЛ (ДЛЯ МРИ ФНС РФ ПО КРУПН НАЛОГОПЛАТЕЛЬЩИКАМ ПО САМАРСКОЙ ОБЛАСТИ)" acct="40101810200000010001" inn="6330982003" kpp="630980001"/>
+<payee-bank ident-code="043601001" ident-type="МФО-9"/>
+<entries>
+<entry op-entry="0" acct-db="40817810200000000010" acct-cr="30102810300000000101" amt-cur="0" amt-rub="16" currency="810" op-date="2020-05-14" eard="N" qty="0"/>
+</entries>
+<references>
+<reference direction="I" trip="1" reference="4525600006,765" type="РКЦ"/>
+</references>
+</doc>
+<doc id="143" action="update">
+<reg doc-type="01" doc-num="143" doc-date="2020-05-14" order-pay="3" chgoff-date="2020-05-14" payee-received="2020-05-14" delivery="Э"/>
+<details>Пеня по налогу на имущество за 3 квартал 2020 г.</details>
+<tax-index status-index="01" cbc="18210602010022000110" ocato="45277583" purpose-index="ЗД" period-index="КВ.03.2020" num-index="0" date-index="0"/>
+<payer name="ООО &quot;ДОЙЧЕ БАНК&quot;" inn="7702216772" kpp="770501001"/>
+<payer-bank acct="30101810100000000101" ident-code="044525101" ident-type="МФО-9"/>
+<payee name="УФК по Пензенской области" acct="40101810100000000101" inn="5834029976" kpp="583487001"/>
+<payee-bank ident-code="045655001" ident-type="МФО-9"/>
+<entries>
+<entry op-entry="0" acct-db="30223810100000000101" acct-cr="30102810300000000101" amt-cur="0" amt-rub="16" currency="810" op-date="2020-05-14" eard="N" qty="0"/>
+</entries>
+<references>
+<reference direction="I" trip="1" reference="4525600006,768" type="РКЦ"/>
+<reference direction="I" trip="1" reference="RE0111205029325" type="DBI"/>
+</references>
+</doc>
 </docs>

@@ -6,7 +6,7 @@ class Constants {
   static final String ourBankUIS="4525101000";
   static final String ourBankAcc="30102810300000000101";
   static final String ourBankAccPass = "30101810100000000101";
-  static final String ourBankName = "ООО Дойче банк";
+  static final String ourBankName = "ООО \"ДОЙЧЕ БАНК\"";
   static final String ourBankINN = "4599251010";
 
   static final String otherBankUIS="4525225000";

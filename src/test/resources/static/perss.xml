@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<persons action="update" bod="2020-01-29" created="2020-04-28 15:18:43" eod="2020-01-29" filial-id="0001" mode="I" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bis.ru/XCNG SPI.xsd">
+<person action="update" id="4260" last-date="2020-01-29">
+<reg client="Y" name-first="Иван" name-last="Дорохов" name-mid="Петрович" resident="Y"/>
+<misc birthday="1983-06-18" gender="M" relation="0"/>
+<tax tax-insp="7712" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="776521543603" type="ИНН"/>
+<ident action="update" class="Документ" issue="ОВД Замоскворецкого района г. Москва" number="77 02 635789" open-date="2010-10-05" type="Паспорт"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000837" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="643" misc="770256,,Москва г,,Адмирала Макарова,145,,63," open-date="2020-01-29" type="АдрПроп"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</person>
+<person action="update" id="4261" last-date="2020-01-29">
+<reg client="Y" name-first="Алла" name-last="Строганова" name-mid="Васильевна" resident="Y"/>
+<misc birthday="1970-07-01" gender="F" relation="0"/>
+<tax tax-insp="7721" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="776589845449" type="ИНН"/>
+<ident action="update" class="Документ" issue="ОВД ЮВАО г. Москва" number="77 25 652325" open-date="2020-01-01" type="Паспорт"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000844" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="643" misc="770265,,Москва г,,Бронная М.,23,,67," open-date="2020-01-29" type="АдрПроп"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</person>
+<person action="update" id="4263" last-date="2020-01-29">
+<reg client="Y" name-first="Галымжан" name-last="Мусагалиев" name-mid="Орынбасарович" resident="N"/>
+<misc birthday="1990-07-05" gender="M" relation="0"/>
+<tax tax-insp="7732" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="773265856597" type="ИНН"/>
+<ident action="update" class="Документ" issue="ОВД по г. Алматы" number="873698752" open-date="2015-08-24" type="ИнДокНерез"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000845" type="УНК"/>
+</idents>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</person>
+<person action="update" id="4267" last-date="2020-01-29">
+<reg client="Y" name-first="Джонатан" name-last="Тэйвз" resident="N"/>
+<misc birthday="1991-11-05" gender="M" relation="0"/>
+<tax tax-insp="7743" tax-res="N"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<idents>
+<ident action="update" class="Код" number="774325653268" type="ИНН"/>
+<ident action="update" class="Документ" issue="Ontario police department" number="6598782547" open-date="2010-07-08" type="ИнДокНерез"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000846" type="УНК"/>
+</idents>
+<signs>
+<sign action="update" code="is-blocked"/>
+</signs>
+</person>
+</persons>

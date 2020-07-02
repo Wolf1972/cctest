@@ -1,3 +1,3 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <PacketESID EDAuthor="4525101000" EDReceiver="4525225000" EDDate="2020-05-14" EDNo="2000000" EDQuantity="2" xmlns="urn:cbr-ru:ed:v2.0">
 <ED206 EDNo="200000001" EDDate="2020-05-14" EDAuthor="4525101000" EDReceiver="4525225000" BICCorr="044583001" DC="2" Acc="30101810100000000101" Sum="10020" TransDate="2020-05-14" TransTime="10:00:01" xmlns="urn:cbr-ru:ed:v2.0" ><AccDoc AccDocNo="101" AccDocDate="2020-05-14" /><EDRefID EDNo="1" EDDate="2020-05-14" EDAuthor="4525101000" /></ED206><ED206 EDNo="200000011" EDDate="2020-05-14" EDAuthor="4525101000" EDReceiver="4525225000" BICCorr="043601001" DC="2" Acc="30101810100000000101" Sum="20020" TransDate="2020-05-14" TransTime="10:00:01" xmlns="urn:cbr-ru:ed:v2.0" ><AccDoc AccDocNo="103" AccDocDate="2020-05-14" /><EDRefID EDNo="11" EDDate="2020-05-14" EDAuthor="4525101000" /></ED206></PacketESID>

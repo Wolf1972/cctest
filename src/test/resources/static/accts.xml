@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<accounts action="update" bod="2020-04-30" created="2020-04-30 09:34:36" eod="2020-04-30" filial-id="0001" mode="I" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bis.ru/XCNG ACI.xsd">
+<acct action="update" id="40817810800000000009," last-date="2020-01-29">
+<reg acct="40817810800000000009" bal-acct="40817" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Дорохов Иван Петрович" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ч" cust-id="4260" internal="N"/>
+</acct>
+<acct action="update" id="42301810900000000002," last-date="2020-01-29">
+<reg acct="42301810900000000002" bal-acct="42301" branch-id="0001" category="А" contract="Депоз" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Дорохов Иван Петрович" is_except="Y" nonreduct-saldo="0.00"/>
+<client cust-cat="Ч" cust-id="4260" internal="N"/>
+</acct>
+<acct action="update" id="40817810200000000010," last-date="2020-01-29">
+<reg acct="40817810200000000010" bal-acct="40817" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Строганова Алла Васильевна" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ч" cust-id="4261" internal="N"/>
+</acct>
+<acct action="update" id="40820810000000000003," last-date="2020-04-30">
+<reg acct="40820810000000000003" bal-acct="40820" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Мусагалиев Галымжан Орынбасарович" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ч" cust-id="4263" internal="N"/>
+</acct>
+<acct action="update" id="40820810300000000004," last-date="2020-04-30">
+<reg acct="40820810300000000004" bal-acct="40820" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Тэйвз Джонатан" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ч" cust-id="4267" internal="N"/>
+</acct>
+<acct action="update" id="40802810400000000003," last-date="2020-01-29">
+<reg acct="40802810400000000003" bal-acct="40802" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Кривко Жанна Аркадьевна" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="П" cust-id="4268" internal="N"/>
+</acct>
+<acct action="update" id="40817810100000000013," last-date="2020-01-29">
+<reg acct="40817810100000000013" bal-acct="40817" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Кривко Жанна Аркадьевна" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="П" cust-id="4268" internal="N"/>
+</acct>
+<acct action="update" id="40802810700000000004," last-date="2020-01-29">
+<reg acct="40802810700000000004" bal-acct="40802" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Балоян Фрунзик Ашотович" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="П" cust-id="4269" internal="N"/>
+</acct>
+<acct action="update" id="40817810400000000014," last-date="2020-01-29">
+<reg acct="40817810400000000014" bal-acct="40817" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Балоян Фрунзик Ашотович" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="П" cust-id="4269" internal="N"/>
+</acct>
+<acct action="update" id="40802810000000000005," last-date="2020-01-29">
+<reg acct="40802810000000000005" bal-acct="40802" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Клименко Тарас Семенович" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="П" cust-id="4270" internal="N"/>
+</acct>
+<acct action="update" id="40820810600000000005," last-date="2020-04-30">
+<reg acct="40820810600000000005" bal-acct="40820" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="Клименко Тарас Семенович" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="П" cust-id="4270" internal="N"/>
+</acct>
+<acct action="update" id="40702810100000001350," last-date="2020-01-30">
+<reg acct="40702810100000001350" bal-acct="40702" branch-id="0001" category="А" contract="Расчет" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ОАО Вертикаль" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9464" internal="N"/>
+</acct>
+<acct action="update" id="40702810400000001351," last-date="2020-01-30">
+<reg acct="40702810400000001351" bal-acct="40702" branch-id="0001" category="А" contract="Расчет" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ОАО Вертикаль" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9464" internal="N"/>
+</acct>
+<acct action="update" id="40702810700000001352," last-date="2020-01-30">
+<reg acct="40702810700000001352" bal-acct="40702" branch-id="0001" category="А" contract="Расчет" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ЗАО Веселый молочник" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9467" internal="N"/>
+</acct>
+<acct action="update" id="40702810000000001353," last-date="2020-01-30">
+<reg acct="40702810000000001353" bal-acct="40702" branch-id="0001" category="А" contract="Расчет" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ЗАО Веселый молочник" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9467" internal="N"/>
+</acct>
+<acct action="update" id="40807810900000000045," last-date="2020-01-30">
+<reg acct="40807810900000000045" bal-acct="40807" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="СП Фаргус" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9468" internal="N"/>
+</acct>
+<acct action="update" id="40807810200000000046," last-date="2020-01-30">
+<reg acct="40807810200000000046" bal-acct="40807" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="СП Фаргус" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9468" internal="N"/>
+</acct>
+<acct action="update" id="40807810100000000049," last-date="2020-01-30">
+<reg acct="40807810100000000049" bal-acct="40807" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ТОО Ситфарм" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9469" internal="N"/>
+</acct>
+<acct action="update" id="40807810500000000050," last-date="2020-01-30">
+<reg acct="40807810500000000050" bal-acct="40807" branch-id="0001" category="А" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ТОО Ситфарм" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Ю" cust-id="9469" internal="N"/>
+</acct>
+<acct action="update" id="30109810200000000013," last-date="2020-01-30">
+<reg acct="30109810200000000013" bal-acct="30109" branch-id="0001" category="А" contract="Лоро" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ОАО БАНК &quot;КУЗНЕЦКИЙ&quot;" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Б" cust-id="44982" internal="N"/>
+</acct>
+<acct action="update" id="30109810500000000014," last-date="2020-01-30">
+<reg acct="30109810500000000014" bal-acct="30109" branch-id="0001" category="А" contract="Лоро" currency="810" open-date="2020-01-01" side="П"/>
+<business details="ОАО &quot;РОССЕЛЬХОЗБАНК&quot;" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Б" cust-id="42203" internal="N"/>
+</acct>
+<acct action="update" id="30111810200000000072," last-date="2020-01-30">
+<reg acct="30111810200000000072" bal-acct="30111" branch-id="0001" category="А" contract="Лоро" currency="810" open-date="2020-01-01" side="П"/>
+<business details="DB TRUST COMPANY AMERICAS" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Б" cust-id="43282" internal="N"/>
+</acct>
+<acct action="update" id="30111810400000000076," last-date="2020-04-29">
+<reg acct="30111810400000000076" bal-acct="30111" branch-id="0001" category="А" contract="Лоро" currency="810" open-date="2020-01-01" side="П"/>
+<business details="CREDIT SUISSE ZURICH" is_except="N" nonreduct-saldo="0.00"/>
+<client cust-cat="Б" cust-id="43786" internal="N"/>
+</acct>
+</accounts>
+
+

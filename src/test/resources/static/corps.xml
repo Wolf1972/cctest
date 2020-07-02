@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<cust-corps action="update" bod="2020-01-30" created="2020-04-29 08:46:04" eod="2020-01-30" filial-id="0001" mode="I" ver-format="1.0.0" xmlns="http://www.bis.ru/XCNG/BQ" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.bis.ru/XCNG SCI.xsd">
+<cust-corp action="update" id="9464" last-date="2020-01-30">
+<reg client="Y" name="АО открытого типа Вертикаль" name-short="Вертикаль" resident="Y"/>
+<misc financial="N" issuer="N" mat-company="N" relation="0" state-ctl="N"/>
+<tax tax-insp="7705"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<contacts>
+<contact action="update" class="Регистрация" contact="84953652354" id="1" type="1"/>
+</contacts>
+<idents>
+<ident action="update" class="Код" number="7705625484" type="ИНН"/>
+<ident action="update" class="Код" number="1157705235467" type="ОГРН"/>
+<ident action="update" class="Код" number="770522235" type="КПП"/>
+<ident action="update" class="Код" number="72.1" type="ОКВЭД"/>
+<ident action="update" class="Код" number="56326145" type="ОКПО"/>
+<ident action="update" class="Код" number="16" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000852" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="643" misc="000000,,Москва г,,Баррикадная,25,,69," open-date="2020-01-01" type="АдрЮр"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="CountryCode"/>
+<sign action="update" code="Гражд"/>
+<sign action="update" code="АвтоКПП"/>
+</signs>
+</cust-corp>
+<cust-corp action="update" id="9467" last-date="2020-01-30">
+<reg client="Y" name="Закрытое акционерное общество Веселый молочник" name-short="Веселый молочник" resident="Y"/>
+<misc financial="N" issuer="N" mat-company="N" relation="0" state-ctl="N"/>
+<tax tax-insp="5834"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<contacts>
+<contact action="update" class="Регистрация" contact="88412235268" id="1" type="1"/>
+</contacts>
+<idents>
+<ident action="update" class="Код" number="5834652323" type="ИНН"/>
+<ident action="update" class="Код" number="5125834326547" type="ОГРН"/>
+<ident action="update" class="Код" number="583410326" type="КПП"/>
+<ident action="update" class="Код" number="10.82.2" type="ОКВЭД"/>
+<ident action="update" class="Код" number="53465454" type="ОКПО"/>
+<ident action="update" class="Код" number="16" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000856" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="643" misc="440025,,Пенза г,,Абрикосовая,22,,," open-date="2020-01-01" type="АдрЮр"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="CountryCode"/>
+<sign action="update" code="Гражд"/>
+<sign action="update" code="АвтоКПП"/>
+</signs>
+</cust-corp>
+<cust-corp action="update" id="9468" last-date="2020-01-30">
+<reg client="Y" name="Совместное предприятие Фаргус" name-short="Фаргус" resident="N"/>
+<misc financial="N" issuer="N" mat-company="N" relation="0" state-ctl="N"/>
+<tax tax-insp="7728"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<contacts>
+<contact action="update" class="Регистрация" contact="84953652147" id="1" type="1"/>
+</contacts>
+<idents>
+<ident action="update" class="Код" number="7728651480" type="ИНН"/>
+<ident action="update" class="Код" number="1187728653210" type="ОГРН"/>
+<ident action="update" class="Код" number="772815236" type="КПП"/>
+<ident action="update" class="Код" number="18.12" type="ОКВЭД"/>
+<ident action="update" class="Код" number="56465478" type="ОКПО"/>
+<ident action="update" class="Код" number="" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000857" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="840" misc="770214,,Москва г,,Верейская,36,,," open-date="2020-01-01" type="АдрЮр"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="CountryCode"/>
+<sign action="update" code="Гражд"/>
+<sign action="update" code="АвтоКПП"/>
+</signs>
+</cust-corp>
+<cust-corp action="update" id="9469" last-date="2020-01-30">
+<reg client="Y" name="Товарищество с огранич. ответственностью Ситфарм" name-short="Ситфарм" resident="N"/>
+<misc financial="N" issuer="N" mat-company="N" relation="0" state-ctl="N"/>
+<tax tax-insp="7733"/>
+<branches>
+<branch action="update" branch-id="0001" id="1" open-date="2020-01-01" responsible="Y"/>
+</branches>
+<contacts>
+<contact action="update" class="Регистрация" contact="84956548739" id="1" type="1"/>
+</contacts>
+<idents>
+<ident action="update" class="Код" number="7733652546" type="ИНН"/>
+<ident action="update" class="Код" number="5177733256344" type="ОГРН"/>
+<ident action="update" class="Код" number="773315567" type="КПП"/>
+<ident action="update" class="Код" number="21.20" type="ОКВЭД"/>
+<ident action="update" class="Код" number="73524578" type="ОКПО"/>
+<ident action="update" class="Код" number="16" type="ОКФС"/>
+<ident action="update" class="Код" number="" type="ОКОПФ"/>
+<ident action="update" class="Код" number="" type="Отрасль"/>
+<ident action="update" class="Код" number="32000858" type="УНК"/>
+</idents>
+<addresses>
+<address action="update" country-id="276" misc="770025,,Москва г,,Щорса,25,2,," open-date="2020-01-30" type="АдрЮр"/>
+</addresses>
+<signs>
+<sign action="update" code="is-blocked"/>
+<sign action="update" code="CountryCode"/>
+<sign action="update" code="Гражд"/>
+<sign action="update" code="АвтоКПП"/>
+</signs>
+</cust-corp>
+</cust-corps>

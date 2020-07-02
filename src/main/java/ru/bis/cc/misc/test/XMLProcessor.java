@@ -124,7 +124,7 @@ class XMLProcessor extends AProcessor {
    * @return - string with prolog with code page
    */
   String getProlog() {
-    return "<?xml version=\"1.0\" encoding=\"" + codePage + "\" ?>";
+    return "<?xml version=\"1.0\" encoding=\"" + codePage + "\"?>";
   }
 
   @Override

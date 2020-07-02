@@ -26,6 +26,17 @@ import static org.junit.Assert.*;
 public class AppTest
 {
 
+  String xsdPath = ".\\src\\test\\resources\\XMLSchemas\\";
+  String patternPath = ".\\src\\test\\resources\\pattern\\";
+  String outPath = ".\\src\\test\\resources\\out\\";
+  String staticPath = ".\\src\\test\\resources\\static\\";
+  String banksPath = ".\\src\\test\\resources\\banks\\";
+
+  FDocumentArray patternDocs = new FDocumentArray();
+  FDocumentArray sampleDocs = new FDocumentArray();
+  FDocumentArray reverseDocs;
+  FDocumentArray packet = new FDocumentArray();
+
   /** Test one XML node parsing with ED1xx
    *
    */
@@ -691,23 +702,14 @@ public class AppTest
     assertEquals("1234567890", doc.UIN);
   }
 
-  /** Integrity test - test functionality at all
+  /** Test for UFEBS processor - parse, create ED1xx, create reverse documents, create confirmations and statement
    *
    */
   @Test
-  public void integrityTest()
-  {
+  public void UFEBSTest() {
 
-    String xsdPath = ".\\src\\test\\resources\\XMLSchemas\\";
-    String patternPath = ".\\src\\test\\resources\\pattern\\";
-    String outPath = ".\\src\\test\\resources\\out\\";
+    patternDocs.docs.clear(); sampleDocs.docs.clear();
 
-    FDocumentArray patternDocs = new FDocumentArray();
-    FDocumentArray sampleDocs = new FDocumentArray();
-    FDocumentArray reverseDocs;
-    FDocumentArray packet = new FDocumentArray();
-
-    // UFEBS processor test
     UFEBSProcessor procUFEBS = new UFEBSProcessor();
     assertTrue("UFEBS single file parse error.", procUFEBS.readFile(patternPath + "single.xml", patternDocs));
     assertTrue("UFEBS packet file parse error.", procUFEBS.readFile(patternPath + "packet.xml", patternDocs));
@@ -732,39 +734,64 @@ public class AppTest
     compareTwoFiles(patternPath + "single-conf.xml", outPath + "pco0000143.xml");
     procUFEBS.createStatement(outPath, patternDocs, reverseDocs);
     compareTwoFiles(patternPath + "statement.xml", outPath + "stm3000000.xml");
+  }
 
-    // FT14 assembler test
-    String outFT14File = outPath + "ft14test.txt"; // First of all - delete previous test results
-    if (!deleteOutFile(outFT14File)) fail("FT14 file delete error: " + outFT14File);
+  /** MT103 processor test
+   *
+   */
+  @Test
+  public void MT103Test() {
 
-    FT14Processor procFT14 = new FT14Processor();
-    procFT14.createAll(outPath, patternDocs);
-    assertTrue("Output file FT14 not found" + outFT14File, Files.isRegularFile(Paths.get(outFT14File)));
-    compareTwoFiles(patternPath + "ft14test.txt", outFT14File);
-
-    // MT103 assembler test
-    String outMT103File = outPath + "mt103test.txt";
-    if (!deleteOutFile(outMT103File)) fail("MT103 file delete error: " + outFT14File);
+    patternDocs.docs.clear(); sampleDocs.docs.clear();
 
     MT103Processor procMT103 = new MT103Processor();
+
+    String inMT103File = patternPath + "mt103test.txt";
+    assertTrue("MT103 file parse error.", procMT103.readFile(inMT103File, patternDocs));
+
+    String outMT103File = outPath + "mt103test.txt";
+    if (!deleteOutFile(outMT103File)) fail("MT103 file delete error: " + outMT103File);
     procMT103.createAll(outPath, patternDocs);
     assertTrue("Output file MT103 not found" + outMT103File, Files.isRegularFile(Paths.get(outMT103File)));
-    compareTwoFiles(patternPath + "mt103test.txt", outPath + "mt103test.txt");
 
-    // MT103 parser test
-    assertTrue("MT103 file parse error.", procMT103.readFile(outMT103File, sampleDocs));
+    procMT103.readFile(outMT103File, sampleDocs);
 
-    // Comparator test - compare pattern documents was loaded from UFEBS, sample documents was loaded from MT103
     Comparator comparator = new Comparator();
-    assertTrue("Comparator error found when testing UFEBS and MT103 documents.", comparator.compare(patternDocs, sampleDocs));
+    assertTrue("Comparator error found when testing MT103 documents.", comparator.compare(patternDocs, sampleDocs));
 
-    // BQ parser & assembler test
+    compareTwoFiles(inMT103File, outMT103File);
+  }
+
+  /** BQ documents parser test
+   *
+   */
+  @Test
+  public void BQTest() {
+
     patternDocs.docs.clear(); sampleDocs.docs.clear();
+
+    Comparator comparator = new Comparator();
+
     BQProcessor procBQ = new BQProcessor();
-    procBQ.readFile(patternPath + "bqtest.xml", patternDocs);
+
+    String inBQFile = patternPath + "bqtest.xml";
+    procBQ.readFile(inBQFile, patternDocs);
+
     procBQ.createAll(outPath, patternDocs);
-    procBQ.readFile(outPath + "bqtest.xml", sampleDocs);
+    String outBQFile = outPath + "bqtest.xml";
+    procBQ.readFile(outBQFile, sampleDocs);
     assertTrue("Comparator error found when testing BQ documents.", comparator.compare(patternDocs, sampleDocs));
+
+    compareTwoFiles(inBQFile, outBQFile);
+  }
+
+  /** Integrity test - test functionality at all
+   *
+   */
+  @Test
+  public void futureTest() {
+    // TODO: MT100 loop test
+    // TODO: MT940 loop test
 
     // MT100 parser test
     patternDocs.docs.clear();
@@ -775,6 +802,47 @@ public class AppTest
     patternDocs.docs.clear();
     MT940Processor procMT940 = new MT940Processor();
     procMT940.readFile(patternPath + "mt940test.txt", patternDocs);
+
+  }
+
+  /** Parse FT14, assemble FT14 and compare results
+   *
+   */
+  @Test
+  public void FT14Test() {
+
+    patternDocs.docs.clear(); sampleDocs.docs.clear();
+
+    ProcessorFabric fab = new ProcessorFabric();
+    if (staticPath != null) {
+      BQProcessor bqProc = (BQProcessor) fab.getProcessor(FileType.BQ);
+      if (bqProc != null) {
+        bqProc.readAllStatic(staticPath);
+      }
+    }
+
+    if (banksPath != null) {
+      ED807Processor ed807Proc = (ED807Processor) fab.getProcessor(FileType.ED807);
+      if (ed807Proc != null) {
+        ed807Proc.readAll(banksPath);
+      }
+    }
+
+    FT14Processor procFT14 = new FT14Processor();
+    String inFT14File = patternPath + "ft14test.txt";
+    procFT14.readFile(inFT14File, patternDocs);
+
+    String outFT14File = outPath + "ft14test.txt"; // First of all - delete previous test results
+    if (!deleteOutFile(outFT14File)) fail("FT14 file delete error: " + outFT14File);
+    procFT14.createAll(outPath, patternDocs);
+    assertTrue("Output file FT14 not found" + outFT14File, Files.isRegularFile(Paths.get(outFT14File)));
+
+    procFT14.readFile(outFT14File, sampleDocs);
+
+    Comparator comparator = new Comparator();
+    assertTrue(comparator.compare(patternDocs, sampleDocs));
+
+    compareTwoFiles(patternPath + "ft14test.txt", outPath + "ft14test.txt");
 
   }
 

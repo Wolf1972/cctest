@@ -17,6 +17,10 @@ public class FDocument {
   String referenceMT103;
   String referenceFT14;
   String referenceSBP;
+  String authorUIS;
+
+  String accountDb; // Entry accounts
+  String accountCr;
 
   boolean isUrgent;
 
