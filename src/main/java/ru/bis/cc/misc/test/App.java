@@ -65,15 +65,15 @@ public class App {
       CommandLine command = parser.parse(options, args);
 
       if (command.hasOption('a')) cmdAction = command.getOptionValue('a');
-      if (command.hasOption('i')) inPath = command.getOptionValue('i');
-      if (command.hasOption('o')) outPath = command.getOptionValue('o');
-      if (command.hasOption('p')) patternPath = command.getOptionValue('p');
-      if (command.hasOption('x')) xsdPath = command.getOptionValue('x');
+      if (command.hasOption('i')) { inPath = command.getOptionValue('i'); if (!inPath.endsWith("\\")) inPath += "\\"; }
+      if (command.hasOption('o')) { outPath = command.getOptionValue('o'); if (!outPath.endsWith("\\")) outPath += "\\"; }
+      if (command.hasOption('p')) { patternPath = command.getOptionValue('p'); if (!patternPath.endsWith("\\")) patternPath += "\\"; }
+      if (command.hasOption('x')) { xsdPath = command.getOptionValue('x'); if (!xsdPath.endsWith("\\")) xsdPath += "\\"; }
       if (command.hasOption('t')) cmdOutputType = command.getOptionValue('t');
       if (command.hasOption('d')) cmdDate = command.getOptionValue('d');
       if (command.hasOption('c')) cmdCodePage = command.getOptionValue('c');
-      if (command.hasOption('s')) staticPath = command.getOptionValue('s');
-      if (command.hasOption('b')) banksPath = command.getOptionValue('b');
+      if (command.hasOption('s')) { staticPath = command.getOptionValue('s'); if (!staticPath.endsWith("\\")) staticPath += "\\"; }
+      if (command.hasOption('b')) { banksPath = command.getOptionValue('b'); if (!banksPath.endsWith("\\")) banksPath += "\\"; }
       cmdReverse = command.hasOption('r');
 
     }
@@ -165,10 +165,10 @@ public class App {
                   procOut.createAll(outPath, sampleDocs); // Create target documents
                   if (procOut.getClass() == UFEBSProcessor.class) {
                     if (cmdReverse) { // Create reverse documents if UFEBS and -r option
-                      reverseDocs = sampleDocs.createReverse();
-                      procOut.createAll(outPath, reverseDocs);
                       UFEBSProcessor procUFEBS = (UFEBSProcessor) procOut; // Downcast with no doubts
                       if (cmdCodePage != null) procUFEBS.setCodePage(cmdCodePage);
+                      reverseDocs = sampleDocs.createReverse();
+                      procUFEBS.createAll(outPath, reverseDocs);
                       procUFEBS.createConfirmations(outPath, sampleDocs);
                       procUFEBS.createStatement(outPath, sampleDocs, reverseDocs);
                     }

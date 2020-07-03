@@ -50,7 +50,8 @@ class UFEBSProcessor extends XMLProcessor {
       logger.trace("0803: UFEBS file read: " + fileName);
 
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      Document document = documentBuilder.parse(fileName);
+      String fileURI = "file:///" + fileName; // File name with cyrillic symbols doesn't work without it
+      Document document = documentBuilder.parse(fileURI);
 
       // Try to obtain root element
       Node root = document.getDocumentElement();

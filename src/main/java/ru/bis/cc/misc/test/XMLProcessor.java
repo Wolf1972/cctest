@@ -146,7 +146,8 @@ class XMLProcessor extends AProcessor {
     try {
 
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      Document document = documentBuilder.parse(fileName);
+      String fileURI = "file:///" + fileName; // File name with cyrillic symbols doesn't work without it
+      Document document = documentBuilder.parse(fileURI);
       Node root = document.getDocumentElement(); // Try to obtain root element
       String rootNodeName = Helper.getSimpleNodeName(root);
       String xsdFile;
@@ -167,7 +168,7 @@ class XMLProcessor extends AProcessor {
       SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
       Schema schema = factory.newSchema(new StreamSource(xsdFile));
       Validator validator = schema.newValidator();
-      validator.validate(new StreamSource(fileName));
+      validator.validate(new StreamSource(fileURI));
       logger.trace("0905: XSD check completed for file " + fileName);
       return true;
     }

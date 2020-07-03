@@ -250,13 +250,13 @@ class UFEBSParser extends XMLParser {
       str.append(" EDAuthor=\""); str.append(Constants.ourBankUIS); str.append("\"");
       str.append(" EDReceiver=\""); str.append(Constants.otherBankUIS); str.append("\"");
       str.append(" BICCorr=\""); str.append(doc.payeeBankBIC); str.append("\"");
-      str.append(" DC=\"2\"");
+      str.append(" DC=\"1\"");
     }
     else {
       str.append(" EDAuthor=\""); str.append(Constants.otherBankUIS); str.append("\"");
       str.append(" EDReceiver=\""); str.append(Constants.ourBankUIS); str.append("\"");
       str.append(" BICCorr=\""); str.append(doc.payerBankBIC); str.append("\"");
-      str.append(" DC=\"1\"");
+      str.append(" DC=\"2\"");
     }
     str.append(" Acc=\""); str.append(Constants.ourBankAccPass); str.append("\"");
     str.append(" Sum=\""); str.append(doc.amount.toString()); str.append("\"");
