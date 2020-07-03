@@ -325,12 +325,4 @@ class UFEBSParser extends XMLParser {
     return str.toString();
   }
 
-  /** Function fills banks info from ED807
-   *
-   * @param node - ED807 root node
-   */
-  void from807(Node node) {
-
-  }
-
 }
