@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ED206 EDNo="200000000" EDDate="2020-05-14" EDAuthor="4525101000" EDReceiver="4525225000" BICCorr="045655001" DC="2" Acc="30101810100000000101" Sum="2645209" TransDate="2020-05-14" TransTime="10:00:01" xmlns="urn:cbr-ru:ed:v2.0" ><AccDoc AccDocNo="143" AccDocDate="2020-05-14" /><EDRefID EDNo="600000000" EDDate="2020-05-14" EDAuthor="4525101000" /></ED206>
+<ED206 EDNo="200000000" EDDate="2020-05-14" EDAuthor="4525101000" EDReceiver="4525225000" BICCorr="045655001" DC="1" Acc="30101810100000000101" Sum="2645209" TransDate="2020-05-14" TransTime="10:00:01" xmlns="urn:cbr-ru:ed:v2.0" ><AccDoc AccDocNo="143" AccDocDate="2020-05-14" /><EDRefID EDNo="600000000" EDDate="2020-05-14" EDAuthor="4525101000" /></ED206>

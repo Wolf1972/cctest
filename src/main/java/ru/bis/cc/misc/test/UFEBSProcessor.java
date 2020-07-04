@@ -50,7 +50,8 @@ class UFEBSProcessor extends XMLProcessor {
       logger.trace("0803: UFEBS file read: " + fileName);
 
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      String fileURI = "file:///" + fileName; // File name with cyrillic symbols doesn't work without it
+      String fileURI = fileName;
+      if (!fileName.startsWith(".")) fileURI = "file:///" + fileName; // File name with cyrillic symbols doesn't or absolute path (?) work without it
       Document document = documentBuilder.parse(fileURI);
 
       // Try to obtain root element
@@ -78,10 +79,6 @@ class UFEBSProcessor extends XMLProcessor {
       else if (rootNodeName.matches("ED10[134]")) { // For single EPD
         FDocument doc = parser.fromXML(root);
         docs.add(doc);
-        return true;
-      }
-      else if (rootNodeName.equals("ED807")) { // For bank directory ED807
-        parser.from807(root);
         return true;
       }
       else {

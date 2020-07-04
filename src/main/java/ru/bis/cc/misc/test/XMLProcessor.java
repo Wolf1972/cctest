@@ -146,7 +146,8 @@ class XMLProcessor extends AProcessor {
     try {
 
       DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-      String fileURI = "file:///" + fileName; // File name with cyrillic symbols doesn't work without it
+      String fileURI = fileName;
+      if (!fileName.startsWith(".")) fileURI = "file:///" + fileName; // File name with cyrillic symbols doesn't or absolute path (?) work without it
       Document document = documentBuilder.parse(fileURI);
       Node root = document.getDocumentElement(); // Try to obtain root element
       String rootNodeName = Helper.getSimpleNodeName(root);
