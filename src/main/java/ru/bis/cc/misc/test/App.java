@@ -4,6 +4,8 @@ import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -44,6 +46,7 @@ public class App {
     options.addOption("d", "date", true, "Change date in transformed documents [YYYY-MM-DD] (for \"transform\" action only).");
     options.addOption("c", "codepage", true, "Code page for output XML files [\"windows-1251\" or \"utf-8\"] (for \"transform\" action only).");
     options.addOption("r", "reverse", false, "Output incoming (reverse) documents, confirmations and statement from payment system (with -t UFEBS option only).");
+    options.addOption("y", "cyrillic", true, "Parameters code page: cp866, cp1251 (need to convert its into UTF8)");
     options.addOption("s", "static", true, "Load static data (clients, accounts) from specified directory.");
     options.addOption("b", "banks", true, "Load static data (banks) from ED807 in specified directory.");
 
@@ -55,10 +58,11 @@ public class App {
     String patternPath = null;
     String xsdPath = null;
     String cmdDate = null;
-    String cmdCodePage = null;
+    String codePageXML = null;
     String staticPath = null;
     String banksPath = null;
     boolean cmdReverse; // Prepare incoming documents, confirmations, statement by outgoing documents
+    String codePageParams = null; // Parameters code page: cp866, cp1251
 
     CommandLineParser parser = new DefaultParser();
     try {
@@ -71,17 +75,34 @@ public class App {
       if (command.hasOption('x')) { xsdPath = command.getOptionValue('x'); if (!xsdPath.endsWith("\\")) xsdPath += "\\"; }
       if (command.hasOption('t')) cmdOutputType = command.getOptionValue('t');
       if (command.hasOption('d')) cmdDate = command.getOptionValue('d');
-      if (command.hasOption('c')) cmdCodePage = command.getOptionValue('c');
+      if (command.hasOption('c')) codePageXML = command.getOptionValue('c');
+      if (command.hasOption('c')) codePageParams = command.getOptionValue('y');
       if (command.hasOption('s')) { staticPath = command.getOptionValue('s'); if (!staticPath.endsWith("\\")) staticPath += "\\"; }
       if (command.hasOption('b')) { banksPath = command.getOptionValue('b'); if (!banksPath.endsWith("\\")) banksPath += "\\"; }
       cmdReverse = command.hasOption('r');
-
     }
     catch (ParseException e) {
       System.out.println("Command line parse exception.");
       HelpFormatter help = new HelpFormatter();
       help.printHelp(App.class.getSimpleName(), options);
       return;
+    }
+
+    // TODO: it doesn't work properly
+    try {
+      if (codePageParams != null) {
+        System.out.println(inPath);
+        if (inPath != null) inPath = new String(inPath.getBytes(codePageParams), StandardCharsets.UTF_8);
+        System.out.println(inPath);
+        if (outPath != null) outPath = new String(outPath.getBytes(codePageParams), StandardCharsets.UTF_8);
+        if (patternPath != null) patternPath = new String(patternPath.getBytes(codePageParams), StandardCharsets.UTF_8);
+        if (xsdPath != null) xsdPath = new String(xsdPath.getBytes(codePageParams), StandardCharsets.UTF_8);
+        if (staticPath != null) staticPath = new String(staticPath.getBytes(codePageParams), StandardCharsets.UTF_8);
+        if (banksPath != null) banksPath = new String(banksPath.getBytes(codePageParams), StandardCharsets.UTF_8);
+      }
+    }
+    catch (UnsupportedEncodingException e) {
+      System.out.println("Can't convert paths from CP1251 into UTF-8");
     }
 
     // Looking for log4j
@@ -166,7 +187,7 @@ public class App {
                   if (procOut.getClass() == UFEBSProcessor.class) {
                     if (cmdReverse) { // Create reverse documents if UFEBS and -r option
                       UFEBSProcessor procUFEBS = (UFEBSProcessor) procOut; // Downcast with no doubts
-                      if (cmdCodePage != null) procUFEBS.setCodePage(cmdCodePage);
+                      if (codePageXML != null) procUFEBS.setCodePage(codePageXML);
                       reverseDocs = sampleDocs.createReverse();
                       procUFEBS.createAll(outPath, reverseDocs);
                       procUFEBS.createConfirmations(outPath, sampleDocs);
