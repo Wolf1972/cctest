@@ -3,6 +3,7 @@ package ru.bis.cc.misc.test;
 import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -43,7 +44,8 @@ class MT103Processor extends SWIFTProcessor {
     logger.trace("0405: MT103 file read: " + fileName);
 
     try {
-      BufferedReader reader = new BufferedReader(new FileReader(fileName));
+      //BufferedReader reader = new BufferedReader(new FileReader(fileName));
+      BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), Charset.forName("UTF-8")));
       String line;
       StringBuilder oneMT103 = new StringBuilder();
       while ((line = reader.readLine()) != null) {
@@ -89,7 +91,7 @@ class MT103Processor extends SWIFTProcessor {
 
     try {
       OutputStream os = new FileOutputStream(outFile);
-      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, Charset.forName("UTF-8")));
       if (fDocs.docs.size() > 0) {
         for (Map.Entry<Long, FDocument> item : fDocs.docs.entrySet()) {
           FDocument value = item.getValue();

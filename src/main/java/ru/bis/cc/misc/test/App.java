@@ -16,11 +16,9 @@ import java.nio.file.Paths;
 
 public class App {
 
-  // TODO: corr. account, BIC and other business constants move into separated class
   // TODO: MT940 import and compare
   // TODO: MT940 export
   // TODO: process split operations in FT14 import
-  // TODO: import static information - clients, accounts
   // TODO: FT14 import
 
   private static FDocumentArray sampleDocs = new FDocumentArray(); // Checked documents array
@@ -89,6 +87,14 @@ public class App {
     }
 
     // TODO: it doesn't work properly
+    /*
+    System.out.println("==============");
+    System.out.println(inPath);
+    byte[] arr = inPath.getBytes();
+    for (int i = 0; i < arr.length; i++) System.out.print(String.format("%h",arr[i]) + " ");
+    System.out.println();
+    System.out.println("==============");
+    */
     try {
       if (codePageParams != null) {
         System.out.println(inPath);
