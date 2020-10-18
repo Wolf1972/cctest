@@ -84,7 +84,7 @@ class FDocumentArray {
     int count = 0;
     for (Map.Entry<Long, FDocument> item : docs.entrySet()) {
       FDocument doc = item.getValue();
-      if (!doc.payeeBankBIC.equals(Constants.ourBankBIC)) { // Outgoing document
+      if (doc.payeeBankBIC != null && !doc.payeeBankBIC.equals(Constants.ourBankBIC)) { // Outgoing document
         FDocument rev = doc.reverse();
         revs.add(rev);
         count ++;

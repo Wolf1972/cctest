@@ -19,7 +19,6 @@ public class App {
   // TODO: MT940 import and compare
   // TODO: MT940 export
   // TODO: process split operations in FT14 import
-  // TODO: FT14 import
 
   private static FDocumentArray sampleDocs = new FDocumentArray(); // Checked documents array
   private static FDocumentArray patternDocs = new FDocumentArray(); // Pattern documents array (for compare)

@@ -241,7 +241,7 @@ class UFEBSParser extends XMLParser {
   String toConfirmation(FDocument doc) {
 
     StringBuilder str = new StringBuilder();
-    boolean isReverse = !doc.payerBankBIC.equals(Constants.ourBankBIC);
+    boolean isReverse = doc.payerBankBIC != null && !doc.payerBankBIC.equals(Constants.ourBankBIC);
 
     str.append("<ED206");
     str.append(" EDNo=\""); str.append(doc.generateEDNo(doc.edNo, "2")); str.append("\"");
@@ -292,7 +292,7 @@ class UFEBSParser extends XMLParser {
    */
   String toStatement(FDocument doc) {
     StringBuilder str = new StringBuilder();
-    boolean isReverse = !doc.payerBankBIC.equals(Constants.ourBankBIC);
+    boolean isReverse = doc.payerBankBIC != null && !doc.payerBankBIC.equals(Constants.ourBankBIC);
 
     str.append("<TransInfo");
     str.append(" AccDocNo=\""); str.append(doc.docNum); str.append("\"");

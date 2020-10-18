@@ -108,6 +108,10 @@ class SWIFTParser extends Parser {
     tag = getTag(message, "20");
     if (tag.size() > 0) {
       doc.docNum = tag.get(0);
+      if (doc.docNum.length() > 6) { // Take 6 last symbols only
+        doc.docNum = doc.docNum.substring(doc.docNum.length() - 6);
+      }
+      doc.docNum = doc.docNum.replaceAll("[^0-9]", "0"); // Kill all non-digit symbols
     }
   }
 
@@ -119,6 +123,7 @@ class SWIFTParser extends Parser {
   void read32(String[] message, FDocument doc) {
     ArrayList<String> tag;
     tag = getTag(message, "32A");
+    if (tag.size() == 0) tag = getTag(message, "32B"); // MT103: Use 32B if 32A missing
     if (tag.size() > 0) {
       String line = tag.get(0);
       doc.docDate = Helper.getXMLDate(line.substring(0, 6));
@@ -244,42 +249,54 @@ class SWIFTParser extends Parser {
 
       String line = tag.get(0);
       int startNameString = 0;
-      if (line.startsWith("/")) { // Has account number?
+
+      if (line.startsWith("/")) { // Begins with bank account number?
         accountNo = line.substring(1);
         startNameString = 1;
+        for (int i = startNameString; i < tag.size(); i++) {
+          rawBankName.append(tag.get(i));
+        }
+        // Try to extract BIC from bank name
+        int bicPos = -1;
+        int bicEnd = -1;
+        try { // Search for INN in any place of client name with regex
+          Matcher matcher = patternBIC.matcher(rawBankName);
+          if (matcher.find()) {
+            bicPos = matcher.start();
+            if (bicPos >= 0) bicEnd = matcher.end();
+            if (bicEnd < rawBankName.length()) bicEnd--; // When BIK in the middle of string - it matches with yet another symbol after, need to account it
+            bic = rawBankName.substring(bicPos + bicKeyWord.length(), bicEnd); // Extracts BIC
+          }
+        }
+        catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
+          // Just do not parse INN from string, nothing else matters
+        }
+        if (bicPos >= 0 && bicEnd >= 0) {
+          if (bicPos > 0) bankName.append(rawBankName, 0, bicPos);
+          bankName.append(rawBankName.substring(bicEnd).trim());
+        }
+        else
+          bankName.append(rawBankName.toString().trim());
       }
-      for (int i = startNameString; i < tag.size(); i++) {
-        rawBankName.append(tag.get(i));
-      }
-
-      // Try to extract BIC from bank name
-      int bicPos = -1;
-      int bicEnd = -1;
-      try { // Search for INN in any place of client name with regex
-        Matcher matcher = patternBIC.matcher(rawBankName);
-        if (matcher.find()) {
-          bicPos = matcher.start();
-          if (bicPos >= 0) bicEnd = matcher.end();
-          if (bicEnd < rawBankName.length()) bicEnd--; // When BIK in the middle of string - it matches with yet another symbol after, need to account it
-          bic = rawBankName.substring(bicPos + bicKeyWord.length(), bicEnd); // Extracts BIC
+      else if (line.startsWith("BIK") || line.startsWith("BIC")) { // Begins with BIC?
+        bic = line.substring(3, Math.min(line.length(), 3 + 9));
+        if (tag.size() > 1) {
+          line = tag.get(1);
+          if (line.startsWith("/")) accountNo = line.substring(1);
+          startNameString = 2;
+          for (int i = startNameString; i < tag.size(); i++) {
+            rawBankName.append(tag.get(i));
+          }
+          bankName.append(rawBankName);
         }
       }
-      catch (IllegalStateException | IllegalArgumentException | IndexOutOfBoundsException e) {
-        // Just do not parse INN from string, nothing else matters
-      }
-      if (bicPos >= 0 && bicEnd >= 0) {
-        if (bicPos > 0) bankName.append(rawBankName, 0, bicPos);
-        bankName.append(rawBankName.substring(bicEnd).trim());
-      }
-      else
-        bankName.append(rawBankName.toString().trim());
 
       if (tagName.startsWith("52")) {
         doc.payerBankAccount = accountNo;
         doc.payerBankBIC = bic;
         if (bankName.length() > 0) doc.payerBankName = bankName.toString();
       }
-      else {
+      else { // 57
         doc.payeeBankAccount = accountNo;
         doc.payeeBankBIC = bic;
         if (bankName.length() > 0) doc.payeeBankName = bankName.toString();

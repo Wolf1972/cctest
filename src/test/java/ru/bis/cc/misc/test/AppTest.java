@@ -365,6 +365,27 @@ public class AppTest
     assertEquals("50/11","123456789", doc.payerCPP);
   }
 
+  /** Test for counterparty parsing win INN/KPP
+   *
+   */
+  @Test
+  public void testReadBank() {
+    FDocument doc = new FDocument();
+    MT103Parser parser = new MT103Parser();
+
+    String[] aTag0 = new String[]{":57D:/30101810200000000700","BIK044525700", "Bank_name", "+Bank_city"};
+    parser.readBank(aTag0, doc, "57D");
+    assertEquals("57/0", "044525700", doc.payeeBankBIC);
+    assertEquals("57/0", "30101810200000000700", doc.payeeBankAccount);
+    assertEquals("57/0", "Bank_name+Bank_city", doc.payeeBankName);
+
+    String[] aTag1 = new String[]{":57D:BIK044525700", "/30101810200000000700", "Bank_name", "+Bank_city"};
+    parser.readBank(aTag1, doc, "57D");
+    assertEquals("57/1", "044525700", doc.payeeBankBIC);
+    assertEquals("57/1", "30101810200000000700", doc.payeeBankAccount);
+    assertEquals("57/0", "Bank_name+Bank_city", doc.payeeBankName);
+  }
+
   /** Test one XML node parsing with ED1xx
    *
    */
